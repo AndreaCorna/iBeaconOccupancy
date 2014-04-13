@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="1" android:versionName="1.0" package="it.polimi.it.ibeaconoccupancy">
 
-     <uses-sdk android:minSdkVersion="18" android:targetSdkVersion="19"/>
+    <uses-sdk android:minSdkVersion="18" android:targetSdkVersion="19"/>
 
     <uses-permission android:name="android.permission.BLUETOOTH"/>
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
@@ -8,7 +8,16 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
     <application android:allowBackup="true" android:debuggable="true" android:icon="@drawable/ic_launcher" android:label="@string/app_name" android:theme="@style/AppTheme">
-        <service android:name="it.polimi.it.ibeaconoccupancy.RangingService"/>
+        <service android:name="it.polimi.it.ibeaconoccupancy.RangingService">
+        </service>
+
+        <activity android:label="@string/title_activity_main" android:name="it.polimi.it.ibeaconoccupancy.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
     <service android:enabled="true" android:exported="true" android:isolatedProcess="false" android:label="iBeacon" android:name="com.radiusnetworks.ibeacon.service.IBeaconService">
     </service>
 
