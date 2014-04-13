@@ -19,15 +19,13 @@ import com.radiusnetworks.ibeacon.IBeacon;
 
 public class HttpHandler {
 	
-	private static HttpHandler instance;
-	private static final String url = "http://ibeacon.no-ip.org/ibeacon";
-	private HttpHandler(){};
 	
-	public static HttpHandler getInstanceHttpHandler(){
-		if(instance == null)
-			instance = new HttpHandler();
-		return instance;
+	private String url;
+	
+	public HttpHandler(String url){
+		this.url = url;
 	}
+	
 	
 	public void postOnRanging(String TAG,IBeacon beacon, String idBluetooth, int status){
     	InputStream inputStream = null;
