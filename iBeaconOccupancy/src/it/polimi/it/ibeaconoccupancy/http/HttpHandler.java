@@ -63,7 +63,7 @@ public class HttpHandler {
     
     }
 	
-	public void postOnMonitorinOut(String TAG, String idBluetooth){
+	public void postOnMonitoringOut(String TAG, String idBluetooth){
     	InputStream inputStream = null;
         String result = "";
         try {

@@ -1,5 +1,7 @@
 package it.polimi.it.ibeaconoccupancy.services;
 
+import it.polimi.it.ibeaconoccupancy.http.HttpHandler;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,6 +34,7 @@ public class RangingService extends Service implements IBeaconConsumer{
 	private final IBeaconManager iBeaconManager = IBeaconManager.getInstanceForApplication(this);
     private Collection<IBeacon> oldInformation = null;
     private final BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+    private final HttpHandler httpHand = new HttpHandler("http://ibeacon.no-ip.org/ibeacon");
 	
     @Override
     public void onStart(Intent intent, int startId) {
@@ -69,53 +72,18 @@ public class RangingService extends Service implements IBeaconConsumer{
             iBeaconManager.startRangingBeaconsInRegion(new Region("myRangingUniqueId", null, null, null));
         } catch (RemoteException e) {   }
     }
-    
-    private void post(String url, IBeacon beacon, String idBluetooth, int status){
-    	InputStream inputStream = null;
-        String result = "";
-        try {
-            HttpClient httpclient = new DefaultHttpClient();
-            HttpPost httpPost = new HttpPost(url);
-            String json = "";
-            JSONObject jsonObject = new JSONObject();
-            String id_beacon = beacon.getProximityUuid()+beacon.getMajor()+beacon.getMinor();
-            jsonObject.accumulate("id_beacon", id_beacon);
-            jsonObject.accumulate("id_device", idBluetooth);
-            jsonObject.accumulate("status", status);
- 
-            json = jsonObject.toString();
-            StringEntity se = new StringEntity(json);
- 
-            httpPost.setEntity(se);
 
-            httpPost.setHeader("Accept", "application/json");
-            httpPost.setHeader("Content-type", "application/json");
-            //logToDisplay(json);
-            HttpResponse httpResponse = httpclient.execute(httpPost);
-
-            inputStream = httpResponse.getEntity().getContent();
- 
-            if(inputStream != null)
-                result = convertInputStreamToString(inputStream);
-            else
-                result = "Did not work!";
- 
-        } catch (Exception e) {
-            Log.d("InputStream", e.getLocalizedMessage());
-        }
-        	Log.d(TAG,result);
-    
-    }
     
     private void compareInformation(Collection<IBeacon> newInformation){
     	for (IBeacon iBeacon : newInformation) {
-    		post("http://ibeacon.no-ip.org/ibeacon",iBeacon,mBluetoothAdapter.getAddress(),1);
+    		httpHand.postOnRanging(TAG, iBeacon, mBluetoothAdapter.getAddress(), 1);
+    
 		}
     	if(oldInformation != null){
 	    	oldInformation.removeAll(newInformation);
 	    	if(oldInformation.size()>0){
 		    	for (IBeacon iBeacon : oldInformation) {
-		    		post("http://ibeacon.no-ip.org/ibeacon",iBeacon,mBluetoothAdapter.getAddress(),0);
+		    		httpHand.postOnRanging(TAG, iBeacon, mBluetoothAdapter.getAddress(), 0);
 				}
 		    }
     	}
@@ -123,17 +91,5 @@ public class RangingService extends Service implements IBeaconConsumer{
     	
     }
 
-    
-    protected static String convertInputStreamToString(InputStream inputStream) throws IOException{
-        BufferedReader bufferedReader = new BufferedReader( new InputStreamReader(inputStream));
-        String line = "";
-        String result = "";
-        while((line = bufferedReader.readLine()) != null)
-            result += line;
- 
-        inputStream.close();
-        return result;
- 
-    }
-
+   
 }
