@@ -54,3 +54,4 @@ Thumbs.db
 #Android File#
 #####################
 *.apk
+jarlist.cache

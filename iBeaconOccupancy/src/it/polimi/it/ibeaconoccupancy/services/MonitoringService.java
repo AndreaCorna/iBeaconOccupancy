@@ -5,6 +5,7 @@ import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.os.IBinder;
+import android.os.RemoteException;
 import android.util.Log;
 
 import com.radiusnetworks.ibeacon.IBeaconConsumer;
@@ -18,13 +19,15 @@ public class MonitoringService extends Service implements IBeaconConsumer {
 	private final IBeaconManager iBeaconManager = IBeaconManager.getInstanceForApplication(this);
     private final BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 	private  HttpHandler httpHand;
+	private Intent ranging;
 	
 	@Override
 	public void onCreate() {
+        super.onCreate();
 		iBeaconManager.bind(this);
 		Log.d(TAG, "Starting monitoring");
 		httpHand = new HttpHandler("http://ibeacon.no-ip.org/ibeacon");
-		super.onCreate();
+		ranging= new Intent(this,it.polimi.it.ibeaconoccupancy.services.RangingService.class);
 	}
 	
 	@Override
@@ -33,11 +36,7 @@ public class MonitoringService extends Service implements IBeaconConsumer {
 		super.onDestroy();
 	}
 	
-	@Override
-	public int onStartCommand(Intent intent, int flags, int startId) {
-		// TODO Auto-generated method stub
-		return super.onStartCommand(intent, flags, startId);
-	}
+
 	
 	@Override
 	public void onIBeaconServiceConnect() {
@@ -65,7 +64,12 @@ public class MonitoringService extends Service implements IBeaconConsumer {
 				
 			}
 		});
-
+		try {
+			iBeaconManager.startMonitoringBeaconsInRegion(new Region("myMonitoringUniqueId",null, null, null));
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -75,13 +79,13 @@ public class MonitoringService extends Service implements IBeaconConsumer {
 	}
 	
 	private void startRanging(){
-		Intent intent = new Intent(this, RangingService.class);
-		startService(intent);
+		
+		startService(ranging);
 	}
 	
 	private void stopRanging() {
-		Intent intent = new Intent(this, RangingService.class);
-		stopService(intent);
+		
+		stopService(ranging);
 
 	}
 	 
