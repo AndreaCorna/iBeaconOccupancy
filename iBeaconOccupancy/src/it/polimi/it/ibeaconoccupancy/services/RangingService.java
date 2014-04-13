@@ -45,6 +45,7 @@ public class RangingService extends Service implements IBeaconConsumer{
     }
     @Override
     public void onDestroy() {
+    	iBeaconManager.unBind(this);
         super.onDestroy();
         Log.d(TAG, "Ranging finished");
     }
@@ -76,14 +77,14 @@ public class RangingService extends Service implements IBeaconConsumer{
     
     private void compareInformation(Collection<IBeacon> newInformation){
     	for (IBeacon iBeacon : newInformation) {
-    		httpHand.postOnRanging(TAG, iBeacon, mBluetoothAdapter.getAddress(), 1);
+    		httpHand.postOnRanging(iBeacon, mBluetoothAdapter.getAddress(), 1);
     
 		}
     	if(oldInformation != null){
 	    	oldInformation.removeAll(newInformation);
 	    	if(oldInformation.size()>0){
 		    	for (IBeacon iBeacon : oldInformation) {
-		    		httpHand.postOnRanging(TAG, iBeacon, mBluetoothAdapter.getAddress(), 0);
+		    		httpHand.postOnRanging(iBeacon, mBluetoothAdapter.getAddress(), 0);
 				}
 		    }
     	}

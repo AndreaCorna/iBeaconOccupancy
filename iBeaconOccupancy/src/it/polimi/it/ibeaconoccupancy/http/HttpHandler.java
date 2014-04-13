@@ -19,7 +19,7 @@ import com.radiusnetworks.ibeacon.IBeacon;
 
 public class HttpHandler {
 	
-	
+	protected static final String TAG = "HTTP";
 	private String url;
 	
 	public HttpHandler(String url){
@@ -27,7 +27,7 @@ public class HttpHandler {
 	}
 	
 	
-	public void postOnRanging(String TAG,IBeacon beacon, String idBluetooth, int status){
+	public void postOnRanging(IBeacon beacon, String idBluetooth, int status){
     	InputStream inputStream = null;
         String result = "";
         try {
@@ -68,7 +68,7 @@ public class HttpHandler {
         String result = "";
         try {
             HttpClient httpclient = new DefaultHttpClient();
-            HttpPost httpPost = new HttpPost(url);
+            HttpPost httpPost = new HttpPost(url+"/exitregion");
             String json = "";
             JSONObject jsonObject = new JSONObject();
             jsonObject.accumulate("id_device", idBluetooth);
@@ -93,7 +93,7 @@ public class HttpHandler {
         } catch (Exception e) {
             Log.d("InputStream", e.getLocalizedMessage());
         }
-        	//Log.d(TAG,result);
+        	Log.d(TAG,result);
     
     }
 	
