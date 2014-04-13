@@ -54,3 +54,8 @@ Thumbs.db
 #Android File#
 #####################
 *.apk
+AndroidProximityLibrary/bin/*
+iBeaconOccupancy/bin/R.txt
+iBeaconOccupancy/bin/jarlist.cache
+iBeaconOccupancy/bin/classes.dex
+iBeaconOccupancy/bin/resources.ap_
