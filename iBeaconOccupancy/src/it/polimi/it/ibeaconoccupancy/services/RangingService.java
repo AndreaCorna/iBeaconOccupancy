@@ -37,9 +37,9 @@ public class RangingService extends Service implements IBeaconConsumer{
     private final HttpHandler httpHand = new HttpHandler("http://ibeacon.no-ip.org/ibeacon");
 	
     @Override
-    public void onStart(Intent intent, int startId) {
+    public void onCreate() {
         
-        super.onStart(intent, startId);
+        super.onCreate();
         iBeaconManager.bind(this);
         Log.d(TAG, "Ranging started");
     }
@@ -81,7 +81,7 @@ public class RangingService extends Service implements IBeaconConsumer{
     
 		}
     	if(oldInformation != null){
-	    	oldInformation.removeAll(newInformation);
+    		deleteFromOld(oldInformation,newInformation);
 	    	if(oldInformation.size()>0){
 		    	for (IBeacon iBeacon : oldInformation) {
 		    		httpHand.postOnRanging(iBeacon, mBluetoothAdapter.getAddress(), 0);
@@ -90,6 +90,25 @@ public class RangingService extends Service implements IBeaconConsumer{
     	}
 	    oldInformation = newInformation;
     	
+    }
+    
+    private void deleteFromOld(Collection<IBeacon> oldBeacons, Collection<IBeacon> newBeacons){
+    	Collection<IBeacon> toDelete = null;
+    	boolean found = false;
+    	for (IBeacon old : oldBeacons) {
+    		found = false;
+    		for (IBeacon iBeacon : newBeacons) {
+    			if(old.equals(iBeacon)){
+    				found = true;
+    				break;
+    			}
+			}
+    		if(!found){
+    			toDelete.add(old);
+    		}
+		}
+    	
+    	oldBeacons = toDelete;
     }
 
    
