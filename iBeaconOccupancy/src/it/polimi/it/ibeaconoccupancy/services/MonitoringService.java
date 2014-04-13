@@ -1,6 +1,8 @@
 package it.polimi.it.ibeaconoccupancy.services;
 
+import it.polimi.it.ibeaconoccupancy.http.HttpHandler;
 import android.app.Service;
+import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
@@ -12,13 +14,15 @@ import com.radiusnetworks.ibeacon.Region;
 
 public class MonitoringService extends Service implements IBeaconConsumer {
 
+	protected static final String TAG = "MonitoringService";
 	private final IBeaconManager iBeaconManager = IBeaconManager.getInstanceForApplication(this);
+    private final BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 	private  HttpHandler httpHand;
 	
 	@Override
 	public void onCreate() {
 		iBeaconManager.bind(this);
-		Log.e("Status", "Starting monitoring");
+		Log.d(TAG, "Starting monitoring");
 		httpHand = new HttpHandler("http://ibeacon.no-ip.org/ibeacon");
 		super.onCreate();
 	}
@@ -41,16 +45,16 @@ public class MonitoringService extends Service implements IBeaconConsumer {
 			
 			@Override
 			public void didExitRegion(Region arg0) {
-				Log.e("Status", "Exit a region");
-				httpHand.postOnMonitoringOut();
-				
+				Log.d(TAG, "Exit a region");
+				httpHand.postOnMonitoringOut(mBluetoothAdapter.getAddress());
+				stopRanging();
 				
 				
 			}
 			
 			@Override
 			public void didEnterRegion(Region arg0) {
-				Log.e("Status", "Enter a region");
+				Log.d(TAG, "Enter a region");
 				startRanging();
 				
 			}

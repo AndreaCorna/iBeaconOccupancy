@@ -63,7 +63,7 @@ public class HttpHandler {
     
     }
 	
-	public void postOnMonitoringOut(String TAG, String idBluetooth){
+	public void postOnMonitoringOut( String idBluetooth){
     	InputStream inputStream = null;
         String result = "";
         try {
@@ -93,7 +93,7 @@ public class HttpHandler {
         } catch (Exception e) {
             Log.d("InputStream", e.getLocalizedMessage());
         }
-        	Log.d(TAG,result);
+        	//Log.d(TAG,result);
     
     }
 	
