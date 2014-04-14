@@ -1,5 +1,7 @@
 package it.polimi.it.ibeaconoccupancy.services;
 
+import it.polimi.it.ibeaconoccupancy.compare.ServerBeaconManager;
+import it.polimi.it.ibeaconoccupancy.compare.ServerBeaconManagerImpl;
 import it.polimi.it.ibeaconoccupancy.http.HttpHandler;
 
 import java.io.BufferedReader;
@@ -34,7 +36,8 @@ public class RangingService extends Service implements IBeaconConsumer{
 	private final IBeaconManager iBeaconManager = IBeaconManager.getInstanceForApplication(this);
     private Collection<IBeacon> oldInformation = null;
     private final BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-    private final HttpHandler httpHand = new HttpHandler("http://ibeacon.no-ip.org/ibeacon");
+    
+    private final ServerBeaconManager sendManager = new ServerBeaconManagerImpl();
 	
     @Override
     public void onCreate() {
@@ -63,7 +66,7 @@ public class RangingService extends Service implements IBeaconConsumer{
         @Override 
         public void didRangeBeaconsInRegion(Collection<IBeacon> iBeacons, Region region) {
             if (iBeacons.size() > 0) {
-            		compareInformation(iBeacons);
+            		sendManager.beaconToSend(oldInformation, iBeacons,mBluetoothAdapter.getAddress());
             		Log.d(TAG,"Ranging");
             }
         }
@@ -75,44 +78,6 @@ public class RangingService extends Service implements IBeaconConsumer{
     }
 
     
-    private void compareInformation(Collection<IBeacon> newInformation){
-    	for (IBeacon iBeacon : newInformation) {
-    		httpHand.postOnRanging(iBeacon, mBluetoothAdapter.getAddress(), 1);
     
-		}
-    	if(oldInformation != null){
-    		deleteFromOld(oldInformation,newInformation);
-	    	if(oldInformation.size()>0){
-	    		
-		    	for (IBeacon iBeacon : oldInformation) {
-		    		httpHand.postOnRanging(iBeacon, mBluetoothAdapter.getAddress(), 0);
-				}
-		    }
-    	}
-	    oldInformation = newInformation;
-    	
-    }
-    
-    private void deleteFromOld(Collection<IBeacon> oldBeacons, Collection<IBeacon> newBeacons){
-    	Collection<IBeacon> toDelete = null;
-    	boolean found = false;
-    	for (IBeacon old : oldBeacons) {
-    		found = false;
-    		for (IBeacon iBeacon : newBeacons) {
-    			if(old.getProximityUuid().equals(iBeacon.getProximityUuid()) &&
-						old.getMajor() == iBeacon.getMajor() && old.getMinor() == iBeacon.getMinor()){
-    				found = true;
-    				break;
-    			}
-			}
-    		Log.d(TAG,""+found);
-    		if(!found){
-    			toDelete.add(old);
-    		}
-		}
-    	oldBeacons.clear();
-    	oldBeacons = toDelete;
-    }
-
    
 }
