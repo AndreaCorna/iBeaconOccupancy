@@ -64,7 +64,7 @@ public class RangingService extends Service implements IBeaconConsumer{
         public void didRangeBeaconsInRegion(Collection<IBeacon> iBeacons, Region region) {
             if (iBeacons.size() > 0) {
             		compareInformation(iBeacons);
-            		Log.d(TAG,"WE LOVE SANTA CLAUS");
+            		Log.d(TAG,"Ranging");
             }
         }
 
