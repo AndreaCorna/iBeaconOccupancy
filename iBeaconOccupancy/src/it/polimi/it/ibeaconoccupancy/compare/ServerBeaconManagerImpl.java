@@ -18,15 +18,14 @@ public class ServerBeaconManagerImpl implements ServerBeaconManager {
 	public void beaconToSend(Collection<IBeacon> oldInformation,
 			Collection<IBeacon> newInformation, String MAC) {
 		for (IBeacon iBeacon : newInformation) {
-    		httpHand.postOnRanging(iBeacon, MAC, 1);
-    
+    		httpHand.postOnRanging(iBeacon, MAC, 1,iBeacon.getRssi());
 		}
     	if(oldInformation != null){
     		deleteFromOld(oldInformation,newInformation);
 	    	if(oldInformation.size()>0){
 	    		
 		    	for (IBeacon iBeacon : oldInformation) {
-		    		httpHand.postOnRanging(iBeacon, MAC, 0);
+		    		httpHand.postOnRanging(iBeacon, MAC, 0,0);
 				}
 		    }
     	}

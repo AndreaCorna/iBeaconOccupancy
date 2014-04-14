@@ -27,7 +27,7 @@ public class HttpHandler {
 	}
 	
 	
-	public void postOnRanging(IBeacon beacon, String idBluetooth, int status){
+	public void postOnRanging(IBeacon beacon, String idBluetooth, int status, int rssi){
     	InputStream inputStream = null;
         String result = "";
         try {
@@ -39,6 +39,7 @@ public class HttpHandler {
             jsonObject.accumulate("id_beacon", id_beacon);
             jsonObject.accumulate("id_device", idBluetooth);
             jsonObject.accumulate("status", status);
+            jsonObject.accumulate("rssi", rssi);
  
             json = jsonObject.toString();
             StringEntity se = new StringEntity(json);
