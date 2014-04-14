@@ -83,6 +83,7 @@ public class RangingService extends Service implements IBeaconConsumer{
     	if(oldInformation != null){
     		deleteFromOld(oldInformation,newInformation);
 	    	if(oldInformation.size()>0){
+	    		
 		    	for (IBeacon iBeacon : oldInformation) {
 		    		httpHand.postOnRanging(iBeacon, mBluetoothAdapter.getAddress(), 0);
 				}
@@ -98,16 +99,18 @@ public class RangingService extends Service implements IBeaconConsumer{
     	for (IBeacon old : oldBeacons) {
     		found = false;
     		for (IBeacon iBeacon : newBeacons) {
-    			if(old.equals(iBeacon)){
+    			if(old.getProximityUuid().equals(iBeacon.getProximityUuid()) &&
+						old.getMajor() == iBeacon.getMajor() && old.getMinor() == iBeacon.getMinor()){
     				found = true;
     				break;
     			}
 			}
+    		Log.d(TAG,""+found);
     		if(!found){
     			toDelete.add(old);
     		}
 		}
-    	
+    	oldBeacons.clear();
     	oldBeacons = toDelete;
     }
 
