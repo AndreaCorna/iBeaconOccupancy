@@ -1,32 +1,46 @@
 package it.polimi.it.ibeaconoccupancy;
 
+import java.util.ArrayList;
+
 import com.radiusnetworks.ibeacon.IBeaconManager;
 
 import it.polimi.it.ibeaconoccupancy.services.MonitoringService;
+import it.polimi.it.ibeaconoccupancy.services.RangingService;
 import android.app.Activity;
 import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.Fragment;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 import android.os.Build;
 
 public class MainActivity extends Activity {
 	
 	
 	private Intent intent;
+	private BeaconReceiver receiver;
 
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		
+		receiver = new BeaconReceiver();
+		IntentFilter intentFilter = new IntentFilter();
+		intentFilter.addAction(RangingService.ACTION);
+		registerReceiver(receiver, intentFilter);
+     
 
 		/*if (savedInstanceState == null) {
 			getFragmentManager().beginTransaction()
@@ -117,5 +131,26 @@ public class MainActivity extends Activity {
 		}
 		
 	}	
+	
+	private class BeaconReceiver extends BroadcastReceiver{
+		 
+		 @Override
+		 public void onReceive(Context arg0, Intent intent) {
+		  // TODO Auto-generated method stub
+		  
+		  
+		  ArrayList<String> beacons = intent.getStringArrayListExtra("BeaconInfo");
+		  
+		  for (String string : beacons) {
+			  Toast.makeText(MainActivity.this,
+					    "Triggered by Service!\n"
+					    + "Data passed: " + String.valueOf(string),
+					    Toast.LENGTH_LONG).show();
+		}
+		  
+		  
+		 }
+		 
+		}
 
 }
