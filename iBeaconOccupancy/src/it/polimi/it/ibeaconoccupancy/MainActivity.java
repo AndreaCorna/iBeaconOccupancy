@@ -16,11 +16,13 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.os.Build;
 
@@ -29,6 +31,7 @@ public class MainActivity extends Activity {
 	
 	private Intent intent;
 	private BeaconReceiver receiver;
+	protected static final String TAG = "MainActivity";
 
 
 	@Override
@@ -42,10 +45,10 @@ public class MainActivity extends Activity {
 		registerReceiver(receiver, intentFilter);
      
 
-		/*if (savedInstanceState == null) {
+		if (savedInstanceState == null) {
 			getFragmentManager().beginTransaction()
 					.add(R.id.container, new PlaceholderFragment()).commit();
-		}*/
+		}
 		verifyBluetooth();
 		intent = new Intent(this, it.polimi.it.ibeaconoccupancy.services.MonitoringService.class);
 		startService(intent);
@@ -132,20 +135,20 @@ public class MainActivity extends Activity {
 		
 	}	
 	
+	/**
+	 * Class which handle the message send by the RangingService(information about the beacons in range)
+	 * @author Lorenzo
+	 *
+	 */
 	private class BeaconReceiver extends BroadcastReceiver{
 		 
 		 @Override
-		 public void onReceive(Context arg0, Intent intent) {
-		  // TODO Auto-generated method stub
+		 public void onReceive(Context arg0, Intent intent) {		  
 		  
-		  
-		  ArrayList<String> beacons = intent.getStringArrayListExtra("BeaconInfo");
-		  
+			 ArrayList<String> beacons = intent.getStringArrayListExtra("BeaconInfo");		  
 		  for (String string : beacons) {
-			  Toast.makeText(MainActivity.this,
-					    "Triggered by Service!\n"
-					    + "Data passed: " + String.valueOf(string),
-					    Toast.LENGTH_LONG).show();
+			  
+			 Log.d(TAG,string);
 		}
 		  
 		  

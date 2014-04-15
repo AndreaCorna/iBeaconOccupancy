@@ -85,7 +85,7 @@ public class RangingService extends Service implements IBeaconConsumer{
         	intent.setAction(ACTION);
         	List<String> beaconsInfos = new ArrayList<String>();
  	      for (IBeacon iBeacon : iBeacons){
- 	    	  beaconsInfos.add(iBeacon.getProximityUuid()+iBeacon.getMajor()+iBeacon.getMinor()+" "+iBeacon.getTxPower());
+ 	    	  beaconsInfos.add(iBeacon.getProximityUuid()+iBeacon.getMajor()+iBeacon.getMinor()+" "+iBeacon.getAccuracy());
  	    	  
  	      }
  	      intent.putStringArrayListExtra("BeaconInfo",(ArrayList<String>) beaconsInfos);	      
