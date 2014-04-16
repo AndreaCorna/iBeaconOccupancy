@@ -41,7 +41,6 @@ public class HttpHandler {
 		int responseCode = 0;
         String id_beacon = beacon.getProximityUuid()+beacon.getMajor()+beacon.getMinor();
         String stringPost = url+"/"+idBluetooth+"/"+id_beacon;
-        Log.d(TAG, stringPost);
         URL urlPost;
 		try {
 			urlPost = new URL(stringPost);
