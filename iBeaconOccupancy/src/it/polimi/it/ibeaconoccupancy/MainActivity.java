@@ -1,31 +1,49 @@
 package it.polimi.it.ibeaconoccupancy;
 
+import java.util.ArrayList;
+
 import com.radiusnetworks.ibeacon.IBeaconManager;
 
 
+import it.polimi.it.ibeaconoccupancy.services.RangingService;
 import android.app.Activity;
+import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.Fragment;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-
+import android.widget.TextView;
+import android.widget.Toast;
+import android.os.Build;
 
 public class MainActivity extends Activity {
 	
 	
 	private Intent intent;
+	private BeaconReceiver receiver;
+	protected static final String TAG = "MainActivity";
 
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		
+		receiver = new BeaconReceiver();
+		IntentFilter intentFilter = new IntentFilter();
+		intentFilter.addAction(RangingService.ACTION);
+		registerReceiver(receiver, intentFilter);
+     
 
 		if (savedInstanceState == null) {
 			getFragmentManager().beginTransaction()
@@ -116,5 +134,26 @@ public class MainActivity extends Activity {
 		}
 		
 	}	
+	
+	/**
+	 * Class which handle the message send by the RangingService(information about the beacons in range)
+	 * @author Lorenzo
+	 *
+	 */
+	private class BeaconReceiver extends BroadcastReceiver{
+		 
+		 @Override
+		 public void onReceive(Context arg0, Intent intent) {		  
+		  
+			 ArrayList<String> beacons = intent.getStringArrayListExtra("BeaconInfo");		  
+		  for (String string : beacons) {
+			  
+			 Log.d(TAG,string);
+		}
+		  
+		  
+		 }
+		 
+		}
 
 }
