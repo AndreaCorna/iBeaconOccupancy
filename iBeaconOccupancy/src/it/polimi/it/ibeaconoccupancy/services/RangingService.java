@@ -107,32 +107,27 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
 	}
 	@Override
 	public void onSensorChanged(SensorEvent event) {
-		
-			if (event.sensor.getType() == Sensor.TYPE_GRAVITY){
-				
-			}
-			Sensor mySensor = event.sensor;
-			 
-		    if (mySensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-		        float x = event.values[0];
-		        float y = event.values[1];
-		        float z = event.values[2];
-		        long curTime = System.currentTimeMillis();
-		        
-		        if ((curTime - lastUpdate) > 100) {
-		            long diffTime = (curTime - lastUpdate);
-		            lastUpdate = curTime;
-		        
-		            float speed = Math.abs(x + y + z - last_x - last_y - last_z)/ diffTime * 10000;
-		            if (speed > SHAKE_THRESHOLD) {
-			            Log.d("HTTP", "listener");
-						isMoving = true;
-			            last_x = x;
-			            last_y = y;
-			            last_z = z;
-			        }
+		 Sensor mySensor = event.sensor;
+		 if (mySensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+	        float x = event.values[0];
+	        float y = event.values[1];
+	        float z = event.values[2];
+	        long curTime = System.currentTimeMillis();
+	        
+	        if ((curTime - lastUpdate) > 100) {
+	            long diffTime = (curTime - lastUpdate);
+	            lastUpdate = curTime;
+	        
+	            float speed = Math.abs(x + y + z - last_x - last_y - last_z)/ diffTime * 10000;
+	            if (speed > SHAKE_THRESHOLD) {
+		            Log.d("HTTP", "listener");
+					isMoving = true;
+		            last_x = x;
+		            last_y = y;
+		            last_z = z;
 		        }
-		    }
+	        }
+	    }
 			
 	}
 		
