@@ -4,6 +4,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -28,73 +32,46 @@ public class HttpHandler {
 	
 	
 	public void postOnRanging(IBeacon beacon, String idBluetooth, int status, int power){
-    	InputStream inputStream = null;
-        String result = "";
-        try {
-            HttpClient httpclient = new DefaultHttpClient();
-            HttpPost httpPost = new HttpPost(url);
-            String json = "";
+		int responseCode = 0;
+        String id_beacon = beacon.getProximityUuid()+beacon.getMajor()+beacon.getMinor();
+        String stringPost = url+"/"+idBluetooth+"/"+id_beacon+"/";
+        URL urlPost;
+		try {
+			urlPost = new URL(stringPost);
+		   	HttpURLConnection httpCon = (HttpURLConnection) urlPost.openConnection();
+        	httpCon.setDoOutput(true);
+        	
+        	httpCon.setRequestMethod("POST");
+        	httpCon.setRequestProperty("Content-Type", "application/json; charset=utf8");
+        	
+       
             JSONObject jsonObject = new JSONObject();
-            String id_beacon = beacon.getProximityUuid()+beacon.getMajor()+beacon.getMinor();
-            jsonObject.accumulate("id_beacon", id_beacon);
-            jsonObject.accumulate("id_device", idBluetooth);
-            jsonObject.accumulate("status", status);
-            jsonObject.accumulate("power", power);
+            
+            jsonObject.put("status", status);
+            jsonObject.put("power", power);
+            
+            OutputStreamWriter wr= new OutputStreamWriter(httpCon.getOutputStream());
+            wr.write(jsonObject.toString());
+            responseCode = httpCon.getResponseCode();
  
-            json = jsonObject.toString();
-            StringEntity se = new StringEntity(json);
- 
-            httpPost.setEntity(se);
-
-            httpPost.setHeader("Accept", "application/json");
-            httpPost.setHeader("Content-type", "application/json");
-            HttpResponse httpResponse = httpclient.execute(httpPost);
-
-            inputStream = httpResponse.getEntity().getContent();
- 
-            if(inputStream != null)
-                result = convertInputStreamToString(inputStream);
-            else
-                result = "Did not work!";
- 
-        } catch (Exception e) {
-            Log.d("InputStream", e.getLocalizedMessage());
-        }
-        	Log.d(TAG,result);
+            
+        } catch (Exception e) {}
+        	Log.d(TAG,"SEND RESPONSE"+responseCode);
     
     }
 	
 	public void postOnMonitoringOut( String idBluetooth){
-    	InputStream inputStream = null;
-        String result = "";
-        try {
-            HttpClient httpclient = new DefaultHttpClient();
-            HttpPost httpPost = new HttpPost(url+"/exitregion");
-            String json = "";
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.accumulate("id_device", idBluetooth);
-   
- 
-            json = jsonObject.toString();
-            StringEntity se = new StringEntity(json);
- 
-            httpPost.setEntity(se);
-
-            httpPost.setHeader("Accept", "application/json");
-            httpPost.setHeader("Content-type", "application/json");
-            HttpResponse httpResponse = httpclient.execute(httpPost);
-
-            inputStream = httpResponse.getEntity().getContent();
- 
-            if(inputStream != null)
-                result = convertInputStreamToString(inputStream);
-            else
-                result = "Did not work!";
- 
-        } catch (Exception e) {
-            Log.d("InputStream", e.getLocalizedMessage());
-        }
-        	Log.d(TAG,result);
+		
+        String stringDelete = url+"/"+idBluetooth;
+        int responseCode = 0;
+        try{
+	        URL urlDelete = new URL(stringDelete);
+	        HttpURLConnection connection = (HttpURLConnection) urlDelete.openConnection();
+	        connection.setRequestMethod("DELETE");
+	        responseCode = connection.getResponseCode();
+        }catch(Exception e){}
+        
+        Log.d(TAG,"DELETE RESPONSE "+responseCode);
     
     }
 	
