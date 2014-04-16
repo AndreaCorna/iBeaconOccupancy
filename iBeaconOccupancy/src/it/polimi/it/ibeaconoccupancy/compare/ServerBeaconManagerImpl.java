@@ -12,7 +12,7 @@ import com.radiusnetworks.ibeacon.IBeacon;
 public class ServerBeaconManagerImpl implements ServerBeaconManager {
 	
 	protected static final String TAG = "BeaconToSendManager";
-	private final HttpHandler httpHand = new HttpHandler("http://ibeacon.no-ip.org/ibeacon/server");
+	private final HttpHandler httpHand = new HttpHandler("http://ibeacon.no-ip.org/ibeaconserver");
 
 	@Override
 	public void beaconToSend(Collection<IBeacon> oldInformation,
