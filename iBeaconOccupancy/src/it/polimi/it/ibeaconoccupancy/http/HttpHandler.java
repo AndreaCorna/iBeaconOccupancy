@@ -40,15 +40,19 @@ public class HttpHandler {
 	public void postOnRanging(IBeacon beacon, String idBluetooth, int status, int power){
 		int responseCode = 0;
         String id_beacon = beacon.getProximityUuid()+beacon.getMajor()+beacon.getMinor();
-        String stringPost = url+"/"+idBluetooth+"/"+id_beacon+"/";
+        String stringPost = url+"/"+idBluetooth+"/"+id_beacon;
+        Log.d(TAG, stringPost);
         URL urlPost;
 		try {
 			urlPost = new URL(stringPost);
 		   	HttpURLConnection httpCon = (HttpURLConnection) urlPost.openConnection();
         	httpCon.setDoOutput(true);
+        	httpCon.setDoInput(true);
         	
         	httpCon.setRequestMethod("POST");
-        	httpCon.setRequestProperty("Content-Type", "application/json; charset=utf8");
+        	httpCon.setRequestProperty("content-type","application/json; charset=utf-8"); 
+          	httpCon.setRequestProperty("Accept", "application/json");
+          	
         	
        
             JSONObject jsonObject = new JSONObject();
@@ -58,6 +62,7 @@ public class HttpHandler {
             
             OutputStreamWriter wr= new OutputStreamWriter(httpCon.getOutputStream());
             wr.write(jsonObject.toString());
+            wr.flush();
             responseCode = httpCon.getResponseCode();
  
             
