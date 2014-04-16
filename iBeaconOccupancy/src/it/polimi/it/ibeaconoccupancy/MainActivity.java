@@ -2,9 +2,8 @@ package it.polimi.it.ibeaconoccupancy;
 
 import com.radiusnetworks.ibeacon.IBeaconManager;
 
-import it.polimi.it.ibeaconoccupancy.services.MonitoringService;
+
 import android.app.Activity;
-import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.DialogInterface;
@@ -15,7 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.os.Build;
+
 
 public class MainActivity extends Activity {
 	

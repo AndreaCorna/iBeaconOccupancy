@@ -7,7 +7,7 @@ import java.util.Collection;
 import android.util.Log;
 
 import com.radiusnetworks.ibeacon.IBeacon;
-import com.radiusnetworks.ibeacon.IBeaconDataNotifier;
+
 
 public class ServerBeaconManagerImpl implements ServerBeaconManager {
 	
@@ -34,7 +34,8 @@ public class ServerBeaconManagerImpl implements ServerBeaconManager {
 		
 	}
     
-    private void deleteFromOld(Collection<IBeacon> oldBeacons, Collection<IBeacon> newBeacons){
+    @SuppressWarnings("null")
+	private void deleteFromOld(Collection<IBeacon> oldBeacons, Collection<IBeacon> newBeacons){
     	Collection<IBeacon> toDelete = null;
     	boolean found = false;
     	for (IBeacon old : oldBeacons) {
