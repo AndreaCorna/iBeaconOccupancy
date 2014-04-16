@@ -26,7 +26,7 @@ public class MonitoringService extends Service implements IBeaconConsumer {
         super.onCreate();
 		iBeaconManager.bind(this);
 		Log.d(TAG, "Starting monitoring");
-		httpHand = new HttpHandler("http://ibeacon.no-ip.org/ibeaconserver");
+		httpHand = new HttpHandler("http://192.168.0.105/ibeaconserver");
 		ranging= new Intent(this,it.polimi.it.ibeaconoccupancy.services.RangingService.class);
 		iBeaconManager.setBackgroundMode(this, true);
 		iBeaconManager.setBackgroundScanPeriod(3000);
