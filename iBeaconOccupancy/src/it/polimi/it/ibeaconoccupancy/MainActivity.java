@@ -51,7 +51,7 @@ public class MainActivity extends Activity {
 		}
 		verifyBluetooth();
 		intent = new Intent(this, it.polimi.it.ibeaconoccupancy.services.MonitoringService.class);
-		startService(intent);
+		//startService(intent);
 		
 	}
 

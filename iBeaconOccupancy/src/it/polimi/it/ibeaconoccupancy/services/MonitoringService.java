@@ -1,5 +1,6 @@
 package it.polimi.it.ibeaconoccupancy.services;
 
+import it.polimi.it.ibeaconoccupancy.SaveBattery;
 import it.polimi.it.ibeaconoccupancy.http.HttpHandler;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
@@ -26,8 +27,11 @@ public class MonitoringService extends Service implements IBeaconConsumer {
         super.onCreate();
 		iBeaconManager.bind(this);
 		Log.d(TAG, "Starting monitoring");
-		httpHand = new HttpHandler("http://ibeacon.no-ip.org/ibeaconserver");
+		httpHand = new HttpHandler("http://192.168.0.105/ibeaconserver");
 		ranging= new Intent(this,it.polimi.it.ibeaconoccupancy.services.RangingService.class);
+		//iBeaconManager.setBackgroundMode(this, true);
+		//iBeaconManager.setBackgroundScanPeriod(3000);
+		SaveBattery save = new SaveBattery();
 	}
 	
 	@Override

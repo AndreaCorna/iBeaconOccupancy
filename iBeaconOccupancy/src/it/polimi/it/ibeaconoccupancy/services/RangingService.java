@@ -62,7 +62,9 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
-        Log.d(TAG, "Ranging started");
+        iBeaconManager.setBackgroundMode(this, true);
+		iBeaconManager.setBackgroundScanPeriod(3000);
+		Log.d(TAG, "Ranging started");
     }
     @Override
     public void onDestroy() {
