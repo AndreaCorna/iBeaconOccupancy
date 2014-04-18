@@ -4,10 +4,8 @@ import java.util.ArrayList;
 
 import com.radiusnetworks.ibeacon.IBeaconManager;
 
-
 import it.polimi.it.ibeaconoccupancy.services.RangingService;
 import android.app.Activity;
-import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.BroadcastReceiver;
@@ -15,16 +13,19 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
+import android.preference.Preference;
+import android.preference.PreferenceActivity;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
-import android.widget.Toast;
-import android.os.Build;
+
 
 public class MainActivity extends Activity {
 	
@@ -32,6 +33,8 @@ public class MainActivity extends Activity {
 	private Intent intent;
 	private BeaconReceiver receiver;
 	protected static final String TAG = "MainActivity";
+	private SharedPreferences prefs;
+	OnSharedPreferenceChangeListener listener;
 
 
 	@Override
@@ -50,7 +53,11 @@ public class MainActivity extends Activity {
 					.add(R.id.container, new PlaceholderFragment()).commit();
 		}
 		verifyBluetooth();
+		prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		registerPreferenceListener();
 		intent = new Intent(this, it.polimi.it.ibeaconoccupancy.services.MonitoringService.class);
+		
+		//addPreferencesFromResource(R.xml.preferences);
 		//startService(intent);
 		
 	}
@@ -70,15 +77,18 @@ public class MainActivity extends Activity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle action bar item clicks here. The action bar will
-		// automatically handle clicks on the Home/Up button, so long
-		// as you specify a parent activity in AndroidManifest.xml.
+		
 		int id = item.getItemId();
 		if (id == R.id.action_settings) {
+			 Intent i = new Intent(this, SettingsActivity.class);
+			 startActivity(i);			 
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
 	}
+	
+	
+	 
 
 	/**
 	 * A placeholder fragment containing a simple view.
@@ -137,23 +147,37 @@ public class MainActivity extends Activity {
 	
 	/**
 	 * Class which handle the message send by the RangingService(information about the beacons in range)
-	 * @author Lorenzo
 	 *
 	 */
 	private class BeaconReceiver extends BroadcastReceiver{
-		 
-		 @Override
-		 public void onReceive(Context arg0, Intent intent) {		  
-		  
-			 ArrayList<String> beacons = intent.getStringArrayListExtra("BeaconInfo");		  
-		  for (String string : beacons) {
-			  
-			 Log.d(TAG,string);
+
+		@Override
+		public void onReceive(Context arg0, Intent intent) {		  
+
+			ArrayList<String> beacons = intent.getStringArrayListExtra("BeaconInfo");		  
+			for (String string : beacons) {
+				Log.d(TAG,"Beacon Receive "+string);
+			}  
 		}
-		  
-		  
-		 }
-		 
-		}
+	}
+	
+	/**
+	 * creating a preference listener to handle the different ways we send  informations to the server
+	 */
+	private void registerPreferenceListener()
+	{
+	    listener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+	    public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
+
+	    	
+	    Log.d(TAG,"LISTENING! - Pref changed for: " + key + " pref: " +
+	    prefs.getBoolean(key, false));
+	      }
+	    };
+
+	    prefs.registerOnSharedPreferenceChangeListener(listener);
+	}
+	
+	
 
 }
