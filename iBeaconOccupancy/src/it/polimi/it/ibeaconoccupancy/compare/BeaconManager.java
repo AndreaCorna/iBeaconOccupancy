@@ -5,7 +5,7 @@ import java.util.Collection;
 import com.radiusnetworks.ibeacon.IBeacon;
 
 
-public interface ServerBeaconManager{
+public interface BeaconManager{
 	
 	public void beaconToSend(Collection<IBeacon> oldInformation, Collection<IBeacon> newInformation, String MAC);
 

@@ -9,7 +9,7 @@ import android.util.Log;
 import com.radiusnetworks.ibeacon.IBeacon;
 
 
-public class ServerBeaconManagerImpl implements ServerBeaconManager {
+public class BeaconManagerImpl implements BeaconManager {
 	
 	protected static final String TAG = "BeaconToSendManager";
 	private final HttpHandler httpHand = new HttpHandler("http://192.168.0.105/ibeaconserver");

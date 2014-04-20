@@ -57,7 +57,7 @@ public class MainActivity extends Activity {
 		registerPreferenceListener();
 		intent = new Intent(this, it.polimi.it.ibeaconoccupancy.services.MonitoringService.class);
 		
-		//addPreferencesFromResource(R.xml.preferences);
+		
 		//startService(intent);
 		
 	}
@@ -162,7 +162,7 @@ public class MainActivity extends Activity {
 	}
 	
 	/**
-	 * creating a preference listener to handle the different ways we send  informations to the server
+	 * Preference listener to handle the different ways we send  informations to the server
 	 */
 	private void registerPreferenceListener()
 	{
