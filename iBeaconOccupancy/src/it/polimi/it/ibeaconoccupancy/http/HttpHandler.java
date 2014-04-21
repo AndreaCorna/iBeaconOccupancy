@@ -2,6 +2,7 @@ package it.polimi.it.ibeaconoccupancy.http;
 
 
 import java.io.OutputStreamWriter;
+import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -17,7 +18,7 @@ import com.radiusnetworks.ibeacon.IBeacon;
  * @author Andrea Corna - Lorenzo Fontana
  *
  */
-public class HttpHandler {
+public class HttpHandler implements Serializable{
 	
 	protected static final String TAG = "HTTP";
 	private String url;

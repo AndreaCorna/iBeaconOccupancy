@@ -26,20 +26,38 @@ public class MonitoringService extends Service implements IBeaconConsumer {
 	private Intent ranging;
 	
 	
+	
 	@Override
 	public void onCreate() {
         super.onCreate();
-		iBeaconManager.bind(this);
-		Log.d(TAG, "Starting monitoring");
+        iBeaconManager.bind(this);
+        Log.d(TAG, "Starting monitoring");
+        
+	}
+	
+	@Override
+	public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.d(TAG, "onStartCommand monitoring");
+
+		sendManager = (BeaconHandler) intent.getSerializableExtra("BeaconHandler");		
+		if (intent.getSerializableExtra("BeaconHandler")==null) {
+			Log.d(TAG,"fewjgirtngirt");
+		}
+		 Log.d(TAG, "sendManager monitoring");
+
 		ranging= new Intent(this,it.polimi.it.ibeaconoccupancy.services.RangingService.class);
+		ranging.putExtra("BeaconHandler", sendManager);
 		//iBeaconManager.setBackgroundMode(this, true);
 		//iBeaconManager.setBackgroundScanPeriod(3000);
 		SaveBattery save = new SaveBattery();
+		return super.onStartCommand(intent, flags, startId);
 	}
 	
 	@Override
 	public void onDestroy() {
 		iBeaconManager.unBind(this);
+		Log.d(TAG, "Destoying monitor service");
+		stopRanging();
 		super.onDestroy();
 	}
 	

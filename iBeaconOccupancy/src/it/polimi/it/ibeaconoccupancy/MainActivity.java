@@ -4,6 +4,9 @@ import java.util.ArrayList;
 
 import com.radiusnetworks.ibeacon.IBeaconManager;
 
+import it.polimi.it.ibeaconoccupancy.compare.BeaconHandler;
+import it.polimi.it.ibeaconoccupancy.compare.FullBeaconHandlerImpl;
+import it.polimi.it.ibeaconoccupancy.compare.MinimalBeaconHandlerImpl;
 import it.polimi.it.ibeaconoccupancy.services.RangingService;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -55,10 +58,8 @@ public class MainActivity extends Activity {
 		verifyBluetooth();
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		registerPreferenceListener();
-		intent = new Intent(this, it.polimi.it.ibeaconoccupancy.services.MonitoringService.class);
+		launchMonitoring(true);
 		
-		
-		startService(intent);
 		
 	}
 
@@ -72,7 +73,6 @@ public class MainActivity extends Activity {
 	
 	public void onPause(){
 		super.onPause();
-		startService(intent);
 	}
 
 	@Override
@@ -172,10 +172,34 @@ public class MainActivity extends Activity {
 	    	
 	    Log.d(TAG,"LISTENING! - Pref changed for: " + key + " pref: " +
 	    prefs.getBoolean(key, false));
-	      }
+	    
+	    boolean logicOnClient = prefs.getBoolean(key, false);
+	    stopService(intent);
+	    launchMonitoring(logicOnClient);
+	    }
 	    };
 
 	    prefs.registerOnSharedPreferenceChangeListener(listener);
+	}
+	private void launchMonitoring(boolean logicOnClient){
+		Log.d(TAG, "launching monitoring "+logicOnClient);
+		
+		intent = new Intent(this, it.polimi.it.ibeaconoccupancy.services.MonitoringService.class);
+
+		if (logicOnClient){
+			intent.putExtra("BeaconHandler", new FullBeaconHandlerImpl());
+			
+		}
+		else{
+			intent.putExtra("BeaconHandler", new MinimalBeaconHandlerImpl());
+		}
+		
+		Log.d(TAG, "intent monitoring ");
+		Log.d(TAG, "extra monitoring ");
+		startService(intent);
+		Log.d(TAG, "start monitoring ");
+
+		
 	}
 	
 	

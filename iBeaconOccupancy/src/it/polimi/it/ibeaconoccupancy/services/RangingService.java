@@ -46,7 +46,7 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
     private Collection<IBeacon> oldInformation = null;
     private final BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
     
-    private final BeaconHandler sendManager = new FullBeaconHandlerImpl();
+    private  BeaconHandler sendManager;
     private SensorManager mSensorManager; 
     private Sensor mAccelerometer;
     private boolean isMoving = false;
@@ -66,6 +66,12 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
         iBeaconManager.setBackgroundMode(this, true);
 		iBeaconManager.setBackgroundScanPeriod(3000);
 		Log.d(TAG, "Ranging started");
+    }
+    
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+    	sendManager = (BeaconHandler) intent.getSerializableExtra("BeaconHandler");
+    	return super.onStartCommand(intent, flags, startId);
     }
     @Override
     public void onDestroy() {

@@ -2,6 +2,7 @@ package it.polimi.it.ibeaconoccupancy.compare;
 
 import it.polimi.it.ibeaconoccupancy.http.HttpHandler;
 
+import java.io.Serializable;
 import java.util.Collection;
 
 import android.util.Log;
@@ -9,8 +10,12 @@ import android.util.Log;
 import com.radiusnetworks.ibeacon.IBeacon;
 
 
-public class FullBeaconHandlerImpl extends BeaconHandler {
+public class FullBeaconHandlerImpl implements BeaconHandler, Serializable {
 	
+
+	protected static final String TAG = "BeaconToSendManager";
+	private final HttpHandler httpHand = new HttpHandler("http://192.168.0.152/ibeacon");
+
 	
 	@Override
 	public void beaconToSend(Collection<IBeacon> oldInformation,
