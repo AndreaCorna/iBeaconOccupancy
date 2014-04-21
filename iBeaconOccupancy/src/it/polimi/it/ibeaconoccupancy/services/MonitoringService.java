@@ -1,6 +1,9 @@
 package it.polimi.it.ibeaconoccupancy.services;
 
 import it.polimi.it.ibeaconoccupancy.SaveBattery;
+import it.polimi.it.ibeaconoccupancy.compare.BeaconHandler;
+import it.polimi.it.ibeaconoccupancy.compare.FullBeaconHandlerImpl;
+import it.polimi.it.ibeaconoccupancy.compare.MinimalBeaconHandlerImpl;
 import it.polimi.it.ibeaconoccupancy.http.HttpHandler;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
@@ -19,15 +22,15 @@ public class MonitoringService extends Service implements IBeaconConsumer {
 	protected static final String TAG = "MonitoringService";
 	private final IBeaconManager iBeaconManager = IBeaconManager.getInstanceForApplication(this);
     private final BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-	private  HttpHandler httpHand;
+    private  BeaconHandler sendManager = new FullBeaconHandlerImpl();
 	private Intent ranging;
+	
 	
 	@Override
 	public void onCreate() {
         super.onCreate();
 		iBeaconManager.bind(this);
 		Log.d(TAG, "Starting monitoring");
-		httpHand = new HttpHandler("http://192.168.0.105/ibeaconserver");
 		ranging= new Intent(this,it.polimi.it.ibeaconoccupancy.services.RangingService.class);
 		//iBeaconManager.setBackgroundMode(this, true);
 		//iBeaconManager.setBackgroundScanPeriod(3000);
@@ -49,7 +52,7 @@ public class MonitoringService extends Service implements IBeaconConsumer {
 			@Override
 			public void didExitRegion(Region arg0) {
 				Log.d(TAG, "Exit a region");
-				httpHand.postOnMonitoringOut(mBluetoothAdapter.getAddress());
+				sendManager.exitingRegion(mBluetoothAdapter.getAddress());
 				stopRanging();
 				
 				

@@ -9,18 +9,27 @@ import android.util.Log;
 import com.radiusnetworks.ibeacon.IBeacon;
 
 
-public class BeaconManagerImpl implements BeaconManager {
+public class FullBeaconHandlerImpl extends BeaconHandler {
 	
-	protected static final String TAG = "BeaconToSendManager";
-	private final HttpHandler httpHand = new HttpHandler("http://192.168.0.105/ibeaconserver");
-
+	
 	@Override
 	public void beaconToSend(Collection<IBeacon> oldInformation,
 			Collection<IBeacon> newInformation, String MAC) {
+		Log.d(TAG, "sending beaocn to server in a full logic way");
 		for (IBeacon iBeacon : newInformation) {
     		httpHand.postOnRanging(iBeacon, MAC, 1,iBeacon.getRssi());
 		}
-      	
+    	if(oldInformation != null){
+    		deleteFromOld(oldInformation,newInformation);
+	    	if(oldInformation.size()>0){
+	    		
+		    	for (IBeacon iBeacon : oldInformation) {
+		    		httpHand.postOnRanging(iBeacon, MAC, 0,0);
+				}
+		    }
+    	}
+	    oldInformation = newInformation;
+    	
 		
 	}
     
@@ -45,6 +54,13 @@ public class BeaconManagerImpl implements BeaconManager {
     	oldBeacons.clear();
     	oldBeacons = toDelete;
     }
+
+	@Override
+	public void exitingRegion(String idBluetooth) {
+		httpHand.postOnMonitoringOut(idBluetooth);
+
+		
+	}
 
 	
 }

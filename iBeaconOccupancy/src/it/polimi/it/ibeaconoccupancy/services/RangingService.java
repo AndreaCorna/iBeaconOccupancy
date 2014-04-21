@@ -1,7 +1,8 @@
 package it.polimi.it.ibeaconoccupancy.services;
 
-import it.polimi.it.ibeaconoccupancy.compare.BeaconManager;
-import it.polimi.it.ibeaconoccupancy.compare.BeaconManagerImpl;
+import it.polimi.it.ibeaconoccupancy.compare.BeaconHandler;
+import it.polimi.it.ibeaconoccupancy.compare.FullBeaconHandlerImpl;
+import it.polimi.it.ibeaconoccupancy.compare.MinimalBeaconHandlerImpl;
 import it.polimi.it.ibeaconoccupancy.http.HttpHandler;
 
 import java.io.BufferedReader;
@@ -45,7 +46,7 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
     private Collection<IBeacon> oldInformation = null;
     private final BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
     
-    private final BeaconManager sendManager = new BeaconManagerImpl();
+    private final BeaconHandler sendManager = new FullBeaconHandlerImpl();
     private SensorManager mSensorManager; 
     private Sensor mAccelerometer;
     private boolean isMoving = false;
