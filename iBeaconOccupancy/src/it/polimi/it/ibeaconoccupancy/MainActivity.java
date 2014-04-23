@@ -43,7 +43,19 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
+		
+				setContentView(R.layout.activity_main);
+				if (savedInstanceState == null) {
+					getFragmentManager().beginTransaction()
+							.add(R.id.container, new PlaceholderFragment()).commit();
+				}
+	
+		/*if(getIntent().getExtras()!= null){
+			String data = getIntent().getExtras().getString("Boot");
+			if(data != null && data.equals(true))
+				moveTaskToBack(true);
+		}
+		*/
 		
 		receiver = new BeaconReceiver();
 		IntentFilter intentFilter = new IntentFilter();
@@ -51,14 +63,21 @@ public class MainActivity extends Activity {
 		registerReceiver(receiver, intentFilter);
      
 
-		if (savedInstanceState == null) {
-			getFragmentManager().beginTransaction()
-					.add(R.id.container, new PlaceholderFragment()).commit();
-		}
+		
 		verifyBluetooth();
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		registerPreferenceListener();
-		launchMonitoring(true);
+		SharedPreferences settings = getSharedPreferences("HASRUN", 0);
+		Boolean hasRun = settings.getBoolean("hasRun", false); 
+		if (!hasRun) {
+			SharedPreferences.Editor edit = settings.edit();
+		    edit.putBoolean("hasRun", true); //set to has run
+		    edit.commit();
+			launchMonitoring(true);
+			Log.d("BOOT", "first time");
+		}else{
+			Log.d("BOOT", "not first time");
+		}
 		
 		
 	}

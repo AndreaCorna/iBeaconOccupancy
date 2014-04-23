@@ -43,7 +43,6 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
 	public final static String ACTION = "BeaconAction";	//used to identify the message sent with the SendBroacast inside notifyActivity method
 	protected static final String TAG = "RangingService";
 	private final IBeaconManager iBeaconManager = IBeaconManager.getInstanceForApplication(this);
-    private Collection<IBeacon> oldInformation = null;
     private final BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
     
     private  BeaconHandler sendManager;
@@ -63,8 +62,8 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
-        iBeaconManager.setBackgroundMode(this, true);
-		iBeaconManager.setBackgroundScanPeriod(3000);
+        //iBeaconManager.setBackgroundMode(this, true);
+		//iBeaconManager.setBackgroundScanPeriod(3000);
 		Log.d(TAG, "Ranging started");
     }
     
@@ -99,7 +98,7 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
         public void didRangeBeaconsInRegion(Collection<IBeacon> iBeacons, Region region) {
             if (iBeacons.size() > 0) {
             	if(isMoving){
-            		sendManager.beaconToSend(oldInformation, iBeacons,mBluetoothAdapter.getAddress());
+            		sendManager.beaconToSend(iBeacons,mBluetoothAdapter.getAddress());
             		Log.d(TAG,"Ranging");
             		this.notifyActivity(iBeacons); 
             		

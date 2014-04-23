@@ -22,24 +22,18 @@ public class FullBeaconHandlerImpl implements BeaconHandler, Serializable {
 
 	
 	@Override
-	public void beaconToSend(Collection<IBeacon> oldInformation,
-			Collection<IBeacon> newInformation, String MAC) {
+	public void beaconToSend(Collection<IBeacon> newInformation, String MAC) {
 		Log.d(TAG, "sending beaocn to server in a full logic way");
-		for (IBeacon iBeacon : newInformation) {
-    		httpHand.postOnRanging(iBeacon, MAC, 1,iBeacon.getRssi());
-		}
-    	if(oldInformation != null){
-    		deleteFromOld(oldInformation,newInformation);
-	    	if(oldInformation.size()>0){
-	    		
-		    	for (IBeacon iBeacon : oldInformation) {
-		    		httpHand.postOnRanging(iBeacon, MAC, 0,0);
-				}
-		    }
-    	}
-	    oldInformation = newInformation;
+		IBeacon big = getBestLocation(newInformation);
+		httpHand.postOnRanging(big, MAC, 1,big.getRssi());
+		
     	
 		
+	}
+	
+	public IBeacon getBestLocation(Collection<IBeacon> newInformation){
+	
+		return null;
 	}
     
     @SuppressWarnings("null")

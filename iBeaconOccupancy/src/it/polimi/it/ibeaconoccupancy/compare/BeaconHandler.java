@@ -11,11 +11,10 @@ import com.radiusnetworks.ibeacon.IBeacon;
 public interface  BeaconHandler extends Serializable{
 	/**
 	 * Method which will handle the list of the current beacons which will be send to the server 
-	 * @param oldInformation	list of beacons of the previous scan
 	 * @param newInformation	list of beacons of the current scan
 	 * @param MAC				MAC of the device bluetooth 
 	 */
-	public void beaconToSend(Collection<IBeacon> oldInformation, Collection<IBeacon> newInformation, String MAC);
+	public void beaconToSend( Collection<IBeacon> newInformation, String MAC);
 	/**
 	 * Method which will communicate the exit of the device from the monitored region to the server
 	 * @param idBluetooth MAC of the device bluetooth
