@@ -16,10 +16,11 @@ public class BackgroundService extends Service implements BootstrapNotifier{
 	private static final String TAG = "AndroidProximityReferenceApplication";
     private RegionBootstrap regionBootstrap;
     private BluetoothAdapter adapter;
-
+    private static BackgroundService me;
 
     public void onCreate() {
         super.onCreate();
+        me = this;
         adapter = BluetoothAdapter.getDefaultAdapter();
         if(!adapter.isEnabled()){
         	adapter.enable();
@@ -52,6 +53,10 @@ public class BackgroundService extends Service implements BootstrapNotifier{
 	public IBinder onBind(Intent intent) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	public static BackgroundService getInstance(){
+		return me;
 	}
 
 }
