@@ -117,11 +117,25 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
         	Intent intent = new Intent();
         	intent.setAction(ACTION);
         	List<String> beaconsInfos = new ArrayList<String>();
- 	      for (IBeacon iBeacon : iBeacons){
- 	    	  beaconsInfos.add(iBeacon.getProximityUuid()+iBeacon.getMajor()+iBeacon.getMinor()+" "+iBeacon.getAccuracy());
+        	IBeacon strongerBeacon = null;
+        	for (IBeacon iBeacon : iBeacons){
+        		if (strongerBeacon==null || strongerBeacon.getRssi()<iBeacon.getRssi()){
+        			strongerBeacon = iBeacon;
+        		}
+        		beaconsInfos.add(iBeacon.getProximityUuid()+iBeacon.getMajor()+iBeacon.getMinor());
+ 	    	  
  	    	  
  	      }
- 	      intent.putStringArrayListExtra("BeaconInfo",(ArrayList<String>) beaconsInfos);	      
+ 	      intent.putStringArrayListExtra("BeaconInfo",(ArrayList<String>) beaconsInfos);
+ 	      if (strongerBeacon !=null){
+ 	    	  Log.d(TAG, "notifyingLocationActivity "+strongerBeacon.getProximityUuid()+strongerBeacon.getMajor()+strongerBeacon.getMinor());
+ 	    	  intent.putExtra("StrongerBeacon", ""+strongerBeacon.getProximityUuid()+strongerBeacon.getMajor()+strongerBeacon.getMinor());
+
+ 	      }
+ 	      else {
+ 	    	 Log.d(TAG, "notifyingLocationActivity nullStronger Beacon");
+ 	    	 intent.putExtra("StrongerBeacon","");
+		}
  	      sendBroadcast(intent);
         }
 

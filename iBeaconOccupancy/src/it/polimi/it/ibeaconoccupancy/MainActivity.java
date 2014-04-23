@@ -34,7 +34,6 @@ public class MainActivity extends Activity {
 	
 	
 	private Intent intent;
-	private BeaconReceiver receiver;
 	protected static final String TAG = "MainActivity";
 	private SharedPreferences prefs;
 	OnSharedPreferenceChangeListener listener;
@@ -45,11 +44,7 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		
-		receiver = new BeaconReceiver();
-		IntentFilter intentFilter = new IntentFilter();
-		intentFilter.addAction(RangingService.ACTION);
-		registerReceiver(receiver, intentFilter);
-     
+		
 
 		if (savedInstanceState == null) {
 			getFragmentManager().beginTransaction()
@@ -58,6 +53,8 @@ public class MainActivity extends Activity {
 		verifyBluetooth();
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		registerPreferenceListener();
+		Intent myintentIntent = new Intent(this,LocationActivity.class);
+		startActivity(myintentIntent);
 		launchMonitoring(true);
 		
 		
@@ -145,21 +142,6 @@ public class MainActivity extends Activity {
 		
 	}	
 	
-	/**
-	 * Class which handle the message send by the RangingService(information about the beacons in range)
-	 *
-	 */
-	private class BeaconReceiver extends BroadcastReceiver{
-
-		@Override
-		public void onReceive(Context arg0, Intent intent) {		  
-
-			ArrayList<String> beacons = intent.getStringArrayListExtra("BeaconInfo");		  
-			for (String string : beacons) {
-				Log.d(TAG,"Beacon Receive "+string);
-			}  
-		}
-	}
 	
 	/**
 	 * Preference listener to handle the different ways we send  informations to the server

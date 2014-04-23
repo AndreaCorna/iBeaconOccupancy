@@ -7,6 +7,9 @@
     <string name="action_settings">Settings</string>
     <string name="pref_client_logic">Logic on client</string>
     <string name="pref_client_logic_summary">Enable the application logic </string>
-    
+    <string name="title_activity_location">LocationActivity</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="confirm">Confirm</string>
 
 </resources>
