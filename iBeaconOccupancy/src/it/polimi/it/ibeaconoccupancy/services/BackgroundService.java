@@ -1,8 +1,10 @@
 package it.polimi.it.ibeaconoccupancy.services;
 
 import android.app.Service;
+import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.os.IBinder;
+import android.os.SystemClock;
 
 import com.radiusnetworks.ibeacon.Region;
 import com.radiusnetworks.proximity.ibeacon.startup.BootstrapNotifier;
@@ -12,10 +14,16 @@ public class BackgroundService extends Service implements BootstrapNotifier{
 
 	private static final String TAG = "AndroidProximityReferenceApplication";
     private RegionBootstrap regionBootstrap;
+    private BluetoothAdapter adapter;
 
 
     public void onCreate() {
         super.onCreate();
+        adapter = BluetoothAdapter.getDefaultAdapter();
+        if(!adapter.isEnabled()){
+        	adapter.enable();
+        	while(!adapter.isEnabled());
+        }
         Region region = new Region("ciao",null, null, null);
         regionBootstrap = new RegionBootstrap(this, region);
         Intent intent = new Intent(this, it.polimi.it.ibeaconoccupancy.services.MonitoringService.class);

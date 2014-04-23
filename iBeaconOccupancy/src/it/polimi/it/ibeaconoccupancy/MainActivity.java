@@ -65,17 +65,17 @@ public class MainActivity extends Activity {
 		verifyBluetooth();
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		registerPreferenceListener();
-		SharedPreferences settings = getSharedPreferences("HASRUN", 0);
+		/*SharedPreferences settings = getSharedPreferences("HASRUN", 0);
 		Boolean hasRun = settings.getBoolean("hasRun", false); 
 		if (!hasRun) {
 			SharedPreferences.Editor edit = settings.edit();
 		    edit.putBoolean("hasRun", true); //set to has run
-		    edit.commit();
+		    edit.commit();*/
 			launchMonitoring(true);
-			Log.d("BOOT", "first time");
+			/*Log.d("BOOT", "first time");
 		}else{
 			Log.d("BOOT", "not first time");
-		}
+		}*/
 		
 		
 	}
