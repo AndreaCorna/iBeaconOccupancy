@@ -7,8 +7,11 @@ import com.radiusnetworks.ibeacon.IBeaconManager;
 
 import it.polimi.it.ibeaconoccupancy.compare.FullBeaconHandlerImpl;
 import it.polimi.it.ibeaconoccupancy.compare.MinimalBeaconHandlerImpl;
+import it.polimi.it.ibeaconoccupancy.services.MonitoringService;
 import it.polimi.it.ibeaconoccupancy.services.RangingService;
 import android.app.Activity;
+import android.app.ActivityManager;
+import android.app.ActivityManager.RunningServiceInfo;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.BroadcastReceiver;
@@ -71,7 +74,11 @@ public class MainActivity extends Activity {
 			SharedPreferences.Editor edit = settings.edit();
 		    edit.putBoolean("hasRun", true); //set to has run
 		    edit.commit();*/
-			launchMonitoring(true);
+		Log.d(TAG,""+isMonitoringRunning());
+		if(isMonitoringRunning()){
+			MonitoringService.getInstance().stopSelf();
+		}
+		launchMonitoring(true);
 			/*Log.d("BOOT", "first time");
 		}else{
 			Log.d("BOOT", "not first time");
@@ -219,6 +226,16 @@ public class MainActivity extends Activity {
 
 		
 	}
+	
+	private boolean isMonitoringRunning() {
+		  ActivityManager manager = (ActivityManager)getSystemService(ACTIVITY_SERVICE);
+		  for (RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+		    if (MonitoringService.class.getName().equals(service.service.getClassName())) {
+		    	return true;
+		    }
+		  }
+		  return false;
+		}
 	
 	
 

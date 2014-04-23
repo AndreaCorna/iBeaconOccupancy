@@ -22,11 +22,12 @@ public class MonitoringService extends Service implements IBeaconConsumer {
     private final BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
     private  BeaconHandler sendManager = new FullBeaconHandlerImpl();
 	private Intent ranging;
-	
+	private static MonitoringService me;
 	
 	
 	@Override
 	public void onCreate() {
+		me = this;
         super.onCreate();
         iBeaconManager.bind(this);
         Log.d(TAG, "Starting monitoring");
@@ -116,5 +117,8 @@ public class MonitoringService extends Service implements IBeaconConsumer {
 
 	}
 	 
+	public static MonitoringService getInstance(){
+		return me;
+	}
 
 }
