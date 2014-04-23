@@ -110,7 +110,7 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
             }
         }
         /**
-         * notify the Mainactivity of the presence of the iBeacons found by the ranging
+         * notify the Mainactivity of the presence of the iBeacons found by the ranging and which is the one with the strongest power
          * @param iBeacons
          */
         private void notifyActivity(Collection<IBeacon> iBeacons){
