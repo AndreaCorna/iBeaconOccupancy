@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import com.radiusnetworks.ibeacon.IBeaconManager;
 
-import it.polimi.it.ibeaconoccupancy.compare.BeaconHandler;
+
 import it.polimi.it.ibeaconoccupancy.compare.FullBeaconHandlerImpl;
 import it.polimi.it.ibeaconoccupancy.compare.MinimalBeaconHandlerImpl;
 import it.polimi.it.ibeaconoccupancy.services.RangingService;
@@ -19,8 +19,6 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
-import android.preference.Preference;
-import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;

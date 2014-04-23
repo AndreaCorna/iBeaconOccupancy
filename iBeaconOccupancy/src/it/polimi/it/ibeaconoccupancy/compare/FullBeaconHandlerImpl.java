@@ -27,13 +27,16 @@ public class FullBeaconHandlerImpl implements BeaconHandler, Serializable {
 		IBeacon big = getBestLocation(newInformation);
 		httpHand.postOnRanging(big, MAC, 1,big.getRssi());
 		
-    	
-		
-	}
-	
+    }
+
 	public IBeacon getBestLocation(Collection<IBeacon> newInformation){
-	
-		return null;
+		IBeacon big = newInformation.iterator().next();
+		for (IBeacon iBeacon : newInformation) {
+			if(iBeacon.getRssi() > big.getRssi()){
+				big = iBeacon;
+			}
+		}
+		return big;
 	}
     
     @SuppressWarnings("null")

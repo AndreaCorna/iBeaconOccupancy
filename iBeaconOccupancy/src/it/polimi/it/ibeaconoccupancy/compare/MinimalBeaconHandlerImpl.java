@@ -5,8 +5,6 @@ import it.polimi.it.ibeaconoccupancy.http.HttpHandler;
 import java.io.Serializable;
 import java.util.Collection;
 
-import android.util.Log;
-
 import com.radiusnetworks.ibeacon.IBeacon;
 
 
