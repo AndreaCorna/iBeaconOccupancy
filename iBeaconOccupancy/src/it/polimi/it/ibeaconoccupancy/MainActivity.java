@@ -181,6 +181,7 @@ public class MainActivity extends Activity {
 
 	    prefs.registerOnSharedPreferenceChangeListener(listener);
 	}
+	
 	private void launchMonitoring(boolean logicOnClient){
 		Log.d(TAG, "launching monitoring "+logicOnClient);
 		

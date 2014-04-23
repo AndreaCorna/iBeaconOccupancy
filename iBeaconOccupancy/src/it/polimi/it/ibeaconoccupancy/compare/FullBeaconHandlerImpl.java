@@ -13,8 +13,12 @@ import com.radiusnetworks.ibeacon.IBeacon;
 public class FullBeaconHandlerImpl implements BeaconHandler, Serializable {
 	
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6887364374840188927L;
 	protected static final String TAG = "BeaconToSendManager";
-	private final HttpHandler httpHand = new HttpHandler("http://192.168.0.152/ibeacon");
+	private final HttpHandler httpHand = new HttpHandler("http://ibeacon.no-ip.org/ibeacon");
 
 	
 	@Override
