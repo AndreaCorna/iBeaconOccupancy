@@ -12,10 +12,6 @@ import com.radiusnetworks.ibeacon.IBeacon;
 
 public class FullBeaconHandlerImpl implements BeaconHandler, Serializable {
 	
-
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -6887364374840188927L;
 	protected static final String TAG = "BeaconToSendManager";
 	private final HttpHandler httpHand = new HttpHandler("http://ibeacon.no-ip.org/ibeacon");
@@ -39,7 +35,7 @@ public class FullBeaconHandlerImpl implements BeaconHandler, Serializable {
 		return big;
 	}
     
-    @SuppressWarnings("null")
+    @SuppressWarnings({ "null", "unused" })
 	private void deleteFromOld(Collection<IBeacon> oldBeacons, Collection<IBeacon> newBeacons){
     	Collection<IBeacon> toDelete = null;
     	boolean found = false;

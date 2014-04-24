@@ -31,7 +31,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-
+/**
+ * This class implements the main activityy of the application
+ * @author Andrea Corna - Lorenzo Fontana
+ *
+ */
 public class MainActivity extends Activity {
 	
 	
@@ -45,36 +49,19 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
-				setContentView(R.layout.activity_main);
-				if (savedInstanceState == null) {
-					getFragmentManager().beginTransaction()
-							.add(R.id.container, new PlaceholderFragment()).commit();
-				}
-	
-		/*if(getIntent().getExtras()!= null){
-			String data = getIntent().getExtras().getString("Boot");
-			if(data != null && data.equals(true))
-				moveTaskToBack(true);
+		setContentView(R.layout.activity_main);
+		if (savedInstanceState == null) {
+			getFragmentManager().beginTransaction()
+					.add(R.id.container, new PlaceholderFragment()).commit();
 		}
-		*/
-		
 		receiver = new BeaconReceiver();
 		IntentFilter intentFilter = new IntentFilter();
 		intentFilter.addAction(RangingService.ACTION);
 		registerReceiver(receiver, intentFilter);
-     
-
-		
 		verifyBluetooth();
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		registerPreferenceListener();
-		/*SharedPreferences settings = getSharedPreferences("HASRUN", 0);
-		Boolean hasRun = settings.getBoolean("hasRun", false); 
-		if (!hasRun) {
-			SharedPreferences.Editor edit = settings.edit();
-		    edit.putBoolean("hasRun", true); //set to has run
-		    edit.commit();*/
+		
 		if(isBackGroundRunning()){
 			BackgroundService.getInstance().stopSelf();
 		}
@@ -82,11 +69,6 @@ public class MainActivity extends Activity {
 			MonitoringService.getInstance().stopSelf();
 		}
 		launchMonitoring(true);
-			/*Log.d("BOOT", "first time");
-		}else{
-			Log.d("BOOT", "not first time");
-		}*/
-		
 		
 	}
 
@@ -134,6 +116,9 @@ public class MainActivity extends Activity {
 		}
 	}
 	
+	/**
+	 * The method verifies that the bluetooth device is enabled and is the device has the bluetooth 4.0 hardware
+	 */
 	private void verifyBluetooth() {
 
 		try {
@@ -173,7 +158,7 @@ public class MainActivity extends Activity {
 	}	
 	
 	/**
-	 * Class which handle the message send by the RangingService(information about the beacons in range)
+	 * Class which handles the message send by the RangingService(information about the beacons in range)
 	 *
 	 */
 	private class BeaconReceiver extends BroadcastReceiver{
@@ -209,6 +194,10 @@ public class MainActivity extends Activity {
 	    prefs.registerOnSharedPreferenceChangeListener(listener);
 	}
 	
+	/**
+	 * The method sets the BeaconHandler implementation according to settings and starts Monitorin service
+	 * @param logicOnClient - true if the logic is on client side, false otherwise
+	 */
 	private void launchMonitoring(boolean logicOnClient){
 		Log.d(TAG, "launching monitoring "+logicOnClient);
 		
@@ -230,6 +219,10 @@ public class MainActivity extends Activity {
 		
 	}
 	
+	/**
+	 * The method controls is the Monitoring service is already active
+	 * @return true if is active, otherwise false
+	 */
 	private boolean isMonitoringRunning() {
 		  ActivityManager manager = (ActivityManager)getSystemService(ACTIVITY_SERVICE);
 		  for (RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
@@ -240,6 +233,10 @@ public class MainActivity extends Activity {
 		  return false;
 	}
 	
+	/**
+	 * The method controls is the Background service is already active
+	 * @return true if is active, otherwise false
+	 */
 	private boolean isBackGroundRunning() {
 		  ActivityManager manager = (ActivityManager)getSystemService(ACTIVITY_SERVICE);
 		  for (RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {

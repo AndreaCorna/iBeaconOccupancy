@@ -6,15 +6,16 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.os.SystemClock;
 
-import com.radiusnetworks.ibeacon.IBeaconManager;
 import com.radiusnetworks.ibeacon.Region;
 import com.radiusnetworks.proximity.ibeacon.startup.BootstrapNotifier;
 import com.radiusnetworks.proximity.ibeacon.startup.RegionBootstrap;
 
 public class BackgroundService extends Service implements BootstrapNotifier{
 
-	private static final String TAG = "AndroidProximityReferenceApplication";
-    private RegionBootstrap regionBootstrap;
+	@SuppressWarnings("unused")
+	private static final String TAG = "Background Service";
+    @SuppressWarnings("unused")
+	private RegionBootstrap regionBootstrap;
     private BluetoothAdapter adapter;
     private static BackgroundService me;
 

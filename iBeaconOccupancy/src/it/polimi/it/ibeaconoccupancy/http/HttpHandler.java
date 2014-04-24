@@ -20,6 +20,8 @@ import com.radiusnetworks.ibeacon.IBeacon;
  */
 public class HttpHandler implements Serializable{
 	
+
+	private static final long serialVersionUID = 1L;
 	protected static final String TAG = "HTTP";
 	private String url;
 	

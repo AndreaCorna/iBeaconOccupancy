@@ -23,7 +23,8 @@ public class MonitoringService extends Service implements IBeaconConsumer {
     private  BeaconHandler sendManager = new FullBeaconHandlerImpl();
 	private Intent ranging;
 	private static MonitoringService me;
-	
+	@SuppressWarnings("unused")
+	private SaveBattery save;
 	
 	@Override
 	public void onCreate() {
@@ -48,9 +49,8 @@ public class MonitoringService extends Service implements IBeaconConsumer {
 
 		ranging= new Intent(this,it.polimi.it.ibeaconoccupancy.services.RangingService.class);
 		ranging.putExtra("BeaconHandler", sendManager);
-		//iBeaconManager.setBackgroundMode(this, true);
 		iBeaconManager.setBackgroundScanPeriod(3000);
-		SaveBattery save = new SaveBattery();
+		save = new SaveBattery();
 		return super.onStartCommand(intent, flags, startId);
 	}
 	
