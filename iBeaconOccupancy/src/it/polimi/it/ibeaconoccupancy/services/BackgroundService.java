@@ -18,6 +18,7 @@ public class BackgroundService extends Service implements BootstrapNotifier{
 	private RegionBootstrap regionBootstrap;
     private BluetoothAdapter adapter;
     private static BackgroundService me;
+    private Intent monitoring;
 
     public void onCreate() {
         super.onCreate();
@@ -29,8 +30,8 @@ public class BackgroundService extends Service implements BootstrapNotifier{
         }
         Region region = new Region("ciao",null, null, null);
         regionBootstrap = new RegionBootstrap(this, region);
-        Intent intent = new Intent(this, it.polimi.it.ibeaconoccupancy.services.MonitoringService.class);
-		startService(intent);
+        monitoring = new Intent(this, it.polimi.it.ibeaconoccupancy.services.MonitoringService.class);
+		startService(monitoring);
     }
 	@Override
 	public void didDetermineStateForRegion(int arg0, Region arg1) {
@@ -60,4 +61,8 @@ public class BackgroundService extends Service implements BootstrapNotifier{
 		return me;
 	}
 
+	public void onDestroy(){
+		super.onDestroy();
+		stopService(monitoring);
+	}
 }
