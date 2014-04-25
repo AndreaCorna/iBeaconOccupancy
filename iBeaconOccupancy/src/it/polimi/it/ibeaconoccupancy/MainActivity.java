@@ -65,9 +65,10 @@ public class MainActivity extends Activity {
 		if(isBackGroundRunning()){
 			BackgroundService.getInstance().stopSelf();
 		}
-		if(isMonitoringRunning()){
+		/*if(isMonitoringRunning()){
 			MonitoringService.getInstance().stopSelf();
-		}
+		}*/
+		//while(isBackGroundRunning());
 		launchMonitoring(true);
 		
 	}
@@ -94,6 +95,12 @@ public class MainActivity extends Activity {
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+	
+	public void onDestroy(){
+		super.onDestroy();
+		stopService(intent);
+		unregisterReceiver(receiver);
 	}
 	
 	
