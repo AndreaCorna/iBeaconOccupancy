@@ -4,11 +4,15 @@ import java.util.ArrayList;
 
 import com.radiusnetworks.ibeacon.IBeaconManager;
 
-import it.polimi.it.ibeaconoccupancy.compare.BeaconHandler;
+
 import it.polimi.it.ibeaconoccupancy.compare.FullBeaconHandlerImpl;
 import it.polimi.it.ibeaconoccupancy.compare.MinimalBeaconHandlerImpl;
+import it.polimi.it.ibeaconoccupancy.services.BackgroundService;
+import it.polimi.it.ibeaconoccupancy.services.MonitoringService;
 import it.polimi.it.ibeaconoccupancy.services.RangingService;
 import android.app.Activity;
+import android.app.ActivityManager;
+import android.app.ActivityManager.RunningServiceInfo;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.BroadcastReceiver;
@@ -19,8 +23,6 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
-import android.preference.Preference;
-import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -29,11 +31,16 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-
+/**
+ * This class implements the main activityy of the application
+ * @author Andrea Corna - Lorenzo Fontana
+ *
+ */
 public class MainActivity extends Activity {
 	
 	
 	private Intent intent;
+	private BeaconReceiver receiver;
 	protected static final String TAG = "MainActivity";
 	private SharedPreferences prefs;
 	OnSharedPreferenceChangeListener listener;
@@ -42,36 +49,24 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
-				setContentView(R.layout.activity_main);
-				if (savedInstanceState == null) {
-					getFragmentManager().beginTransaction()
-							.add(R.id.container, new PlaceholderFragment()).commit();
-				}
-	
-		/*if(getIntent().getExtras()!= null){
-			String data = getIntent().getExtras().getString("Boot");
-			if(data != null && data.equals(true))
-				moveTaskToBack(true);
+		setContentView(R.layout.activity_main);
+		if (savedInstanceState == null) {
+			getFragmentManager().beginTransaction()
+					.add(R.id.container, new PlaceholderFragment()).commit();
 		}
-		*/
-		
-		
-
-		
+		receiver = new BeaconReceiver();
+		IntentFilter intentFilter = new IntentFilter();
+		intentFilter.addAction(RangingService.ACTION);
+		registerReceiver(receiver, intentFilter);
 		verifyBluetooth();
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		registerPreferenceListener();
-		SharedPreferences settings = getSharedPreferences("HASRUN", 0);
-		Boolean hasRun = settings.getBoolean("hasRun", false); 
-		if (!hasRun) {
-			SharedPreferences.Editor edit = settings.edit();
-		    edit.putBoolean("hasRun", true); //set to has run
-		    edit.commit();
-			launchMonitoring(true);
-			Log.d("BOOT", "first time");
-		}else{
-			Log.d("BOOT", "not first time");
+		
+		if(isBackGroundRunning()){
+			BackgroundService.getInstance().stopSelf();
+		}
+		if(isMonitoringRunning()){
+			MonitoringService.getInstance().stopSelf();
 		}
 		launchMonitoring(true);
 		Intent myintentIntent = new Intent(this,LocationActivity.class);
@@ -123,6 +118,9 @@ public class MainActivity extends Activity {
 		}
 	}
 	
+	/**
+	 * The method verifies that the bluetooth device is enabled and is the device has the bluetooth 4.0 hardware
+	 */
 	private void verifyBluetooth() {
 
 		try {
@@ -161,6 +159,21 @@ public class MainActivity extends Activity {
 		
 	}	
 	
+	/**
+	 * Class which handles the message send by the RangingService(information about the beacons in range)
+	 *
+	 */
+	private class BeaconReceiver extends BroadcastReceiver{
+
+		@Override
+		public void onReceive(Context arg0, Intent intent) {		  
+
+			ArrayList<String> beacons = intent.getStringArrayListExtra("BeaconInfo");		  
+			for (String string : beacons) {
+				Log.d(TAG,"Beacon Receive "+string);
+			}  
+		}
+	}
 	
 	/**
 	 * Preference listener to handle the different ways we send  informations to the server
@@ -183,6 +196,10 @@ public class MainActivity extends Activity {
 	    prefs.registerOnSharedPreferenceChangeListener(listener);
 	}
 	
+	/**
+	 * The method sets the BeaconHandler implementation according to settings and starts Monitorin service
+	 * @param logicOnClient - true if the logic is on client side, false otherwise
+	 */
 	private void launchMonitoring(boolean logicOnClient){
 		Log.d(TAG, "launching monitoring "+logicOnClient);
 		
@@ -203,6 +220,34 @@ public class MainActivity extends Activity {
 
 		
 	}
+	
+	/**
+	 * The method controls is the Monitoring service is already active
+	 * @return true if is active, otherwise false
+	 */
+	private boolean isMonitoringRunning() {
+		  ActivityManager manager = (ActivityManager)getSystemService(ACTIVITY_SERVICE);
+		  for (RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+		    if (MonitoringService.class.getName().equals(service.service.getClassName())) {
+		    	return true;
+		    }
+		  }
+		  return false;
+	}
+	
+	/**
+	 * The method controls is the Background service is already active
+	 * @return true if is active, otherwise false
+	 */
+	private boolean isBackGroundRunning() {
+		  ActivityManager manager = (ActivityManager)getSystemService(ACTIVITY_SERVICE);
+		  for (RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+		    if (BackgroundService.class.getName().equals(service.service.getClassName())) {
+		    	return true;
+		    }
+		  }
+		  return false;
+		}
 	
 	
 

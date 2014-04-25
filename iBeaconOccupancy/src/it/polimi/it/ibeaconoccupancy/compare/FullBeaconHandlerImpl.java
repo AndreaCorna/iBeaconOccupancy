@@ -12,10 +12,6 @@ import com.radiusnetworks.ibeacon.IBeacon;
 
 public class FullBeaconHandlerImpl implements BeaconHandler, Serializable {
 	
-
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -6887364374840188927L;
 	protected static final String TAG = "BeaconToSendManager";
 	private final HttpHandler httpHand = new HttpHandler("http://ibeacon.no-ip.org/ibeacon");
@@ -25,16 +21,21 @@ public class FullBeaconHandlerImpl implements BeaconHandler, Serializable {
 	public void beaconToSend(Collection<IBeacon> newInformation, String MAC) {
 		Log.d(TAG, "sending beaocn to server in a full logic way");
 		IBeacon big = getBestLocation(newInformation);
-		//httpHand.postOnRanging(big, MAC, 1,big.getRssi());
+		httpHand.postOnRanging(big, MAC, 1,big.getRssi());
 		
-	}
-	
+    }
+
 	public IBeacon getBestLocation(Collection<IBeacon> newInformation){
-	
-		return null;
+		IBeacon big = newInformation.iterator().next();
+		for (IBeacon iBeacon : newInformation) {
+			if(iBeacon.getRssi() > big.getRssi()){
+				big = iBeacon;
+			}
+		}
+		return big;
 	}
     
-    @SuppressWarnings("null")
+    @SuppressWarnings({ "null", "unused" })
 	private void deleteFromOld(Collection<IBeacon> oldBeacons, Collection<IBeacon> newBeacons){
     	Collection<IBeacon> toDelete = null;
     	boolean found = false;

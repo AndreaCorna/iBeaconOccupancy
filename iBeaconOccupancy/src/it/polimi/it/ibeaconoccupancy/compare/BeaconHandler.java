@@ -1,6 +1,5 @@
 package it.polimi.it.ibeaconoccupancy.compare;
 
-import it.polimi.it.ibeaconoccupancy.http.HttpHandler;
 
 import java.io.Serializable;
 import java.util.Collection;

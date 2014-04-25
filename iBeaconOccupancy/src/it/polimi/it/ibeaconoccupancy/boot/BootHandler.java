@@ -1,10 +1,17 @@
 package it.polimi.it.ibeaconoccupancy.boot;
 
-import it.polimi.it.ibeaconoccupancy.compare.FullBeaconHandlerImpl;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
+/**
+ * The class is woken after the boot complete event and starts the background process
+ * @extends BroadcastReceiver
+ * @author Andrea Corna - Lorenzo Fontana
+ * 
+ *
+ */
 public class BootHandler extends BroadcastReceiver {
 	 @Override
 	 public void onReceive(Context context, Intent intent) {

@@ -3,8 +3,6 @@ package it.polimi.it.ibeaconoccupancy.services;
 import it.polimi.it.ibeaconoccupancy.SaveBattery;
 import it.polimi.it.ibeaconoccupancy.compare.BeaconHandler;
 import it.polimi.it.ibeaconoccupancy.compare.FullBeaconHandlerImpl;
-import it.polimi.it.ibeaconoccupancy.compare.MinimalBeaconHandlerImpl;
-import it.polimi.it.ibeaconoccupancy.http.HttpHandler;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
@@ -24,11 +22,13 @@ public class MonitoringService extends Service implements IBeaconConsumer {
     private final BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
     private  BeaconHandler sendManager = new FullBeaconHandlerImpl();
 	private Intent ranging;
-	
-	
+	private static MonitoringService me;
+	@SuppressWarnings("unused")
+	private SaveBattery save;
 	
 	@Override
 	public void onCreate() {
+		me = this;
         super.onCreate();
         iBeaconManager.bind(this);
         Log.d(TAG, "Starting monitoring");
@@ -49,9 +49,8 @@ public class MonitoringService extends Service implements IBeaconConsumer {
 
 		ranging= new Intent(this,it.polimi.it.ibeaconoccupancy.services.RangingService.class);
 		ranging.putExtra("BeaconHandler", sendManager);
-		//iBeaconManager.setBackgroundMode(this, true);
 		iBeaconManager.setBackgroundScanPeriod(3000);
-		SaveBattery save = new SaveBattery();
+		save = new SaveBattery();
 		return super.onStartCommand(intent, flags, startId);
 	}
 	
@@ -118,5 +117,8 @@ public class MonitoringService extends Service implements IBeaconConsumer {
 
 	}
 	 
+	public static MonitoringService getInstance(){
+		return me;
+	}
 
 }
