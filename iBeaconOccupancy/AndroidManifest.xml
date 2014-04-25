@@ -31,22 +31,22 @@
         </activity>
         <activity android:name="it.polimi.it.ibeaconoccupancy.SettingsActivity" >
         </activity>
+        
+         <activity android:name="it.polimi.it.ibeaconoccupancy.LocationActivity" >
+        </activity>
 
         <service android:name="it.polimi.it.ibeaconoccupancy.services.RangingService" >
         </service>
         <service android:name="it.polimi.it.ibeaconoccupancy.services.MonitoringService" >
         </service>
-
-        <receiver android:name="it.polimi.it.ibeaconoccupancy.boot.BootHandler" >
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
-        </receiver>
-
-        <activity
-            android:name="it.polimi.it.ibeaconoccupancy.LocationActivity"
-            android:label="@string/title_activity_location" >
-        </activity>
+        <service android:name="it.polimi.it.ibeaconoccupancy.services.BackgroundService">
+        </service>
+        <receiver android:name="it.polimi.it.ibeaconoccupancy.boot.BootHandler">
+		   <intent-filter>
+		    <action android:name="android.intent.action.BOOT_COMPLETED" />
+		  	<category android:name="android.intent.category.LAUNCHER" />
+		   </intent-filter>
+	  	</receiver>
     </application>
 
 </manifest>

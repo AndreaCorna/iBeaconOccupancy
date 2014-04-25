@@ -38,17 +38,19 @@ public class MonitoringService extends Service implements IBeaconConsumer {
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand monitoring");
-
-		sendManager = (BeaconHandler) intent.getSerializableExtra("BeaconHandler");		
+        if(intent != null){
+        if((BeaconHandler) intent.getSerializableExtra("BeaconHandler") != null)
+        	sendManager = (BeaconHandler) intent.getSerializableExtra("BeaconHandler");		
 		if (intent.getSerializableExtra("BeaconHandler")==null) {
 			Log.d(TAG,"fewjgirtngirt");
-		}
+			sendManager = new FullBeaconHandlerImpl();
+		}}
 		 Log.d(TAG, "sendManager monitoring");
 
 		ranging= new Intent(this,it.polimi.it.ibeaconoccupancy.services.RangingService.class);
 		ranging.putExtra("BeaconHandler", sendManager);
 		//iBeaconManager.setBackgroundMode(this, true);
-		//iBeaconManager.setBackgroundScanPeriod(3000);
+		iBeaconManager.setBackgroundScanPeriod(3000);
 		SaveBattery save = new SaveBattery();
 		return super.onStartCommand(intent, flags, startId);
 	}
@@ -89,6 +91,8 @@ public class MonitoringService extends Service implements IBeaconConsumer {
 				
 			}
 		});
+		iBeaconManager.setBackgroundMode(this, true);
+		iBeaconManager.setBackgroundScanPeriod(3000);
 		try {
 			iBeaconManager.startMonitoringBeaconsInRegion(new Region("myMonitoringUniqueId",null, null, null));
 		} catch (RemoteException e) {

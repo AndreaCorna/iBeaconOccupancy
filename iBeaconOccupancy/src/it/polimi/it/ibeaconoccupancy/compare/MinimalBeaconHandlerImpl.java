@@ -21,8 +21,7 @@ public class MinimalBeaconHandlerImpl implements BeaconHandler,Serializable {
 	private final HttpHandler httpHand = new HttpHandler("http://ibeacon.no-ip.org/ibeaconserver");
 
 	@Override
-	public void beaconToSend(Collection<IBeacon> oldInformation,
-			Collection<IBeacon> newInformation, String MAC) {
+	public void beaconToSend(Collection<IBeacon> newInformation, String MAC) {
 		for (IBeacon iBeacon : newInformation) {
     		httpHand.postOnRanging(iBeacon, MAC, 1,iBeacon.getRssi());
 		}
