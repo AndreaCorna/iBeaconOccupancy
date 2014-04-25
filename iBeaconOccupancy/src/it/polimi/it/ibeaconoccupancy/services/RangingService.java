@@ -37,7 +37,7 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
     private Sensor mAccelerometer;
     private boolean isMoving = false;
     private float last_x,last_y,last_z;
-    private static final int SHAKE_THRESHOLD = 600;
+    private static final int SHAKE_THRESHOLD = 300;
     private long lastUpdate;
     
 	
