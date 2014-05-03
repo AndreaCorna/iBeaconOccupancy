@@ -87,7 +87,6 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
             	if(isMoving){
             		sendManager.beaconToSend(iBeacons,mBluetoothAdapter.getAddress());
             		Log.d(TAG,"Ranging");
-            		this.notifyActivity(iBeacons); 
             		
             		isMoving = false;
             		restore();
@@ -95,21 +94,7 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
             	}
             }
         }
-        /**
-         * notify the Mainactivity of the presence of the iBeacons found by the ranging
-         * @param iBeacons
-         */
-        private void notifyActivity(Collection<IBeacon> iBeacons){
-        	Intent intent = new Intent();
-        	intent.setAction(ACTION);
-        	List<String> beaconsInfos = new ArrayList<String>();
- 	      for (IBeacon iBeacon : iBeacons){
- 	    	  beaconsInfos.add(iBeacon.getProximityUuid()+iBeacon.getMajor()+iBeacon.getMinor()+" "+iBeacon.getAccuracy());
- 	    	  
- 	      }
- 	      intent.putStringArrayListExtra("BeaconInfo",(ArrayList<String>) beaconsInfos);	      
- 	      sendBroadcast(intent);
-        }
+        
 
         });
         try {
