@@ -40,7 +40,6 @@ public class MainActivity extends Activity {
 	
 	
 	private Intent intent;
-	private BeaconReceiver receiver;
 	protected static final String TAG = "MainActivity";
 	private SharedPreferences prefs;
 	OnSharedPreferenceChangeListener listener;
@@ -54,10 +53,6 @@ public class MainActivity extends Activity {
 			getFragmentManager().beginTransaction()
 					.add(R.id.container, new PlaceholderFragment()).commit();
 		}
-		receiver = new BeaconReceiver();
-		IntentFilter intentFilter = new IntentFilter();
-		intentFilter.addAction(RangingService.ACTION);
-		registerReceiver(receiver, intentFilter);
 		verifyBluetooth();
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		registerPreferenceListener();
@@ -101,7 +96,7 @@ public class MainActivity extends Activity {
 	public void onDestroy(){
 		super.onDestroy();
 		stopService(intent);
-		unregisterReceiver(receiver);
+		
 	}
 	
 	
@@ -165,21 +160,7 @@ public class MainActivity extends Activity {
 		
 	}	
 	
-	/**
-	 * Class which handles the message send by the RangingService(information about the beacons in range)
-	 *
-	 */
-	private class BeaconReceiver extends BroadcastReceiver{
 
-		@Override
-		public void onReceive(Context arg0, Intent intent) {		  
-
-			ArrayList<String> beacons = intent.getStringArrayListExtra("BeaconInfo");		  
-			for (String string : beacons) {
-				Log.d(TAG,"Beacon Receive "+string);
-			}  
-		}
-	}
 	
 	/**
 	 * Preference listener to handle the different ways we send  informations to the server
@@ -218,11 +199,9 @@ public class MainActivity extends Activity {
 		else{
 			intent.putExtra("BeaconHandler", new MinimalBeaconHandlerImpl());
 		}
-		
-		Log.d(TAG, "intent monitoring ");
-		Log.d(TAG, "extra monitoring ");
+
 		startService(intent);
-		Log.d(TAG, "start monitoring ");
+		Log.d(TAG, "start monitoring from launch");
 
 		
 	}
