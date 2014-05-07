@@ -1,9 +1,13 @@
 package it.polimi.it.ibeaconoccupancy;
 
+import it.polimi.it.ibeaconoccupancy.helper.DataBaseHelper;
 import it.polimi.it.ibeaconoccupancy.services.RangingService;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import com.radiusnetworks.ibeacon.IBeaconManager;
 
 import android.app.Activity;
 import android.app.ActionBar;
@@ -12,6 +16,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
+import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -27,6 +34,7 @@ public class LocationActivity extends Activity {
 	protected static final String TAG = "LocationActivity";
 	private BeaconReceiver receiver;
 	private HashMap<String, String> beaconLocation;
+	
 
 
 	@Override
@@ -46,7 +54,8 @@ public class LocationActivity extends Activity {
 					.add(R.id.container, new PlaceholderFragment()).commit();
 		}
 		TextView textView = (TextView) findViewById(R.id.location_question);
-		textView.setText("Trying to locate your position");
+		textView.setText("Where are you?");
+		loadDataDB();
      
 	}
 
@@ -86,6 +95,13 @@ public class LocationActivity extends Activity {
 			return rootView;
 		}
 	}
+	
+	@Override
+	protected void onDestroy() {
+		unregisterReceiver(receiver);
+		super.onDestroy();
+	}
+	
 	/**
 	 * Class which handle the message send by the RangingService(information about the beacons in range)
 	 *
@@ -108,6 +124,39 @@ public class LocationActivity extends Activity {
 			
 			 
 		}
+	}
+	
+	private void loadDataDB(){
+		DataBaseHelper myDbHelper = new DataBaseHelper(LocationActivity.this);
+		myDbHelper = new DataBaseHelper(this);
+
+		try {
+
+			myDbHelper.createDataBase();
+			Log.d(TAG, "DB created");
+		} catch (IOException ioe) {
+
+			throw new Error("Unable to create database");
+		}
+
+		try {
+			myDbHelper.openDataBase();
+			Log.d(TAG, "DB opened");
+		}catch(SQLException sqle){
+			throw sqle;
+		}
+		SQLiteDatabase myDb = myDbHelper.getReadableDatabase();
+		Cursor cursor = myDb.query(myDbHelper.TABLE_ROOMS, null, null, null, null, null, null);
+		cursor.moveToFirst();
+		while(cursor.isAfterLast()==false){
+			String room = cursor.getString(1);
+			String beacon  = cursor.getString(2);
+			beaconLocation.put(beacon, room);
+			Log.d(TAG, "Inserting in beaconLocation: room "+room+" beacon "+beacon);
+			cursor.moveToNext();
+		}
+		
+ 
 	}
 	
 	private void loadBeaconLocationInfo(){
