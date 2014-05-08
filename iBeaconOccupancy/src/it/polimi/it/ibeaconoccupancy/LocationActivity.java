@@ -5,7 +5,9 @@ import it.polimi.it.ibeaconoccupancy.services.RangingService;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 import com.radiusnetworks.ibeacon.IBeaconManager;
 
@@ -26,6 +28,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 import android.os.Build;
 
@@ -47,16 +53,44 @@ public class LocationActivity extends Activity {
 		intentFilter.addAction(RangingService.ACTION);
 		registerReceiver(receiver, intentFilter);
 		
-		loadBeaconLocationInfo();
+		
 		
 		if (savedInstanceState == null) {
 			getFragmentManager().beginTransaction()
 					.add(R.id.container, new PlaceholderFragment()).commit();
 		}
-		TextView textView = (TextView) findViewById(R.id.location_question);
-		textView.setText("Where are you?");
+		
 		loadDataDB();
+		setupLayout();
      
+	}
+	
+	private void setupLayout() {
+		TextView textView = (TextView) findViewById(R.id.question);
+		textView.setText("Where are you?");
+		Button asw1 = (Button) findViewById(R.id.answer1);
+		Button asw2 = (Button) findViewById(R.id.answer2);
+		Button asw3 = (Button) findViewById(R.id.answer3);
+		Button asw4 = (Button) findViewById(R.id.answer4);
+		
+		ArrayList<String> rooms = new ArrayList<String>(beaconLocation.values());
+		Collections.shuffle(rooms);
+		
+		setButtonText(asw1,0, rooms);
+		setButtonText(asw2,1,rooms);
+		setButtonText(asw3,2,rooms);
+		asw4.setText("Nessuna");
+
+		
+	}
+	private void setButtonText(Button but, int  index, ArrayList<String> rooms){
+		try {
+			but.setText(rooms.get(index));
+		} catch (IndexOutOfBoundsException e) {
+			but.setVisibility(View.GONE);
+			Log.d(TAG, "Ci devono essere almeno 3 entry ne database");
+		}
+		
 	}
 
 	@Override
@@ -114,19 +148,14 @@ public class LocationActivity extends Activity {
 			ArrayList<String> beacons = intent.getStringArrayListExtra("BeaconInfo");
 			String strongerBeacon = intent.getExtras().getString("StrongerBeacon");
 			String location = beaconLocation.get(strongerBeacon);
-			TextView textView = (TextView) findViewById(R.id.location_question);
 			
-			
-			Log.d(TAG, "received location "+strongerBeacon);
-			if (location!=null) {
-				textView.setText("You are next to "+location);
-			}
 			
 			 
 		}
 	}
 	
 	private void loadDataDB(){
+		beaconLocation = new HashMap<String, String>();
 		DataBaseHelper myDbHelper = new DataBaseHelper(LocationActivity.this);
 		myDbHelper = new DataBaseHelper(this);
 
@@ -159,11 +188,7 @@ public class LocationActivity extends Activity {
  
 	}
 	
-	private void loadBeaconLocationInfo(){
-		beaconLocation = new HashMap<String, String>();
-		beaconLocation.put("e2c56db5-dffb-48d2-b060-d0f5a71096e000", "PC Andrea");
-		beaconLocation.put("e2c56db5-dffb-48d2-b060-d0f5a71096e0035", "Raspberry Fons");
-	}
+	
 	
 
 }
