@@ -117,7 +117,7 @@ public class LocationActivity extends Activity {
 	 * @param view button which has called this method
 	 */
 	public void checkAnswer(View view){
-		HttpHandler http =new HttpHandler("ibeacon.no-ip.org");
+		HttpHandler http =new HttpHandler("http://ibeacon.no-ip.org/test");
 		Log.d(TAG, "in beacon loaction "+bestBeacon);
 		
 		String correctRoom = beaconLocation.get(bestBeacon);			

@@ -95,7 +95,7 @@ public class HttpHandler implements Serializable{
 	
 	public void postAnswer(String answer, String strongest, int correct){
 		int responseCode = 0;
-        String stringPost = url+"/tests";
+        String stringPost = url;
         URL urlPost;
 		try {
 			urlPost = new URL(stringPost);
@@ -119,9 +119,12 @@ public class HttpHandler implements Serializable{
             wr.write(jsonObject.toString());
             wr.flush();
             responseCode = httpCon.getResponseCode();
- 
+
             
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        	e.printStackTrace();
+        	Log.d(TAG, "exception "+e);
+        }
         	Log.d(TAG,"SEND RESPONSE "+responseCode);
     
     }
