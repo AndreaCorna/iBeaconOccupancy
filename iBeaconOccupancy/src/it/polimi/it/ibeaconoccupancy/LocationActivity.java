@@ -251,6 +251,7 @@ public class LocationActivity extends Activity {
 			Log.d(TAG, "Inserting in beaconLocation: room "+room+" beacon "+beacon);
 			cursor.moveToNext();
 		}
+		cursor.close();
 		
  
 	}
