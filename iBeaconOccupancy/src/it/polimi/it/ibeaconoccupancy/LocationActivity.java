@@ -1,6 +1,7 @@
 package it.polimi.it.ibeaconoccupancy;
 
 import it.polimi.it.ibeaconoccupancy.helper.DataBaseHelper;
+import it.polimi.it.ibeaconoccupancy.http.HttpHandler;
 import it.polimi.it.ibeaconoccupancy.services.RangingService;
 
 import java.io.IOException;
@@ -11,6 +12,7 @@ import java.util.List;
 
 import com.radiusnetworks.ibeacon.IBeaconManager;
 
+import android.R.string;
 import android.app.Activity;
 import android.app.ActionBar;
 import android.app.Fragment;
@@ -23,6 +25,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -40,6 +43,8 @@ public class LocationActivity extends Activity {
 	protected static final String TAG = "LocationActivity";
 	private BeaconReceiver receiver;
 	private HashMap<String, String> beaconLocation;
+	private SparseArray<String> answers;
+	private String bestBeacon = new String();
 	
 
 
@@ -65,6 +70,9 @@ public class LocationActivity extends Activity {
      
 	}
 	
+	/**
+	 * Creating the list of possible answers taking random rooms from the DB
+	 */
 	private void setupLayout() {
 		TextView textView = (TextView) findViewById(R.id.question);
 		textView.setText("Where are you?");
@@ -76,6 +84,7 @@ public class LocationActivity extends Activity {
 		ArrayList<String> rooms = new ArrayList<String>(beaconLocation.values());
 		Collections.shuffle(rooms);
 		
+		answers = new SparseArray<String>();
 		setButtonText(asw1,0, rooms);
 		setButtonText(asw2,1,rooms);
 		setButtonText(asw3,2,rooms);
@@ -83,15 +92,67 @@ public class LocationActivity extends Activity {
 
 		
 	}
+	
+	/**
+	 * Setting the text to the buttons and adding field to the sparse array Answers
+	 * If the element at that index of the array doesn't exist(aka not enough rooms to add to the answers) button is hidden
+	 * @param but	button to which add the text
+	 * @param index	index in the rooms array where to find the value
+	 * @param rooms	array of string of the different rooms from which take the value
+	 */
 	private void setButtonText(Button but, int  index, ArrayList<String> rooms){
 		try {
-			but.setText(rooms.get(index));
+			String randomRoom = rooms.get(index);
+			but.setText(randomRoom);
+			answers.append(but.getId(), randomRoom);
 		} catch (IndexOutOfBoundsException e) {
 			but.setVisibility(View.GONE);
 			Log.d(TAG, "Ci devono essere almeno 3 entry ne database");
 		}
 		
 	}
+	
+	/**
+	 * Method called by the buttons of the view which sends to the server the information about the answer
+	 * @param view button which has called this method
+	 */
+	public void checkAnswer(View view){
+		HttpHandler http =new HttpHandler("ibeacon.no-ip.org");
+		Log.d(TAG, "in beacon loaction "+bestBeacon);
+		
+		String correctRoom = beaconLocation.get(bestBeacon);			
+		
+		//checking if answer is different from Nessuna
+		if (view.getId() != R.id.answer4) {
+			String answerRoom = answers.get(view.getId());
+			if (answerRoom.equals(correctRoom)){
+				Log.d(TAG, "correct specific answer "+answerRoom+" correct"+correctRoom);
+				http.postAnswer(answerRoom, correctRoom, 1);
+			}
+			else {
+				Log.d(TAG, "wrong specific answer "+ answerRoom+" "+correctRoom);
+				http.postAnswer(answerRoom, correctRoom, 0);
+			}	
+		}
+		
+		//checking correctness when answer is  Nessuna
+		else {			
+			//check if in the other answers there is the correct one
+			if (beaconLocation.values().contains(correctRoom)) {
+				http.postAnswer("Nessuna", correctRoom, 0);
+				Log.d(TAG, "wrong generic answer "+" correct"+correctRoom);
+
+			}
+			else {
+				http.postAnswer("Nessuna", "Nessuna", 1);
+				Log.d(TAG, "correct generic answer  "+correctRoom);
+			}
+		}
+		
+		
+	}
+	
+	
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -137,7 +198,7 @@ public class LocationActivity extends Activity {
 	}
 	
 	/**
-	 * Class which handle the message send by the RangingService(information about the beacons in range)
+	 * Class which receive the message sent by the RangingService(information about the beacons in range) and set the bestBeacon attribute 
 	 *
 	 */
 	private class BeaconReceiver extends BroadcastReceiver{
@@ -147,13 +208,17 @@ public class LocationActivity extends Activity {
 
 			ArrayList<String> beacons = intent.getStringArrayListExtra("BeaconInfo");
 			String strongerBeacon = intent.getExtras().getString("StrongerBeacon");
-			String location = beaconLocation.get(strongerBeacon);
+			bestBeacon = strongerBeacon;
+			Log.d(TAG, "on Receive strong beacon "+bestBeacon);
 			
 			
 			 
 		}
 	}
 	
+	/**
+	 * Load the room-beacon associations from a sqlite database and put values in the hashmap locationBeacon
+	 */
 	private void loadDataDB(){
 		beaconLocation = new HashMap<String, String>();
 		DataBaseHelper myDbHelper = new DataBaseHelper(LocationActivity.this);

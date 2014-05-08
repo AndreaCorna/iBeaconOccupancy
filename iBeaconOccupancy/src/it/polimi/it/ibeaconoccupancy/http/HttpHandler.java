@@ -93,6 +93,39 @@ public class HttpHandler implements Serializable{
     
     }
 	
+	public void postAnswer(String answer, String strongest, int correct){
+		int responseCode = 0;
+        String stringPost = url+"/tests";
+        URL urlPost;
+		try {
+			urlPost = new URL(stringPost);
+		   	HttpURLConnection httpCon = (HttpURLConnection) urlPost.openConnection();
+        	httpCon.setDoOutput(true);
+        	httpCon.setDoInput(true);
+        	
+        	httpCon.setRequestMethod("POST");
+        	httpCon.setRequestProperty("content-type","application/json; charset=utf-8"); 
+          	httpCon.setRequestProperty("Accept", "application/json");
+          	
+        	
+       
+            JSONObject jsonObject = new JSONObject();
+            
+            jsonObject.put("answer", answer);
+            jsonObject.put("strongest", strongest);
+            jsonObject.put("correct", correct);
+            
+            OutputStreamWriter wr= new OutputStreamWriter(httpCon.getOutputStream());
+            wr.write(jsonObject.toString());
+            wr.flush();
+            responseCode = httpCon.getResponseCode();
+ 
+            
+        } catch (Exception e) {}
+        	Log.d(TAG,"SEND RESPONSE "+responseCode);
+    
+    }
+	
 
 
 }
