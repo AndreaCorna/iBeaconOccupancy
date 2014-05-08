@@ -36,6 +36,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.os.Build;
 
 public class LocationActivity extends Activity {
@@ -148,6 +149,7 @@ public class LocationActivity extends Activity {
 				Log.d(TAG, "correct generic answer  "+correctRoom);
 			}
 		}
+		Toast.makeText(getApplicationContext(), "Answer submitted!", Toast.LENGTH_SHORT).show();
 		
 		
 	}
