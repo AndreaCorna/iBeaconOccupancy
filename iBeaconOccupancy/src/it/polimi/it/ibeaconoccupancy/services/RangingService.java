@@ -36,7 +36,7 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
 	private final IBeaconManager iBeaconManager = IBeaconManager.getInstanceForApplication(this);
     private final BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
     
-    private  BeaconHandler sendManager;
+    private BeaconHandler sendManager;
     private SensorManager mSensorManager; 
     private Sensor mAccelerometer;
     private boolean isMoving = false;
@@ -71,7 +71,7 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
 		myintentIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		timerTask = new Timer();
 		requestAnswer = new TimerRequestAnswer(myintentIntent, notifier);
-		timerTask.schedule(requestAnswer, 6000, 60000);
+		timerTask.schedule(requestAnswer, 6000, 1200000);
 		
     	return super.onStartCommand(intent, flags, startId);
     }
@@ -80,6 +80,7 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
     	iBeaconManager.unBind(this);
         super.onDestroy();
         mSensorManager.unregisterListener(this);
+        timerTask.cancel();
         Log.d(TAG, "Ranging finished");
     }
 
@@ -101,7 +102,7 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
         public void didRangeBeaconsInRegion(Collection<IBeacon> iBeacons, Region region) {
             if (iBeacons.size() > 0) {
             	if(true){
-            		sendManager.beaconToSend(iBeacons,mBluetoothAdapter.getAddress());
+            		//sendManager.beaconToSend(iBeacons,mBluetoothAdapter.getAddress());
             		Log.d(TAG,"Ranging");
             		this.notifyActivity(iBeacons); 
             		
@@ -145,8 +146,15 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
         try {
             iBeaconManager.startRangingBeaconsInRegion(new Region("myRangingUniqueId", null, null, null));
         } catch (RemoteException e) {   }
-        
-       
+        iBeaconManager.setBackgroundMode(this, true);
+        iBeaconManager.setBackgroundScanPeriod(3000);
+		iBeaconManager.setBackgroundBetweenScanPeriod(3000);
+		try {
+			iBeaconManager.updateScanPeriods();
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     
     
     }

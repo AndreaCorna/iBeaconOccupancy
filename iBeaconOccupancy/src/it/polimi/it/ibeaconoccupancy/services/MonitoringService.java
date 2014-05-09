@@ -54,7 +54,7 @@ public class MonitoringService extends Service implements IBeaconConsumer {
 
 		ranging= new Intent(this,it.polimi.it.ibeaconoccupancy.services.RangingService.class);
 		ranging.putExtra("BeaconHandler", sendManager);
-		iBeaconManager.setBackgroundScanPeriod(3000);
+		//iBeaconManager.setBackgroundScanPeriod(3000);
 		save = new SaveBattery();
 		
 		
@@ -100,6 +100,7 @@ public class MonitoringService extends Service implements IBeaconConsumer {
 		});
 		iBeaconManager.setBackgroundMode(this, true);
 		iBeaconManager.setBackgroundScanPeriod(3000);
+		iBeaconManager.setBackgroundBetweenScanPeriod(3000);
 		try {
 			iBeaconManager.startMonitoringBeaconsInRegion(new Region("myMonitoringUniqueId",null, null, null));
 		} catch (RemoteException e) {

@@ -31,7 +31,7 @@ public class BackgroundService extends Service implements BootstrapNotifier{
         Region region = new Region("ciao",null, null, null);
         regionBootstrap = new RegionBootstrap(this, region);
         monitoring = new Intent(this, it.polimi.it.ibeaconoccupancy.services.MonitoringService.class);
-		startService(monitoring);
+		
     }
 	@Override
 	public void didDetermineStateForRegion(int arg0, Region arg1) {
@@ -41,7 +41,7 @@ public class BackgroundService extends Service implements BootstrapNotifier{
 
 	@Override
 	public void didEnterRegion(Region arg0) {
-		
+		startService(monitoring);
 		
 	}
 
