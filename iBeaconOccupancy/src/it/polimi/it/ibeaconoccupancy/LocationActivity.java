@@ -23,6 +23,7 @@ import android.content.IntentFilter;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.SparseArray;
@@ -46,6 +47,7 @@ public class LocationActivity extends Activity {
 	private HashMap<String, String> beaconLocation;
 	private SparseArray<String> answers;
 	private String bestBeacon = new String();
+	private PostTestOnServerTask taskPost;
 	
 
 
@@ -128,11 +130,15 @@ public class LocationActivity extends Activity {
 			String answerRoom = answers.get(view.getId());
 			if (answerRoom.equals(correctRoom)){
 				Log.d(TAG, "correct specific answer "+answerRoom+" correct"+correctRoom);
-				http.postAnswer(answerRoom, correctRoom, 1);
+				taskPost = new PostTestOnServerTask(http, answerRoom, correctRoom, 1);
+				taskPost.execute(null,null,null);
+				//http.postAnswer(answerRoom, correctRoom, 1);
 			}
 			else {
 				Log.d(TAG, "wrong specific answer "+ answerRoom+" "+correctRoom);
-				http.postAnswer(answerRoom, correctRoom, 0);
+				taskPost = new PostTestOnServerTask(http, answerRoom, correctRoom, 0);
+				taskPost.execute(null,null,null);
+				//http.postAnswer(answerRoom, correctRoom, 0);
 			}	
 		}
 		
@@ -140,12 +146,16 @@ public class LocationActivity extends Activity {
 		else {			
 			//check if in the other answers there is the correct one
 			if (beaconLocation.values().contains(correctRoom)) {
-				http.postAnswer("Nessuna", correctRoom, 0);
+				taskPost = new PostTestOnServerTask(http, "Nessuna", correctRoom, 0);
+				taskPost.execute(null,null,null);
+				//http.postAnswer("Nessuna", correctRoom, 0);
 				Log.d(TAG, "wrong generic answer "+" correct"+correctRoom);
 
 			}
 			else {
-				http.postAnswer("Nessuna", "Nessuna", 1);
+				taskPost = new PostTestOnServerTask(http, "Nessuna", "Nessuna", 1);
+				taskPost.execute(null,null,null);
+				//http.postAnswer("Nessuna", "Nessuna", 1);
 				Log.d(TAG, "correct generic answer  "+correctRoom);
 			}
 		}
@@ -256,6 +266,27 @@ public class LocationActivity extends Activity {
  
 	}
 	
+	private class PostTestOnServerTask extends AsyncTask<Void, Void, Void>{
+
+		private HttpHandler http;
+		private String answerRoom;
+		private String correctRoom;
+		private int correct;
+		
+		public PostTestOnServerTask(HttpHandler http, String answerRoom, String correctRoom, int correct){
+			this.http = http;
+			this.answerRoom = answerRoom;
+			this.correct = correct;
+			this.correctRoom = correctRoom;
+		}
+		
+		@Override
+		protected Void doInBackground(Void... arg0) {
+			http.postAnswer(answerRoom, correctRoom, correct);
+			return null;
+		}
+		
+	}
 	
 	
 

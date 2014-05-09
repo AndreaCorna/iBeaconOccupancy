@@ -69,6 +69,7 @@ public class MainActivity extends Activity {
 			MonitoringService.getInstance().stopSelf();
 		}*/
 		//while(isBackGroundRunning());
+		
 		boolean logicOnClient = prefs.getBoolean("pref_logic", false);
 		launchMonitoring(logicOnClient);
 		Intent myintentIntent = new Intent(this,LocationActivity.class);
