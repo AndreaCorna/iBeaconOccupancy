@@ -1,6 +1,8 @@
 package it.polimi.it.ibeaconoccupancy;
 
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import com.radiusnetworks.ibeacon.IBeaconManager;
 
@@ -44,6 +46,7 @@ public class MainActivity extends Activity {
 	protected static final String TAG = "MainActivity";
 	private SharedPreferences prefs;
 	OnSharedPreferenceChangeListener listener;
+	
 
 
 	@Override
@@ -72,8 +75,7 @@ public class MainActivity extends Activity {
 		
 		boolean logicOnClient = prefs.getBoolean("pref_logic", false);
 		launchMonitoring(logicOnClient);
-		Intent myintentIntent = new Intent(this,LocationActivity.class);
-		startActivity(myintentIntent);
+		
 		
 	}
 
@@ -257,6 +259,7 @@ public class MainActivity extends Activity {
 		  }
 		  return false;
 		}
+	
 	
 	
 

@@ -1,5 +1,9 @@
 package it.polimi.it.ibeaconoccupancy.services;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
+import it.polimi.it.ibeaconoccupancy.LocationActivity;
 import it.polimi.it.ibeaconoccupancy.SaveBattery;
 import it.polimi.it.ibeaconoccupancy.compare.BeaconHandler;
 import it.polimi.it.ibeaconoccupancy.compare.FullBeaconHandlerImpl;
@@ -26,6 +30,7 @@ public class MonitoringService extends Service implements IBeaconConsumer {
 	@SuppressWarnings("unused")
 	private SaveBattery save;
 	
+	
 	@Override
 	public void onCreate() {
 		me = this;
@@ -51,6 +56,9 @@ public class MonitoringService extends Service implements IBeaconConsumer {
 		ranging.putExtra("BeaconHandler", sendManager);
 		iBeaconManager.setBackgroundScanPeriod(3000);
 		save = new SaveBattery();
+		
+		
+		
 		return super.onStartCommand(intent, flags, startId);
 	}
 	
@@ -120,5 +128,7 @@ public class MonitoringService extends Service implements IBeaconConsumer {
 	public static MonitoringService getInstance(){
 		return me;
 	}
+	
+	
 
 }
