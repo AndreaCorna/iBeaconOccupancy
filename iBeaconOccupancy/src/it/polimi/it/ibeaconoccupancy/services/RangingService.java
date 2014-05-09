@@ -49,8 +49,6 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
-        //iBeaconManager.setBackgroundMode(this, true);
-		//iBeaconManager.setBackgroundScanPeriod(3000);
 		Log.d(TAG, "Ranging started");
     }
     
@@ -100,6 +98,15 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
         try {
             iBeaconManager.startRangingBeaconsInRegion(new Region("myRangingUniqueId", null, null, null));
         } catch (RemoteException e) {   }
+        iBeaconManager.setBackgroundMode(this, true);
+        iBeaconManager.setBackgroundScanPeriod(3000);
+		iBeaconManager.setBackgroundBetweenScanPeriod(3000);
+		try {
+			iBeaconManager.updateScanPeriods();
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
         
        
     
