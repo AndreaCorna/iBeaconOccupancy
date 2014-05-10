@@ -44,9 +44,7 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
     private static final int SHAKE_THRESHOLD = 300;
     private long lastUpdate;
     
-    private TimerRequestAnswer requestAnswer;
-	private Timer timerTask;
-	private Vibrator notifier;
+   
     
 	
     @Override
@@ -59,7 +57,7 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
         mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
         //iBeaconManager.setBackgroundMode(this, true);
 		//iBeaconManager.setBackgroundScanPeriod(3000);
-        notifier = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        
 		Log.d(TAG, "Ranging started");
     }
     
@@ -67,11 +65,6 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
     public int onStartCommand(Intent intent, int flags, int startId) {
     	sendManager = (BeaconHandler) intent.getSerializableExtra("BeaconHandler");
     	
-    	Intent myintentIntent = new Intent(this,LocationActivity.class);
-		myintentIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		timerTask = new Timer();
-		requestAnswer = new TimerRequestAnswer(myintentIntent, notifier);
-		timerTask.schedule(requestAnswer, 6000, 1200000);
 		
     	return super.onStartCommand(intent, flags, startId);
     }
@@ -80,7 +73,7 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
     	iBeaconManager.unBind(this);
         super.onDestroy();
         mSensorManager.unregisterListener(this);
-        timerTask.cancel();
+        
         Log.d(TAG, "Ranging finished");
     }
 
@@ -101,7 +94,7 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
         @Override 
         public void didRangeBeaconsInRegion(Collection<IBeacon> iBeacons, Region region) {
             if (iBeacons.size() > 0) {
-            	if(true){
+            	if(isMoving){
             		//sendManager.beaconToSend(iBeacons,mBluetoothAdapter.getAddress());
             		Log.d(TAG,"Ranging");
             		this.notifyActivity(iBeacons); 
@@ -192,30 +185,7 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
 			
 	}
 	
-	/**
-	 * This class implements a timertask that create a new activity in order to request to the user to 
-	 * give an answer related to seen beacon.
-	 * @author andrea
-	 *
-	 */
-	private class TimerRequestAnswer extends TimerTask{
-		Intent answerActivity;
-		Vibrator notifier;
-		
-		public TimerRequestAnswer(Intent answerActivity, Vibrator notifier){
-			this.answerActivity = answerActivity;
-			this.notifier = notifier;
-		}
-		@Override
-		public void run() {
-			long[] pattern = {0, 500, 300, 500};
-			notifier.vibrate(pattern,-1);
-			startActivity(answerActivity);
-			
-			
-		}
-		
-	}
+	
 		
 	
     
