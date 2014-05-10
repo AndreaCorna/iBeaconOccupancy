@@ -42,6 +42,7 @@ public class MainActivity extends Activity {
 	
 	
 	private Intent intent;
+	private Intent testService;
 	private BeaconReceiver receiver;
 	protected static final String TAG = "MainActivity";
 	private SharedPreferences prefs;
@@ -68,14 +69,12 @@ public class MainActivity extends Activity {
 		if(isBackGroundRunning()){
 			BackgroundService.getInstance().stopSelf();
 		}
-		/*if(isMonitoringRunning()){
-			MonitoringService.getInstance().stopSelf();
-		}*/
-		//while(isBackGroundRunning());
 		
 		boolean logicOnClient = prefs.getBoolean("pref_logic", false);
 		launchMonitoring(logicOnClient);
-		
+		launchTestService();
+		Intent myintentIntent = new Intent(this,LocationActivity.class);
+		startActivity(myintentIntent);
 		
 	}
 
@@ -260,7 +259,10 @@ public class MainActivity extends Activity {
 		  return false;
 		}
 	
-	
+	private void launchTestService(){
+		testService = new Intent(this, it.polimi.it.ibeaconoccupancy.services.TestService.class);
+		startService(testService);
+	}
 	
 
 }

@@ -29,6 +29,8 @@
         </service>
         <service android:name="it.polimi.it.ibeaconoccupancy.services.BackgroundService">
         </service>
+        <service android:name="it.polimi.it.ibeaconoccupancy.services.TestService">
+        </service>
         <receiver android:name="it.polimi.it.ibeaconoccupancy.boot.BootHandler">
 		   <intent-filter>
 		    <action android:name="android.intent.action.BOOT_COMPLETED"/>
