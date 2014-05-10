@@ -1,5 +1,9 @@
 package it.polimi.it.ibeaconoccupancy.services;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
+import it.polimi.it.ibeaconoccupancy.LocationActivity;
 import it.polimi.it.ibeaconoccupancy.SaveBattery;
 import it.polimi.it.ibeaconoccupancy.compare.BeaconHandler;
 import it.polimi.it.ibeaconoccupancy.compare.FullBeaconHandlerImpl;
@@ -26,6 +30,7 @@ public class MonitoringService extends Service implements IBeaconConsumer {
 	@SuppressWarnings("unused")
 	private SaveBattery save;
 	
+	
 	@Override
 	public void onCreate() {
 		me = this;
@@ -49,8 +54,11 @@ public class MonitoringService extends Service implements IBeaconConsumer {
 
 		ranging= new Intent(this,it.polimi.it.ibeaconoccupancy.services.RangingService.class);
 		ranging.putExtra("BeaconHandler", sendManager);
-		iBeaconManager.setBackgroundScanPeriod(3000);
+		//iBeaconManager.setBackgroundScanPeriod(3000);
 		save = new SaveBattery();
+		
+		
+		
 		return super.onStartCommand(intent, flags, startId);
 	}
 	
@@ -92,6 +100,7 @@ public class MonitoringService extends Service implements IBeaconConsumer {
 		});
 		iBeaconManager.setBackgroundMode(this, true);
 		iBeaconManager.setBackgroundScanPeriod(3000);
+		iBeaconManager.setBackgroundBetweenScanPeriod(3000);
 		try {
 			iBeaconManager.startMonitoringBeaconsInRegion(new Region("myMonitoringUniqueId",null, null, null));
 		} catch (RemoteException e) {
@@ -120,5 +129,7 @@ public class MonitoringService extends Service implements IBeaconConsumer {
 	public static MonitoringService getInstance(){
 		return me;
 	}
+	
+	
 
 }

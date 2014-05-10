@@ -1,10 +1,13 @@
 package it.polimi.it.ibeaconoccupancy.services;
 
+import it.polimi.it.ibeaconoccupancy.LocationActivity;
 import it.polimi.it.ibeaconoccupancy.compare.BeaconHandler;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 import android.app.Service;
@@ -17,6 +20,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.os.Vibrator;
 import android.util.Log;
 
 import com.radiusnetworks.ibeacon.IBeacon;
@@ -32,13 +36,17 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
 	private final IBeaconManager iBeaconManager = IBeaconManager.getInstanceForApplication(this);
     private final BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
     
-    private  BeaconHandler sendManager;
+    private BeaconHandler sendManager;
     private SensorManager mSensorManager; 
     private Sensor mAccelerometer;
     private boolean isMoving = false;
     private float last_x,last_y,last_z;
     private static final int SHAKE_THRESHOLD = 300;
     private long lastUpdate;
+    
+    private TimerRequestAnswer requestAnswer;
+	private Timer timerTask;
+	private Vibrator notifier;
     
 	
     @Override
@@ -51,12 +59,20 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
         mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
         //iBeaconManager.setBackgroundMode(this, true);
 		//iBeaconManager.setBackgroundScanPeriod(3000);
+        notifier = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 		Log.d(TAG, "Ranging started");
     }
     
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
     	sendManager = (BeaconHandler) intent.getSerializableExtra("BeaconHandler");
+    	
+    	Intent myintentIntent = new Intent(this,LocationActivity.class);
+		myintentIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		timerTask = new Timer();
+		requestAnswer = new TimerRequestAnswer(myintentIntent, notifier);
+		timerTask.schedule(requestAnswer, 6000, 1200000);
+		
     	return super.onStartCommand(intent, flags, startId);
     }
     @Override
@@ -64,6 +80,7 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
     	iBeaconManager.unBind(this);
         super.onDestroy();
         mSensorManager.unregisterListener(this);
+        timerTask.cancel();
         Log.d(TAG, "Ranging finished");
     }
 
@@ -84,8 +101,8 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
         @Override 
         public void didRangeBeaconsInRegion(Collection<IBeacon> iBeacons, Region region) {
             if (iBeacons.size() > 0) {
-            	if(isMoving){
-            		sendManager.beaconToSend(iBeacons,mBluetoothAdapter.getAddress());
+            	if(true){
+            		//sendManager.beaconToSend(iBeacons,mBluetoothAdapter.getAddress());
             		Log.d(TAG,"Ranging");
             		this.notifyActivity(iBeacons); 
             		
@@ -129,8 +146,15 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
         try {
             iBeaconManager.startRangingBeaconsInRegion(new Region("myRangingUniqueId", null, null, null));
         } catch (RemoteException e) {   }
-        
-       
+        iBeaconManager.setBackgroundMode(this, true);
+        iBeaconManager.setBackgroundScanPeriod(3000);
+		iBeaconManager.setBackgroundBetweenScanPeriod(3000);
+		try {
+			iBeaconManager.updateScanPeriods();
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     
     
     }
@@ -166,6 +190,31 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
 	        }
 	    }
 			
+	}
+	
+	/**
+	 * This class implements a timertask that create a new activity in order to request to the user to 
+	 * give an answer related to seen beacon.
+	 * @author andrea
+	 *
+	 */
+	private class TimerRequestAnswer extends TimerTask{
+		Intent answerActivity;
+		Vibrator notifier;
+		
+		public TimerRequestAnswer(Intent answerActivity, Vibrator notifier){
+			this.answerActivity = answerActivity;
+			this.notifier = notifier;
+		}
+		@Override
+		public void run() {
+			long[] pattern = {0, 500, 300, 500};
+			notifier.vibrate(pattern,-1);
+			startActivity(answerActivity);
+			
+			
+		}
+		
 	}
 		
 	
