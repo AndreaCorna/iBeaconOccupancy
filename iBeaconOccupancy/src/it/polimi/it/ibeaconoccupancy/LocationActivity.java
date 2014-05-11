@@ -2,6 +2,7 @@ package it.polimi.it.ibeaconoccupancy;
 
 import it.polimi.it.ibeaconoccupancy.helper.DataBaseHelper;
 import it.polimi.it.ibeaconoccupancy.http.HttpHandler;
+import it.polimi.it.ibeaconoccupancy.services.MonitoringService;
 import it.polimi.it.ibeaconoccupancy.services.RangingService;
 
 import java.io.IOException;
@@ -59,6 +60,7 @@ public class LocationActivity extends Activity {
 		receiver = new BeaconReceiver();
 		IntentFilter intentFilter = new IntentFilter();
 		intentFilter.addAction(RangingService.ACTION);
+		intentFilter.addAction(MonitoringService.ACTION);
 		registerReceiver(receiver, intentFilter);
 		
 		
@@ -123,43 +125,48 @@ public class LocationActivity extends Activity {
 		HttpHandler http =new HttpHandler("http://ibeacon.no-ip.org/ibeacon/test");
 		Log.d(TAG, "in beacon loaction "+bestBeacon);
 		
-		String correctRoom = beaconLocation.get(bestBeacon);			
+		String correctRoom = beaconLocation.get(bestBeacon);
+		
 		
 		//checking if answer is different from Nessuna
 		if (view.getId() != R.id.answer4) {
 			String answerRoom = answers.get(view.getId());
-			if (answerRoom.equals(correctRoom)){
+			if (correctRoom!=null && answerRoom.equals(correctRoom)){
 				Log.d(TAG, "correct specific answer "+answerRoom+" correct"+correctRoom);
 				taskPost = new PostTestOnServerTask(http, answerRoom, correctRoom, 1);
 				taskPost.execute(null,null,null);
 				//http.postAnswer(answerRoom, correctRoom, 1);
 			}
 			else {
-				Log.d(TAG, "wrong specific answer "+ answerRoom+" "+correctRoom);
-				taskPost = new PostTestOnServerTask(http, answerRoom, correctRoom, 0);
+				Log.d(TAG, "wrong specific answer "+ answerRoom+"Nessuna");
+				taskPost = new PostTestOnServerTask(http, answerRoom, "Nessuna", 0);
 				taskPost.execute(null,null,null);
 				//http.postAnswer(answerRoom, correctRoom, 0);
 			}	
 		}
 		
 		//checking correctness when answer is  Nessuna
-		else {			
+		else {
+			Log.d(TAG, "correctRoom  "+correctRoom);
 			//check if in the other answers there is the correct one
-			if (beaconLocation.values().contains(correctRoom)) {
-				taskPost = new PostTestOnServerTask(http, "Nessuna", correctRoom, 0);
-				taskPost.execute(null,null,null);
-				//http.postAnswer("Nessuna", correctRoom, 0);
-				Log.d(TAG, "wrong generic answer "+" correct"+correctRoom);
-
-			}
-			else {
+			if (correctRoom==null || answers.indexOfValue(correctRoom)<0) {
 				taskPost = new PostTestOnServerTask(http, "Nessuna", "Nessuna", 1);
 				taskPost.execute(null,null,null);
 				//http.postAnswer("Nessuna", "Nessuna", 1);
 				Log.d(TAG, "correct generic answer  "+correctRoom);
+				
+			}
+			else {
+				taskPost = new PostTestOnServerTask(http, "Nessuna", correctRoom, 0);
+				taskPost.execute(null,null,null);
+				//http.postAnswer("Nessuna", correctRoom, 0);
+				Log.d(TAG, "wrong generic answer "+" correct"+correctRoom);
 			}
 		}
 		Toast.makeText(getApplicationContext(), "Answer submitted!", Toast.LENGTH_SHORT).show();
+		
+		this.finish();
+		
 		
 		
 	}
@@ -217,11 +224,17 @@ public class LocationActivity extends Activity {
 
 		@Override
 		public void onReceive(Context arg0, Intent intent) {		  
-
-			ArrayList<String> beacons = intent.getStringArrayListExtra("BeaconInfo");
-			String strongerBeacon = intent.getExtras().getString("StrongerBeacon");
-			bestBeacon = strongerBeacon;
-			Log.d(TAG, "on Receive strong beacon "+bestBeacon);
+			if (intent.getExtras().getBoolean("exitRegion")){
+				bestBeacon=null;
+			}
+			else {
+				ArrayList<String> beacons = intent.getStringArrayListExtra("BeaconInfo");
+				String strongerBeacon = intent.getExtras().getString("StrongerBeacon");
+				bestBeacon = strongerBeacon;
+				Log.d(TAG, "on Receive strong beacon "+bestBeacon);
+				
+			}
+			
 			
 			
 			 

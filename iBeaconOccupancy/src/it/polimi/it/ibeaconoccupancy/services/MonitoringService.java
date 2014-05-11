@@ -22,6 +22,8 @@ import com.radiusnetworks.ibeacon.Region;
 public class MonitoringService extends Service implements IBeaconConsumer {
 
 	protected static final String TAG = "MonitoringService";
+	public static final String ACTION = "MonitoringAction";
+
 	private final IBeaconManager iBeaconManager = IBeaconManager.getInstanceForApplication(this);
     private final BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
     private  BeaconHandler sendManager = new FullBeaconHandlerImpl();
@@ -70,7 +72,13 @@ public class MonitoringService extends Service implements IBeaconConsumer {
 		super.onDestroy();
 	}
 	
+	private void notifyLocationActivity(){
+    	Intent intent = new Intent(); 
+    	intent.setAction(ACTION);
+		intent.putExtra("exitRegion",true);
+		sendBroadcast(intent);
 
+	}
 	
 	@Override
 	public void onIBeaconServiceConnect() {
@@ -81,9 +89,11 @@ public class MonitoringService extends Service implements IBeaconConsumer {
 				Log.d(TAG, "Exit a region");
 				sendManager.exitingRegion(mBluetoothAdapter.getAddress());
 				stopRanging();
-				
-				
+				notifyLocationActivity();
+	
 			}
+			
+		
 			
 			@Override
 			public void didEnterRegion(Region arg0) {

@@ -16,5 +16,8 @@
     <color name="NiceButtonDisabledStartColor">#565051</color>
     <color name="NiceButtonDisabledEndColor">#736F6E</color>
     <color name="NiceButtonBorderColor">#254117</color>
+    <string name="start">Start Test</string>
+    <string name="stop">Stop Test</string>
+    <string name="questionbutton">Where are you?</string>
 
 </resources>

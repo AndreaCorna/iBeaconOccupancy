@@ -26,7 +26,7 @@ public class TestService extends Service{
     public int onStartCommand(Intent intent, int flags, int startId) {
     	
     	Intent myintentIntent = new Intent(this,LocationActivity.class);
-		myintentIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		myintentIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
 		timerTask = new Timer();
 		requestAnswer = new TimerRequestAnswer(myintentIntent, notifier);
 		timerTask.schedule(requestAnswer, 6000, 1800000);

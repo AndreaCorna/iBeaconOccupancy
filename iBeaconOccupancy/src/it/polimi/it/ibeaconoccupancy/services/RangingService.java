@@ -31,7 +31,7 @@ import com.radiusnetworks.ibeacon.Region;
 
 public class RangingService extends Service implements IBeaconConsumer,SensorEventListener{
 	
-	public final static String ACTION = "BeaconAction";	//used to identify the message sent with the SendBroacast inside notifyActivity method
+	public final static String ACTION = "RangingAction";	//used to identify the message sent with the SendBroacast inside notifyActivity method
 	protected static final String TAG = "RangingService";
 	private final IBeaconManager iBeaconManager = IBeaconManager.getInstanceForApplication(this);
     private final BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -112,6 +112,8 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
         private void notifyActivity(Collection<IBeacon> iBeacons){
         	Intent intent = new Intent();
         	intent.setAction(ACTION);
+    		intent.putExtra("exitRegion",false);
+
         	List<String> beaconsInfos = new ArrayList<String>();
         	IBeacon strongerBeacon = null;
         	for (IBeacon iBeacon : iBeacons){
@@ -131,6 +133,7 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
  	      else {
  	    	 Log.d(TAG, "notifyingLocationActivity nullStronger Beacon");
  	    	 intent.putExtra("StrongerBeacon","");
+ 	    	 
 		}
  	      sendBroadcast(intent);
         }

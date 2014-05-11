@@ -72,9 +72,8 @@ public class MainActivity extends Activity {
 		
 		boolean logicOnClient = prefs.getBoolean("pref_logic", false);
 		launchMonitoring(logicOnClient);
-		launchTestService();
-		Intent myintentIntent = new Intent(this,LocationActivity.class);
-		startActivity(myintentIntent);
+		
+		
 		
 	}
 
@@ -126,6 +125,20 @@ public class MainActivity extends Activity {
 					false);
 			return rootView;
 		}
+	}
+	
+	public void launchLocation(View view) {
+		Intent myintentIntent = new Intent(this,LocationActivity.class);
+		startActivity(myintentIntent);
+	}
+	
+	public void startTestService(View view){
+		testService = new Intent(this, it.polimi.it.ibeaconoccupancy.services.TestService.class);
+		startService(testService);
+	}
+	
+	public void stopTestService(View view) {
+		stopService(testService);
 	}
 	
 	/**
@@ -259,10 +272,7 @@ public class MainActivity extends Activity {
 		  return false;
 		}
 	
-	private void launchTestService(){
-		testService = new Intent(this, it.polimi.it.ibeaconoccupancy.services.TestService.class);
-		startService(testService);
-	}
+	
 	
 
 }
