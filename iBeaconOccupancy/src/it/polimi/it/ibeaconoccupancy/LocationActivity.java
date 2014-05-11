@@ -98,6 +98,12 @@ public class LocationActivity extends Activity {
 		
 	}
 	
+	private ArrayList<Button> createButtons(int length){
+		ArrayList<Button> listOfButton = new ArrayList<Button>();
+		
+		return listOfButton;
+	}
+	
 	/**
 	 * Setting the text to the buttons and adding field to the sparse array Answers
 	 * If the element at that index of the array doesn't exist(aka not enough rooms to add to the answers) button is hidden
