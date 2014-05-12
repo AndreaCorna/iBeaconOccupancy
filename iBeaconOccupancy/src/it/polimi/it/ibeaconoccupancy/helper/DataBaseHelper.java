@@ -18,6 +18,7 @@ public class DataBaseHelper extends SQLiteOpenHelper{
  
     private static String DB_NAME = "locals";
     
+    public static final String TABLE_SAVED_ANSWERS = "saved_answer";
     public static final String TABLE_ROOMS = "rooms_beacons";
     public static final String COLUMN_ROOM = "room";
 
@@ -42,7 +43,7 @@ public class DataBaseHelper extends SQLiteOpenHelper{
      * */
     public void createDataBase() throws IOException{
  
-    	boolean dbExist = false;//checkDataBase();
+    	boolean dbExist = checkDataBase();
  
     	if(dbExist){
     		//do nothing - database already exist
