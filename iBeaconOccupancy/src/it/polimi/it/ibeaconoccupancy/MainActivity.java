@@ -64,7 +64,7 @@ public class MainActivity extends Activity {
 			MonitoringService.getInstance().stopSelf();
 		}*/
 		//while(isBackGroundRunning());
-		boolean logicOnClient = prefs.getBoolean("pref_logic", false);
+		boolean logicOnClient = prefs.getBoolean("pref_logic", true);
 		launchMonitoring(logicOnClient);
 		
 	}
