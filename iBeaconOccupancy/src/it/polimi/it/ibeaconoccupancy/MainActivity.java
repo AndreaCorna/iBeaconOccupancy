@@ -26,19 +26,22 @@ import android.view.View;
 import android.view.ViewGroup;
 
 /**
- * This class implements the main activityy of the application
+ * This class implements the main activity of the application.
  * @author Andrea Corna - Lorenzo Fontana
  *
  */
 public class MainActivity extends Activity {
 	
 	
-	private Intent intent;
+	private Intent monitoringIntent;
 	protected static final String TAG = "MainActivity";
 	private SharedPreferences prefs;
 	OnSharedPreferenceChangeListener listener;
 
 
+	/**
+	 * Method called on creation of the activity. In this we set up all preferences and settings.
+	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -54,10 +57,6 @@ public class MainActivity extends Activity {
 		if(isBackGroundRunning()){
 			BackgroundService.getInstance().stopSelf();
 		}
-		/*if(isMonitoringRunning()){
-			MonitoringService.getInstance().stopSelf();
-		}*/
-		//while(isBackGroundRunning());
 		boolean logicOnClient = prefs.getBoolean("pref_logic", true);
 		launchMonitoring(logicOnClient);
 		
@@ -87,9 +86,12 @@ public class MainActivity extends Activity {
 		return super.onOptionsItemSelected(item);
 	}
 	
+	/**
+	 * Method called when the activity is destroyed, it stops also the monitoring activity launched before.
+	 */
 	public void onDestroy(){
 		super.onDestroy();
-		stopService(intent);
+		stopService(monitoringIntent);
 		
 	}
 	
@@ -169,7 +171,7 @@ public class MainActivity extends Activity {
 	    prefs.getBoolean(key, false));
 	    
 	    boolean logicOnClient = prefs.getBoolean(key, false);
-	    stopService(intent);
+	    stopService(monitoringIntent);
 	    launchMonitoring(logicOnClient);
 	    }
 	    };
@@ -184,17 +186,17 @@ public class MainActivity extends Activity {
 	private void launchMonitoring(boolean logicOnClient){
 		Log.d(TAG, "launching monitoring "+logicOnClient);
 		
-		intent = new Intent(this, it.polimi.it.ibeaconoccupancy.services.MonitoringService.class);
+		monitoringIntent = new Intent(this, it.polimi.it.ibeaconoccupancy.services.MonitoringService.class);
 
 		if (logicOnClient){
-			intent.putExtra("BeaconHandler", new FullBeaconHandlerImpl());
+			monitoringIntent.putExtra("BeaconHandler", new FullBeaconHandlerImpl());
 			
 		}
 		else{
-			intent.putExtra("BeaconHandler", new MinimalBeaconHandlerImpl());
+			monitoringIntent.putExtra("BeaconHandler", new MinimalBeaconHandlerImpl());
 		}
 
-		startService(intent);
+		startService(monitoringIntent);
 		Log.d(TAG, "start monitoring from launch");
 
 		

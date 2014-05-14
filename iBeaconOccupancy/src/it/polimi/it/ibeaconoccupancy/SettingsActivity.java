@@ -5,7 +5,12 @@ import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 
-
+/**
+ * This class controls the settings activity in order to choose between logic on client
+ * side and logic on server side.
+ * @author Andrea Corna - Lorenzo Fontana
+ *
+ */
 public class SettingsActivity extends PreferenceActivity
 {
     @Override
