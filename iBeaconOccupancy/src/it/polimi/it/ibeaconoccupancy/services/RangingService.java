@@ -22,9 +22,14 @@ import com.radiusnetworks.ibeacon.IBeaconManager;
 import com.radiusnetworks.ibeacon.RangeNotifier;
 import com.radiusnetworks.ibeacon.Region;
 
+/**
+ * 
+ * @author andrea
+ *
+ */
 public class RangingService extends Service implements IBeaconConsumer,SensorEventListener{
 	
-	public final static String ACTION = "BeaconAction";	//used to identify the message sent with the SendBroacast inside notifyActivity method
+	public final static String ACTION = "BeaconAction";
 	protected static final String TAG = "RangingService";
 	private final IBeaconManager iBeaconManager = IBeaconManager.getInstanceForApplication(this);
     private final BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -117,6 +122,12 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
 		// TODO Auto-generated method stub
 		
 	}
+   	
+   	/**
+   	 * The method is called when the system grows up a Sensor event. It controls if the event is 
+   	 * related to a modification of the position of the device nofitied by the accelerometer. 
+   	 * If it's so, it notifies to Ranging Service to send information about beacons.
+   	 */
 	@Override
 	public void onSensorChanged(SensorEvent event) {
 		 Sensor mySensor = event.sensor;
