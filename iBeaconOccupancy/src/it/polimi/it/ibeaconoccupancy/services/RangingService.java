@@ -2,10 +2,7 @@ package it.polimi.it.ibeaconoccupancy.services;
 
 import it.polimi.it.ibeaconoccupancy.compare.BeaconHandler;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
-
 
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;

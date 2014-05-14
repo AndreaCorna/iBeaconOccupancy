@@ -1,6 +1,5 @@
 package it.polimi.it.ibeaconoccupancy;
 
-import java.util.ArrayList;
 
 import com.radiusnetworks.ibeacon.IBeaconManager;
 
@@ -8,18 +7,13 @@ import com.radiusnetworks.ibeacon.IBeaconManager;
 import it.polimi.it.ibeaconoccupancy.compare.FullBeaconHandlerImpl;
 import it.polimi.it.ibeaconoccupancy.compare.MinimalBeaconHandlerImpl;
 import it.polimi.it.ibeaconoccupancy.services.BackgroundService;
-import it.polimi.it.ibeaconoccupancy.services.MonitoringService;
-import it.polimi.it.ibeaconoccupancy.services.RangingService;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
 import android.app.AlertDialog;
 import android.app.Fragment;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
@@ -206,20 +200,7 @@ public class MainActivity extends Activity {
 		
 	}
 	
-	/**
-	 * The method controls is the Monitoring service is already active
-	 * @return true if is active, otherwise false
-	 */
-	private boolean isMonitoringRunning() {
-		  ActivityManager manager = (ActivityManager)getSystemService(ACTIVITY_SERVICE);
-		  for (RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-		    if (MonitoringService.class.getName().equals(service.service.getClassName())) {
-		    	return true;
-		    }
-		  }
-		  return false;
-	}
-	
+		
 	/**
 	 * The method controls is the Background service is already active
 	 * @return true if is active, otherwise false
