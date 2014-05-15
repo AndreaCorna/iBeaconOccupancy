@@ -39,9 +39,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.os.Build;
@@ -50,15 +47,18 @@ public class LocationActivity extends Activity {
 	
 	protected static final String TAG = "LocationActivity";
 	
-	private BeaconReceiver receiver;
 	
-	private DataBaseHelper myDbHelper;
+	
 	
 	private HashMap<String, String> beaconLocation;
 	private SparseArray<String> answers;
-	private String bestBeacon = new String();
 	private PostTestOnServerTask taskPost;
+	private String bestBeacon = new String();
+	private BeaconReceiver receiver;
+
+
 	
+	private DataBaseHelper myDbHelper;
 
 
 	@Override
@@ -66,11 +66,10 @@ public class LocationActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_location);
 		
-		receiver = new BeaconReceiver();
 		IntentFilter intentFilter = new IntentFilter();
 		intentFilter.addAction(RangingService.ACTION);
 		intentFilter.addAction(MonitoringService.ACTION);
-		registerReceiver(receiver, intentFilter);
+		
 		
 		
 		
@@ -78,8 +77,12 @@ public class LocationActivity extends Activity {
 			getFragmentManager().beginTransaction()
 					.add(R.id.container, new PlaceholderFragment()).commit();
 		}
-		
-		loadDataDB();
+		myDbHelper = new DataBaseHelper(this);
+		bestBeacon = (String)this.getIntent().getSerializableExtra("BestBeacon");
+		beaconLocation = (HashMap<String, String>) this.getIntent().getSerializableExtra("beaconLocation");
+		receiver = new BeaconReceiver();
+
+		registerReceiver(receiver, intentFilter);
 		setupLayout();
      
 	}
@@ -173,7 +176,7 @@ public class LocationActivity extends Activity {
 		}
 		Toast.makeText(getApplicationContext(), "Answer submitted!", Toast.LENGTH_SHORT).show();
 		
-		this.finish();	
+		this.finish();
 	}
 	
 	/**
@@ -227,7 +230,25 @@ public class LocationActivity extends Activity {
 			cursor.moveToNext();
 		}
 		cursor.close();
+		myDb.delete(myDbHelper.TABLE_SAVED_ANSWERS,null,null);
+
 	}
+	
+	private boolean saveDataSqlite(String answer,String correct_answer,int correct){
+		boolean createSuccessful =false;
+		SQLiteDatabase myDb = myDbHelper.getWritableDatabase();
+		ContentValues values = new ContentValues();
+		values.put("answer_room", answer);
+		values.put("correct_room", correct_answer);
+		values.put("correct", correct);
+		createSuccessful = myDb.insert("saved_answer", null, values) > 0;
+	    myDb.close();
+
+	    return createSuccessful;
+
+
+	}
+	
 	
 
 	@Override
@@ -273,6 +294,30 @@ public class LocationActivity extends Activity {
 		super.onDestroy();
 	}
 	
+	
+	private class PostTestOnServerTask extends AsyncTask<Void, Void, Void>{
+
+		private HttpHandler http;
+		private String answerRoom;
+		private String correctRoom;
+		private int correct;
+		
+		public PostTestOnServerTask(HttpHandler http, String answerRoom, String correctRoom, int correct){
+			this.http = http;
+			this.answerRoom = answerRoom;
+			this.correct = correct;
+			this.correctRoom = correctRoom;
+		}
+		
+		@Override
+		protected Void doInBackground(Void... arg0) {
+			http.postAnswer(answerRoom, correctRoom, correct);
+			return null;
+		}
+		
+	}
+	
+	
 	/**
 	 * Class which receive the message sent by the RangingService(information about the beacons in range) and set the bestBeacon attribute 
 	 *
@@ -298,79 +343,8 @@ public class LocationActivity extends Activity {
 		}
 	}
 	
-	/**
-	 * Load the room-beacon associations from a sqlite database and put values in the hashmap locationBeacon
-	 */
-	private void loadDataDB(){
-		beaconLocation = new HashMap<String, String>();
-		myDbHelper = new DataBaseHelper(this);
-
-		try {
-
-			myDbHelper.createDataBase();
-			Log.d(TAG, "DB created");
-		} catch (IOException ioe) {
-
-			throw new Error("Unable to create database");
-		}
-
-		try {
-			myDbHelper.openDataBase();
-			Log.d(TAG, "DB opened");
-		}catch(SQLException sqle){
-			throw sqle;
-		}
-		SQLiteDatabase myDb = myDbHelper.getReadableDatabase();
-		Cursor cursor = myDb.query(myDbHelper.TABLE_ROOMS, null, null, null, null, null, null);
-		cursor.moveToFirst();
-		while(cursor.isAfterLast()==false){
-			String room = cursor.getString(1);
-			String beacon  = cursor.getString(2);
-			beaconLocation.put(beacon, room);
-			Log.d(TAG, "Inserting in beaconLocation: room "+room+" beacon "+beacon);
-			cursor.moveToNext();
-		}
-		cursor.close();
-	 
-	}
 	
-	private boolean saveDataSqlite(String answer,String correct_answer,int correct){
-		boolean createSuccessful =false;
-		SQLiteDatabase myDb = myDbHelper.getWritableDatabase();
-		ContentValues values = new ContentValues();
-		values.put("answer_room", answer);
-		values.put("correct_room", correct_answer);
-		values.put("correct", correct);
-		createSuccessful = myDb.insert("saved_answer", null, values) > 0;
-	    myDb.close();
 
-	    return createSuccessful;
-
-
-	}
-	
-	private class PostTestOnServerTask extends AsyncTask<Void, Void, Void>{
-
-		private HttpHandler http;
-		private String answerRoom;
-		private String correctRoom;
-		private int correct;
-		
-		public PostTestOnServerTask(HttpHandler http, String answerRoom, String correctRoom, int correct){
-			this.http = http;
-			this.answerRoom = answerRoom;
-			this.correct = correct;
-			this.correctRoom = correctRoom;
-		}
-		
-		@Override
-		protected Void doInBackground(Void... arg0) {
-			http.postAnswer(answerRoom, correctRoom, correct);
-			return null;
-		}
-		
-	}
-	
 	
 
 }
