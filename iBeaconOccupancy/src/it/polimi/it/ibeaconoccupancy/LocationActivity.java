@@ -1,5 +1,6 @@
 package it.polimi.it.ibeaconoccupancy;
 
+import it.polimi.it.ibeaconoccupancy.R;
 import it.polimi.it.ibeaconoccupancy.helper.DataBaseHelper;
 import it.polimi.it.ibeaconoccupancy.http.HttpHandler;
 import it.polimi.it.ibeaconoccupancy.services.MonitoringService;
@@ -69,7 +70,8 @@ public class LocationActivity extends Activity {
 		IntentFilter intentFilter = new IntentFilter();
 		intentFilter.addAction(RangingService.ACTION);
 		intentFilter.addAction(MonitoringService.ACTION);
-		
+		ActionBar ab = getActionBar(); 
+        ab.setDisplayHomeAsUpEnabled(true);
 		
 		
 		
@@ -80,7 +82,7 @@ public class LocationActivity extends Activity {
 		myDbHelper = new DataBaseHelper(this);
 		bestBeacon = (String)this.getIntent().getSerializableExtra("BestBeacon");
 		beaconLocation = (HashMap<String, String>) this.getIntent().getSerializableExtra("beaconLocation");
-		receiver = new BeaconReceiver();
+		receiver =  new BeaconReceiver();
 
 		registerReceiver(receiver, intentFilter);
 		setupLayout();
@@ -264,11 +266,19 @@ public class LocationActivity extends Activity {
 		// Handle action bar item clicks here. The action bar will
 		// automatically handle clicks on the Home/Up button, so long
 		// as you specify a parent activity in AndroidManifest.xml.
-		int id = item.getItemId();
-		if (id == R.id.action_settings) {
-			return true;
-		}
-		return super.onOptionsItemSelected(item);
+		
+		switch (item.getItemId()) {
+        case android.R.id.home:
+            // app icon in action bar clicked; go home
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+            return true;
+        case R.id.action_settings:
+        	return true;
+        default:
+            return super.onOptionsItemSelected(item);
+    }
 	}
 
 	/**

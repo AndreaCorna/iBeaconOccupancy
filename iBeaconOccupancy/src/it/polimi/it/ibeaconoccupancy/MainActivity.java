@@ -1,6 +1,7 @@
 package it.polimi.it.ibeaconoccupancy;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Timer;
@@ -8,13 +9,16 @@ import java.util.TimerTask;
 
 import com.radiusnetworks.ibeacon.IBeaconManager;
 
+import it.polimi.it.ibeaconoccupancy.R;
 import it.polimi.it.ibeaconoccupancy.compare.FullBeaconHandlerImpl;
 import it.polimi.it.ibeaconoccupancy.compare.MinimalBeaconHandlerImpl;
 import it.polimi.it.ibeaconoccupancy.helper.DataBaseHelper;
+import it.polimi.it.ibeaconoccupancy.helper.SettingsActivity;
 import it.polimi.it.ibeaconoccupancy.http.HttpHandler;
 import it.polimi.it.ibeaconoccupancy.services.BackgroundService;
 import it.polimi.it.ibeaconoccupancy.services.MonitoringService;
 import it.polimi.it.ibeaconoccupancy.services.RangingService;
+import it.polimi.it.ibeaconoccupancy.services.TestService;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
@@ -154,16 +158,20 @@ public class MainActivity extends Activity {
 		myintent.putExtra("BestBeacon", bestBeacon);
 		myintent.putExtra("beaconLocation", beaconLocation);
 		
-		startActivityForResult(myintent, 0);
+		startActivity(myintent);
 	}
 	
 	public void startTestService(View view){
 		testService = new Intent(this, it.polimi.it.ibeaconoccupancy.services.TestService.class);
+		testService.putExtra("BestBeacon", bestBeacon);
+		testService.putExtra("beaconLocation", beaconLocation);
 		startService(testService);
 	}
 	
 	public void stopTestService(View view) {
-		stopService(testService);
+		if (isTestRunning()){
+			stopService(testService);
+		}
 	}
 	
 	/**
@@ -206,31 +214,6 @@ public class MainActivity extends Activity {
 		}
 		
 	}	
-	
-	/**
-	 * Class which receive the message sent by the RangingService(information about the beacons in range) and set the bestBeacon attribute 
-	 *
-	 */
-	private class BeaconReceiver extends BroadcastReceiver{
-
-		@Override
-		public void onReceive(Context arg0, Intent intent) {		  
-			if (intent.getExtras().getBoolean("exitRegion")){
-				bestBeacon=null;
-			}
-			else {
-				ArrayList<String> beacons = intent.getStringArrayListExtra("BeaconInfo");
-				String strongerBeacon = intent.getExtras().getString("StrongerBeacon");
-				bestBeacon = strongerBeacon;
-				Log.d(TAG, "on Receive strong beacon "+bestBeacon);
-				
-			}
-			
-			
-			
-			 
-		}
-	}
 	
 	
 	/**
@@ -283,10 +266,10 @@ public class MainActivity extends Activity {
 	 * The method controls is the Monitoring service is already active
 	 * @return true if is active, otherwise false
 	 */
-	private boolean isMonitoringRunning() {
+	private boolean isTestRunning() {
 		  ActivityManager manager = (ActivityManager)getSystemService(ACTIVITY_SERVICE);
 		  for (RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-		    if (MonitoringService.class.getName().equals(service.service.getClassName())) {
+		    if (TestService.class.getName().equals(service.service.getClassName())) {
 		    	return true;
 		    }
 		  }
@@ -347,6 +330,32 @@ public class MainActivity extends Activity {
 	 
 	}
 
+
+	/**
+	 * Class which receive the message sent by the RangingService(information about the beacons in range) and set the bestBeacon attribute 
+	 *
+	 */
+	private class BeaconReceiver extends BroadcastReceiver {
+
+		@Override
+		public void onReceive(Context arg0, Intent intent) {		  
+			if (intent.getExtras().getBoolean("exitRegion")){
+				bestBeacon=null;
+			}
+			else {
+				ArrayList<String> beacons = intent.getStringArrayListExtra("BeaconInfo");
+				String strongerBeacon = intent.getExtras().getString("StrongerBeacon");
+				bestBeacon = strongerBeacon;
+				Log.d(TAG, "on Receive strong beacon "+bestBeacon);
+				
+			}
+			
+			
+			
+			 
+		}
+	}
+	
 	
 	
 	
