@@ -1,6 +1,7 @@
-package it.polimi.it.ibeaconoccupancy;
+package it.polimi.it.ibeaconoccupancy.helper;
 
 
+import it.polimi.it.ibeaconoccupancy.R;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;

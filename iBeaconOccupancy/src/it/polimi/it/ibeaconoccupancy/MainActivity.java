@@ -1,29 +1,43 @@
 package it.polimi.it.ibeaconoccupancy;
 
+import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import com.radiusnetworks.ibeacon.IBeaconManager;
 
-
+import it.polimi.it.ibeaconoccupancy.R;
 import it.polimi.it.ibeaconoccupancy.compare.FullBeaconHandlerImpl;
 import it.polimi.it.ibeaconoccupancy.compare.MinimalBeaconHandlerImpl;
+import it.polimi.it.ibeaconoccupancy.helper.DataBaseHelper;
+import it.polimi.it.ibeaconoccupancy.helper.SettingsActivity;
+import it.polimi.it.ibeaconoccupancy.http.HttpHandler;
 import it.polimi.it.ibeaconoccupancy.services.BackgroundService;
 import it.polimi.it.ibeaconoccupancy.services.MonitoringService;
 import it.polimi.it.ibeaconoccupancy.services.RangingService;
+import it.polimi.it.ibeaconoccupancy.services.TestService;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.BroadcastReceiver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.database.Cursor;
+import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -32,6 +46,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 /**
  * This class implements the main activityy of the application
@@ -43,10 +58,16 @@ public class MainActivity extends Activity {
 	
 	private Intent intent;
 	private Intent testService;
-	private BeaconReceiver receiver;
 	protected static final String TAG = "MainActivity";
 	private SharedPreferences prefs;
 	OnSharedPreferenceChangeListener listener;
+	private BeaconReceiver receiver;
+	private String bestBeacon = new String();
+	private DataBaseHelper myDbHelper;
+	private HashMap<String, String> beaconLocation;
+
+
+
 	
 
 
@@ -65,6 +86,9 @@ public class MainActivity extends Activity {
 		verifyBluetooth();
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		registerPreferenceListener();
+		receiver = new BeaconReceiver();
+
+		registerReceiver(receiver, intentFilter);
 		
 		if(isBackGroundRunning()){
 			BackgroundService.getInstance().stopSelf();
@@ -72,6 +96,8 @@ public class MainActivity extends Activity {
 		
 		boolean logicOnClient = prefs.getBoolean("pref_logic", false);
 		launchMonitoring(logicOnClient);
+		loadDataDB();
+
 		
 		
 		
@@ -128,17 +154,24 @@ public class MainActivity extends Activity {
 	}
 	
 	public void launchLocation(View view) {
-		Intent myintentIntent = new Intent(this,LocationActivity.class);
-		startActivity(myintentIntent);
+		Intent myintent = new Intent(this,LocationActivity.class);
+		myintent.putExtra("BestBeacon", bestBeacon);
+		myintent.putExtra("beaconLocation", beaconLocation);
+		
+		startActivity(myintent);
 	}
 	
 	public void startTestService(View view){
 		testService = new Intent(this, it.polimi.it.ibeaconoccupancy.services.TestService.class);
+		testService.putExtra("BestBeacon", bestBeacon);
+		testService.putExtra("beaconLocation", beaconLocation);
 		startService(testService);
 	}
 	
 	public void stopTestService(View view) {
-		stopService(testService);
+		if (isTestRunning()){
+			stopService(testService);
+		}
 	}
 	
 	/**
@@ -182,21 +215,6 @@ public class MainActivity extends Activity {
 		
 	}	
 	
-	/**
-	 * Class which handles the message send by the RangingService(information about the beacons in range)
-	 *
-	 */
-	private class BeaconReceiver extends BroadcastReceiver{
-
-		@Override
-		public void onReceive(Context arg0, Intent intent) {		  
-
-			ArrayList<String> beacons = intent.getStringArrayListExtra("BeaconInfo");		  
-			for (String string : beacons) {
-				Log.d(TAG,"Beacon Receive "+string);
-			}  
-		}
-	}
 	
 	/**
 	 * Preference listener to handle the different ways we send  informations to the server
@@ -248,10 +266,10 @@ public class MainActivity extends Activity {
 	 * The method controls is the Monitoring service is already active
 	 * @return true if is active, otherwise false
 	 */
-	private boolean isMonitoringRunning() {
+	private boolean isTestRunning() {
 		  ActivityManager manager = (ActivityManager)getSystemService(ACTIVITY_SERVICE);
 		  for (RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-		    if (MonitoringService.class.getName().equals(service.service.getClassName())) {
+		    if (TestService.class.getName().equals(service.service.getClassName())) {
 		    	return true;
 		    }
 		  }
@@ -271,6 +289,73 @@ public class MainActivity extends Activity {
 		  }
 		  return false;
 		}
+	
+	
+	
+	
+	
+	/**
+	 * Load the room-beacon associations from a sqlite database and put values in the hashmap locationBeacon
+	 */
+	private void loadDataDB(){
+		beaconLocation = new HashMap<String, String>();
+		myDbHelper = new DataBaseHelper(this);
+
+		try {
+
+			myDbHelper.createDataBase();
+			Log.d(TAG, "DB created");
+		} catch (IOException ioe) {
+
+			throw new Error("Unable to create database");
+		}
+
+		try {
+			myDbHelper.openDataBase();
+			Log.d(TAG, "DB opened");
+		}catch(SQLException sqle){
+			throw sqle;
+		}
+		SQLiteDatabase myDb = myDbHelper.getReadableDatabase();
+		Cursor cursor = myDb.query(myDbHelper.TABLE_ROOMS, null, null, null, null, null, null);
+		cursor.moveToFirst();
+		while(cursor.isAfterLast()==false){
+			String room = cursor.getString(1);
+			String beacon  = cursor.getString(2);
+			beaconLocation.put(beacon, room);
+			Log.d(TAG, "Inserting in beaconLocation: room "+room+" beacon "+beacon);
+			cursor.moveToNext();
+		}
+		cursor.close();
+	 
+	}
+
+
+	/**
+	 * Class which receive the message sent by the RangingService(information about the beacons in range) and set the bestBeacon attribute 
+	 *
+	 */
+	private class BeaconReceiver extends BroadcastReceiver {
+
+		@Override
+		public void onReceive(Context arg0, Intent intent) {		  
+			if (intent.getExtras().getBoolean("exitRegion")){
+				bestBeacon=null;
+			}
+			else {
+				ArrayList<String> beacons = intent.getStringArrayListExtra("BeaconInfo");
+				String strongerBeacon = intent.getExtras().getString("StrongerBeacon");
+				bestBeacon = strongerBeacon;
+				Log.d(TAG, "on Receive strong beacon "+bestBeacon);
+				
+			}
+			
+			
+			
+			 
+		}
+	}
+	
 	
 	
 	

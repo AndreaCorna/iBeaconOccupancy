@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;

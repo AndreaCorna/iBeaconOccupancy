@@ -1,11 +1,13 @@
 package it.polimi.it.ibeaconoccupancy;
 
+import it.polimi.it.ibeaconoccupancy.R;
 import it.polimi.it.ibeaconoccupancy.helper.DataBaseHelper;
 import it.polimi.it.ibeaconoccupancy.http.HttpHandler;
 import it.polimi.it.ibeaconoccupancy.services.MonitoringService;
 import it.polimi.it.ibeaconoccupancy.services.RangingService;
 
 import java.io.IOException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -13,17 +15,21 @@ import java.util.List;
 
 import com.radiusnetworks.ibeacon.IBeaconManager;
 
+import android.R.integer;
 import android.R.string;
 import android.app.Activity;
 import android.app.ActionBar;
 import android.app.Fragment;
 import android.content.BroadcastReceiver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -34,9 +40,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.os.Build;
@@ -44,12 +47,19 @@ import android.os.Build;
 public class LocationActivity extends Activity {
 	
 	protected static final String TAG = "LocationActivity";
-	private BeaconReceiver receiver;
+	
+	
+	
+	
 	private HashMap<String, String> beaconLocation;
 	private SparseArray<String> answers;
-	private String bestBeacon = new String();
 	private PostTestOnServerTask taskPost;
+	private String bestBeacon = new String();
+	private BeaconReceiver receiver;
+
+
 	
+	private DataBaseHelper myDbHelper;
 
 
 	@Override
@@ -57,11 +67,11 @@ public class LocationActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_location);
 		
-		receiver = new BeaconReceiver();
 		IntentFilter intentFilter = new IntentFilter();
 		intentFilter.addAction(RangingService.ACTION);
 		intentFilter.addAction(MonitoringService.ACTION);
-		registerReceiver(receiver, intentFilter);
+		ActionBar ab = getActionBar(); 
+        ab.setDisplayHomeAsUpEnabled(true);
 		
 		
 		
@@ -69,8 +79,12 @@ public class LocationActivity extends Activity {
 			getFragmentManager().beginTransaction()
 					.add(R.id.container, new PlaceholderFragment()).commit();
 		}
-		
-		loadDataDB();
+		myDbHelper = new DataBaseHelper(this);
+		bestBeacon = (String)this.getIntent().getSerializableExtra("BestBeacon");
+		beaconLocation = (HashMap<String, String>) this.getIntent().getSerializableExtra("beaconLocation");
+		receiver =  new BeaconReceiver();
+
+		registerReceiver(receiver, intentFilter);
 		setupLayout();
      
 	}
@@ -128,7 +142,6 @@ public class LocationActivity extends Activity {
 	 * @param view button which has called this method
 	 */
 	public void checkAnswer(View view){
-		HttpHandler http =new HttpHandler("http://ibeacon.no-ip.org/ibeacon/test");
 		Log.d(TAG, "in beacon loaction "+bestBeacon);
 		
 		String correctRoom = beaconLocation.get(bestBeacon);
@@ -139,14 +152,16 @@ public class LocationActivity extends Activity {
 			String answerRoom = answers.get(view.getId());
 			if (correctRoom!=null && answerRoom.equals(correctRoom)){
 				Log.d(TAG, "correct specific answer "+answerRoom+" correct"+correctRoom);
-				taskPost = new PostTestOnServerTask(http, answerRoom, correctRoom, 1);
-				taskPost.execute(null,null,null);
+				sendAnswer( answerRoom, correctRoom, 1);
+				
+
 				//http.postAnswer(answerRoom, correctRoom, 1);
 			}
 			else {
 				Log.d(TAG, "wrong specific answer "+ answerRoom+"Nessuna");
-				taskPost = new PostTestOnServerTask(http, answerRoom, "Nessuna", 0);
-				taskPost.execute(null,null,null);
+				sendAnswer( answerRoom, "Nessuna", 0);
+
+			
 				//http.postAnswer(answerRoom, correctRoom, 0);
 			}	
 		}
@@ -156,15 +171,13 @@ public class LocationActivity extends Activity {
 			Log.d(TAG, "correctRoom  "+correctRoom);
 			//check if in the other answers there is the correct one
 			if (correctRoom==null || answers.indexOfValue(correctRoom)<0) {
-				taskPost = new PostTestOnServerTask(http, "Nessuna", "Nessuna", 1);
-				taskPost.execute(null,null,null);
-				//http.postAnswer("Nessuna", "Nessuna", 1);
+				
+				sendAnswer( "Nessuna", "Nessuna", 1);
 				Log.d(TAG, "correct generic answer  "+correctRoom);
 				
 			}
 			else {
-				taskPost = new PostTestOnServerTask(http, "Nessuna", correctRoom, 0);
-				taskPost.execute(null,null,null);
+				sendAnswer( "Nessuna",correctRoom, 0);
 				//http.postAnswer("Nessuna", correctRoom, 0);
 				Log.d(TAG, "wrong generic answer "+" correct"+correctRoom);
 			}
@@ -172,9 +185,76 @@ public class LocationActivity extends Activity {
 		Toast.makeText(getApplicationContext(), "Answer submitted!", Toast.LENGTH_SHORT).show();
 		
 		this.finish();
+	}
+	
+	/**
+	 * This method wil handle the submit to the server of the answer given
+	 * If there is no internet connection the answers will be saved in an internal SQLite database and sent the next time when I'll try to send an answer with the
+	 * internet connection
+	 * @param answerRoom  
+	 * @param correctRoom
+	 * @param correct
+	 */
+	private void sendAnswer(String answerRoom,String correctRoom,int correct){
+		ConnectivityManager cm = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
+ 
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        if (null != activeNetwork){
+			HttpHandler http =new HttpHandler("http://ibeacon.no-ip.org/ibeacon/test");
+			taskPost = new PostTestOnServerTask(http, answerRoom, correctRoom, correct);
+			taskPost.execute(null,null,null);
+			Log.d(TAG,"connection available Sending cached data");
+			sendCachedAnswers();
+			
+			
+        }	
+        else{
+			saveDataSqlite(answerRoom, correctRoom, correct);
+			Log.d(TAG,"Caching answer");
+			
+        }	
 		
 		
-		
+	}
+	
+	/**
+	 * This method will  send to the server all the answers which has been given when there was no internet connection
+	 */
+	private void sendCachedAnswers(){
+		Log.d(TAG, "");
+		SQLiteDatabase myDb = myDbHelper.getReadableDatabase();
+		Cursor cursor = myDb.query(myDbHelper.TABLE_SAVED_ANSWERS, null, null, null, null, null, null);
+		cursor.moveToFirst();
+		while(cursor.isAfterLast()==false){
+			String answer = cursor.getString(1);
+			String correct_answer  = cursor.getString(2);
+			int correct  = cursor.getInt(3);
+			
+			HttpHandler http =new HttpHandler("http://ibeacon.no-ip.org/ibeacon/test");
+			taskPost = new PostTestOnServerTask(http, answer, correct_answer, correct);
+			taskPost.execute(null,null,null);
+			
+			Log.d(TAG, "In SQLITEDB  answer "+answer+" correct_answer "+correct_answer+" correct "+correct);
+			cursor.moveToNext();
+		}
+		cursor.close();
+		myDb.delete(myDbHelper.TABLE_SAVED_ANSWERS,null,null);
+
+	}
+	
+	private boolean saveDataSqlite(String answer,String correct_answer,int correct){
+		boolean createSuccessful =false;
+		SQLiteDatabase myDb = myDbHelper.getWritableDatabase();
+		ContentValues values = new ContentValues();
+		values.put("answer_room", answer);
+		values.put("correct_room", correct_answer);
+		values.put("correct", correct);
+		createSuccessful = myDb.insert("saved_answer", null, values) > 0;
+	    myDb.close();
+
+	    return createSuccessful;
+
+
 	}
 	
 	
@@ -192,11 +272,19 @@ public class LocationActivity extends Activity {
 		// Handle action bar item clicks here. The action bar will
 		// automatically handle clicks on the Home/Up button, so long
 		// as you specify a parent activity in AndroidManifest.xml.
-		int id = item.getItemId();
-		if (id == R.id.action_settings) {
-			return true;
-		}
-		return super.onOptionsItemSelected(item);
+		
+		switch (item.getItemId()) {
+        case android.R.id.home:
+            // app icon in action bar clicked; go home
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+            return true;
+        case R.id.action_settings:
+        	return true;
+        default:
+            return super.onOptionsItemSelected(item);
+    }
 	}
 
 	/**
@@ -221,6 +309,30 @@ public class LocationActivity extends Activity {
 		unregisterReceiver(receiver);
 		super.onDestroy();
 	}
+	
+	
+	private class PostTestOnServerTask extends AsyncTask<Void, Void, Void>{
+
+		private HttpHandler http;
+		private String answerRoom;
+		private String correctRoom;
+		private int correct;
+		
+		public PostTestOnServerTask(HttpHandler http, String answerRoom, String correctRoom, int correct){
+			this.http = http;
+			this.answerRoom = answerRoom;
+			this.correct = correct;
+			this.correctRoom = correctRoom;
+		}
+		
+		@Override
+		protected Void doInBackground(Void... arg0) {
+			http.postAnswer(answerRoom, correctRoom, correct);
+			return null;
+		}
+		
+	}
+	
 	
 	/**
 	 * Class which receive the message sent by the RangingService(information about the beacons in range) and set the bestBeacon attribute 
@@ -247,66 +359,8 @@ public class LocationActivity extends Activity {
 		}
 	}
 	
-	/**
-	 * Load the room-beacon associations from a sqlite database and put values in the hashmap locationBeacon
-	 */
-	private void loadDataDB(){
-		beaconLocation = new HashMap<String, String>();
-		DataBaseHelper myDbHelper = new DataBaseHelper(LocationActivity.this);
-		myDbHelper = new DataBaseHelper(this);
-
-		try {
-
-			myDbHelper.createDataBase();
-			Log.d(TAG, "DB created");
-		} catch (IOException ioe) {
-
-			throw new Error("Unable to create database");
-		}
-
-		try {
-			myDbHelper.openDataBase();
-			Log.d(TAG, "DB opened");
-		}catch(SQLException sqle){
-			throw sqle;
-		}
-		SQLiteDatabase myDb = myDbHelper.getReadableDatabase();
-		Cursor cursor = myDb.query(myDbHelper.TABLE_ROOMS, null, null, null, null, null, null);
-		cursor.moveToFirst();
-		while(cursor.isAfterLast()==false){
-			String room = cursor.getString(1);
-			String beacon  = cursor.getString(2);
-			beaconLocation.put(beacon, room);
-			Log.d(TAG, "Inserting in beaconLocation: room "+room+" beacon "+beacon);
-			cursor.moveToNext();
-		}
-		cursor.close();
-		
- 
-	}
 	
-	private class PostTestOnServerTask extends AsyncTask<Void, Void, Void>{
 
-		private HttpHandler http;
-		private String answerRoom;
-		private String correctRoom;
-		private int correct;
-		
-		public PostTestOnServerTask(HttpHandler http, String answerRoom, String correctRoom, int correct){
-			this.http = http;
-			this.answerRoom = answerRoom;
-			this.correct = correct;
-			this.correctRoom = correctRoom;
-		}
-		
-		@Override
-		protected Void doInBackground(Void... arg0) {
-			http.postAnswer(answerRoom, correctRoom, correct);
-			return null;
-		}
-		
-	}
-	
 	
 
 }
