@@ -91,6 +91,9 @@ public class LocationActivity extends Activity {
 		Button asw2 = (Button) findViewById(R.id.answer2);
 		Button asw3 = (Button) findViewById(R.id.answer3);
 		Button asw4 = (Button) findViewById(R.id.answer4);
+		Button asw5 = (Button) findViewById(R.id.answer5);
+		Button asw6 = (Button) findViewById(R.id.answer6);
+		Button asw7 = (Button) findViewById(R.id.answer7);
 		
 		ArrayList<String> rooms = new ArrayList<String>(beaconLocation.values());
 		Collections.shuffle(rooms);
@@ -99,6 +102,9 @@ public class LocationActivity extends Activity {
 		setButtonText(asw1,0, rooms);
 		setButtonText(asw2,1,rooms);
 		setButtonText(asw3,2,rooms);
+		setButtonText(asw5,3,rooms);
+		setButtonText(asw6,4,rooms);
+		setButtonText(asw7,5,rooms);
 		asw4.setText("Nessuna");
 
 		
@@ -160,7 +166,7 @@ public class LocationActivity extends Activity {
 		else {
 			Log.d(TAG, "correctRoom  "+correctRoom);
 			//check if in the other answers there is the correct one
-			if (correctRoom==null || answers.indexOfValue(correctRoom)<0) {
+			if (correctRoom==null /*|| answers.indexOfValue(correctRoom)<0*/) {
 				
 				sendAnswer( "Nessuna", "Nessuna", 1);
 				Log.d(TAG, "correct generic answer  "+correctRoom);
