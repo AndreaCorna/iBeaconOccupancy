@@ -25,11 +25,12 @@ public class TestService extends Service{
 	private BeaconReceiver receiver;
 	protected static final String TAG = "TestService";
 	private HashMap<String, String> beaconLocation;
-
+	private static TestService me;
 	
 	
 	public void onCreate(){
 		notifier = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+		me = this;
 		super.onCreate();
 	}
 	
@@ -43,6 +44,10 @@ public class TestService extends Service{
 		timerTask.schedule(requestAnswer, 6000, 1800000);
 		bestBeacon = (String)intent.getSerializableExtra("BestBeacon");
 		beaconLocation = (HashMap<String, String>) intent.getSerializableExtra("beaconLocation");
+		//for (String string : beaconLocation.keySet()) {
+		//	Log.d(TAG," beacon in test service "+string +" uuid ");
+		//}
+		
 		receiver =  (BeaconReceiver)intent.getSerializableExtra("receiver");
 		
     	return super.onStartCommand(intent, flags, startId);
@@ -57,6 +62,10 @@ public class TestService extends Service{
 	public void onDestroy(){
 		timerTask.cancel();
 		super.onDestroy();
+	}
+	
+	public static TestService getInstance(){
+		return me;
 	}
 	
 	/**

@@ -6,17 +6,11 @@ import it.polimi.it.ibeaconoccupancy.http.HttpHandler;
 import it.polimi.it.ibeaconoccupancy.services.MonitoringService;
 import it.polimi.it.ibeaconoccupancy.services.RangingService;
 
-import java.io.IOException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 
-import com.radiusnetworks.ibeacon.IBeaconManager;
 
-import android.R.integer;
-import android.R.string;
 import android.app.Activity;
 import android.app.ActionBar;
 import android.app.Fragment;
@@ -26,7 +20,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
-import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -42,7 +35,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.os.Build;
 
 public class LocationActivity extends Activity {
 	
@@ -112,11 +104,6 @@ public class LocationActivity extends Activity {
 		
 	}
 	
-	private ArrayList<Button> createButtons(int length){
-		ArrayList<Button> listOfButton = new ArrayList<Button>();
-		
-		return listOfButton;
-	}
 	
 	/**
 	 * Setting the text to the buttons and adding field to the sparse array Answers
@@ -143,19 +130,22 @@ public class LocationActivity extends Activity {
 	 */
 	public void checkAnswer(View view){
 		Log.d(TAG, "in beacon loaction "+bestBeacon);
-		
 		String correctRoom = beaconLocation.get(bestBeacon);
 		
+		Log.d(TAG," correct room "+correctRoom);
 		
 		//checking if answer is different from Nessuna
 		if (view.getId() != R.id.answer4) {
 			String answerRoom = answers.get(view.getId());
-			if (correctRoom!=null && answerRoom.equals(correctRoom)){
-				Log.d(TAG, "correct specific answer "+answerRoom+" correct"+correctRoom);
-				sendAnswer( answerRoom, correctRoom, 1);
-				
-
-				//http.postAnswer(answerRoom, correctRoom, 1);
+			Log.d(TAG," answer room "+answerRoom);
+			if (correctRoom!=null){
+				if(answerRoom.equals(correctRoom)){
+					Log.d(TAG, "correct specific answer "+answerRoom+" correct"+correctRoom);
+					sendAnswer( answerRoom, correctRoom, 1);
+				}else{
+					Log.d(TAG, "wrong specific answer "+ answerRoom+" "+correctRoom);
+					sendAnswer( answerRoom, correctRoom, 0);
+				}
 			}
 			else {
 				Log.d(TAG, "wrong specific answer "+ answerRoom+"Nessuna");
@@ -341,26 +331,22 @@ public class LocationActivity extends Activity {
 	private class BeaconReceiver extends BroadcastReceiver{
 
 		@Override
-		public void onReceive(Context arg0, Intent intent) {		  
+		public void onReceive(Context arg0, Intent intent) {	
+			
 			if (intent.getExtras().getBoolean("exitRegion")){
+				Log.d(TAG, "notify exit");
 				bestBeacon=null;
 			}
 			else {
 				ArrayList<String> beacons = intent.getStringArrayListExtra("BeaconInfo");
 				String strongerBeacon = intent.getExtras().getString("StrongerBeacon");
-				bestBeacon = strongerBeacon;
+				bestBeacon = strongerBeacon.intern();
 				Log.d(TAG, "on Receive strong beacon "+bestBeacon);
 				
 			}
-			
-			
-			
-			 
 		}
 	}
 	
-	
-
-	
+		
 
 }

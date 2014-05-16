@@ -1,9 +1,6 @@
 package it.polimi.it.ibeaconoccupancy.services;
 
-import java.util.Timer;
-import java.util.TimerTask;
 
-import it.polimi.it.ibeaconoccupancy.LocationActivity;
 import it.polimi.it.ibeaconoccupancy.compare.BeaconHandler;
 import it.polimi.it.ibeaconoccupancy.compare.FullBeaconHandlerImpl;
 import it.polimi.it.ibeaconoccupancy.helper.SaveBattery;

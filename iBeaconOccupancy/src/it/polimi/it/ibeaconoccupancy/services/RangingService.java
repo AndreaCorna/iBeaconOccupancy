@@ -1,13 +1,12 @@
 package it.polimi.it.ibeaconoccupancy.services;
 
-import it.polimi.it.ibeaconoccupancy.LocationActivity;
+
 import it.polimi.it.ibeaconoccupancy.compare.BeaconHandler;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
+
 
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
@@ -19,7 +18,6 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.os.Vibrator;
 import android.util.Log;
 
 import com.radiusnetworks.ibeacon.IBeacon;
@@ -54,8 +52,6 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
-        //iBeaconManager.setBackgroundMode(this, true);
-		//iBeaconManager.setBackgroundScanPeriod(3000);
         
 		Log.d(TAG, "Ranging started");
     }

@@ -1,11 +1,10 @@
 package it.polimi.it.ibeaconoccupancy;
 
 import java.io.IOException;
-import java.io.Serializable;
+
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Timer;
-import java.util.TimerTask;
+
 
 import com.radiusnetworks.ibeacon.IBeaconManager;
 
@@ -14,9 +13,7 @@ import it.polimi.it.ibeaconoccupancy.compare.FullBeaconHandlerImpl;
 import it.polimi.it.ibeaconoccupancy.compare.MinimalBeaconHandlerImpl;
 import it.polimi.it.ibeaconoccupancy.helper.DataBaseHelper;
 import it.polimi.it.ibeaconoccupancy.helper.SettingsActivity;
-import it.polimi.it.ibeaconoccupancy.http.HttpHandler;
 import it.polimi.it.ibeaconoccupancy.services.BackgroundService;
-import it.polimi.it.ibeaconoccupancy.services.MonitoringService;
 import it.polimi.it.ibeaconoccupancy.services.RangingService;
 import it.polimi.it.ibeaconoccupancy.services.TestService;
 import android.app.Activity;
@@ -25,7 +22,6 @@ import android.app.ActivityManager.RunningServiceInfo;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.BroadcastReceiver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -35,9 +31,6 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -46,7 +39,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
+
 
 /**
  * This class implements the main activityy of the application
@@ -170,7 +163,11 @@ public class MainActivity extends Activity {
 	
 	public void stopTestService(View view) {
 		if (isTestRunning()){
-			stopService(testService);
+			
+			if(testService != null)
+				stopService(testService);
+			else
+				TestService.getInstance().stopSelf();
 		}
 	}
 	
@@ -322,7 +319,7 @@ public class MainActivity extends Activity {
 		while(cursor.isAfterLast()==false){
 			String room = cursor.getString(1);
 			String beacon  = cursor.getString(2);
-			beaconLocation.put(beacon, room);
+			beaconLocation.put(beacon.intern(), room);
 			Log.d(TAG, "Inserting in beaconLocation: room "+room+" beacon "+beacon);
 			cursor.moveToNext();
 		}
