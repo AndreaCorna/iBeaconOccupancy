@@ -2,6 +2,7 @@ package it.polimi.it.ibeaconoccupancy.services;
 
 import it.polimi.it.ibeaconoccupancy.LocationActivity;
 
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,6 +13,7 @@ import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.IBinder;
 import android.os.Vibrator;
 import android.util.Log;
@@ -21,7 +23,7 @@ public class TestService extends Service{
 	private TimerRequestAnswer requestAnswer;
 	private Timer timerTask;
 	private Vibrator notifier;
-	private String bestBeacon = new String();
+	private String bestBeacon;
 	private BeaconReceiver receiver;
 	protected static final String TAG = "TestService";
 	private HashMap<String, String> beaconLocation;
@@ -41,14 +43,17 @@ public class TestService extends Service{
 		myintentIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
 		timerTask = new Timer();
 		requestAnswer = new TimerRequestAnswer(myintentIntent, notifier);
-		timerTask.schedule(requestAnswer, 6000, 1800000);
+		timerTask.schedule(requestAnswer, 6000, 18000);
 		bestBeacon = (String)intent.getSerializableExtra("BestBeacon");
 		beaconLocation = (HashMap<String, String>) intent.getSerializableExtra("beaconLocation");
 		//for (String string : beaconLocation.keySet()) {
 		//	Log.d(TAG," beacon in test service "+string +" uuid ");
 		//}
-		
-		receiver =  (BeaconReceiver)intent.getSerializableExtra("receiver");
+		IntentFilter intentFilter = new IntentFilter();
+		intentFilter.addAction(RangingService.ACTION);
+		intentFilter.addAction(MonitoringService.ACTION);
+		receiver =  new BeaconReceiver();
+		registerReceiver(receiver, intentFilter);
 		
     	return super.onStartCommand(intent, flags, startId);
     }
@@ -61,6 +66,7 @@ public class TestService extends Service{
 	
 	public void onDestroy(){
 		timerTask.cancel();
+		unregisterReceiver(receiver);
 		super.onDestroy();
 	}
 	

@@ -104,8 +104,8 @@ public class LocationActivity extends Activity {
 		setButtonText(asw3,2,rooms);
 		setButtonText(asw5,3,rooms);
 		setButtonText(asw6,4,rooms);
-		setButtonText(asw7,5,rooms);
-		asw4.setText("Nessuna");
+		setButtonText(asw4,5,rooms);
+		asw7.setText("Nessuna");
 
 		
 	}
@@ -141,7 +141,7 @@ public class LocationActivity extends Activity {
 		Log.d(TAG," correct room "+correctRoom);
 		
 		//checking if answer is different from Nessuna
-		if (view.getId() != R.id.answer4) {
+		if (view.getId() != R.id.answer7) {
 			String answerRoom = answers.get(view.getId());
 			Log.d(TAG," answer room "+answerRoom);
 			if (correctRoom!=null){
