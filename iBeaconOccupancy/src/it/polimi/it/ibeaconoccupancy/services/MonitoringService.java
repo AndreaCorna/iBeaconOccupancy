@@ -123,7 +123,7 @@ public class MonitoringService extends Service implements IBeaconConsumer {
 	}
 	
 	private void startRanging(){
-		if(ranging == null)
+		
 			startService(ranging);
 	}
 	
