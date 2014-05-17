@@ -10,7 +10,6 @@ import it.polimi.it.ibeaconoccupancy.R;
 import it.polimi.it.ibeaconoccupancy.compare.FullBeaconHandlerImpl;
 import it.polimi.it.ibeaconoccupancy.compare.MinimalBeaconHandlerImpl;
 import it.polimi.it.ibeaconoccupancy.helper.DataBaseHelper;
-import it.polimi.it.ibeaconoccupancy.helper.SettingsActivity;
 import it.polimi.it.ibeaconoccupancy.services.BackgroundService;
 import it.polimi.it.ibeaconoccupancy.services.RangingService;
 import it.polimi.it.ibeaconoccupancy.services.TestService;
@@ -110,11 +109,6 @@ public class MainActivity extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		
 		int id = item.getItemId();
-		if (id == R.id.action_settings) {
-			 Intent i = new Intent(this, SettingsActivity.class);
-			 startActivity(i);			 
-			return true;
-		}
 		return super.onOptionsItemSelected(item);
 	}
 	
