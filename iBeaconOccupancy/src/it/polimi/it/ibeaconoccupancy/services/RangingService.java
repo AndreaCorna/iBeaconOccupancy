@@ -107,8 +107,6 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
             iBeaconManager.startRangingBeaconsInRegion(new Region("myRangingUniqueId", null, null, null));
         } catch (RemoteException e) {   }
         iBeaconManager.setBackgroundMode(this, true);
-        iBeaconManager.setBackgroundScanPeriod(3000);
-		iBeaconManager.setBackgroundBetweenScanPeriod(3000);
 		try {
 			iBeaconManager.updateScanPeriods();
 		} catch (RemoteException e) {

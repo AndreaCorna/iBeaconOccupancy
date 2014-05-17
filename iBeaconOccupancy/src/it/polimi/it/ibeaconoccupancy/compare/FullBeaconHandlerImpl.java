@@ -32,29 +32,38 @@ public class FullBeaconHandlerImpl implements BeaconHandler, Serializable {
 		if(bestBeacon != null){
 			boolean found = false;
 			big = newInformation.iterator().next();
+			Log.d(TAG," start search in beacon");
 			for (IBeacon iBeacon : newInformation) {
 				if(!found && iBeacon.equals(bestBeacon))
-					found = true;	
-				if(iBeacon.getRssi() > big.getRssi()){
+					found = true;
+				Log.d(TAG,"beacon "+iBeacon.getProximityUuid()+iBeacon.getMajor()+iBeacon.getMinor()+" Accuracy "+iBeacon.getAccuracy()+ "\n best "+bestBeacon.getAccuracy()+" "+bestBeacon.getProximityUuid()+bestBeacon.getMajor()+bestBeacon.getMinor());
+				if(iBeacon.getAccuracy() <big.getAccuracy()){
 					big = iBeacon;
 				}
 			}
+			Log.d(TAG,"best Beacon "+big.getProximityUuid()+big.getMajor()+big.getMinor());
+			Log.d(TAG,"found "+found);
 			if(found){
-				if(bestBeacon.equals(big))
+				if(bestBeacon.equals(big)){
+					Log.d(TAG,"best prima è uguale a best adesso");
 					bestBeacon = big;
-				else if(changed){
+				}else if(changed){
+					Log.d(TAG,"best prima è cambiato per la seconda volta");
 					bestBeacon = big;
 					changed = false;
 				}else{
+					Log.d(TAG,"best prima è cambiato per la prima volta");
 					big = bestBeacon;
 					changed = true;
 				}
-					
+				
 				lostBeacon = false;
 			}else if(!lostBeacon){
+				Log.d(TAG,"ho perso il beacon per la prima volta");
 				big = bestBeacon;
 				lostBeacon = true;
 			}else{
+				Log.d(TAG,"ho perso il beacon per la seconda volta");
 				bestBeacon = big;
 				lostBeacon = false;
 			}
