@@ -76,8 +76,7 @@ public class MainActivity extends Activity {
 		intentFilter.addAction(RangingService.ACTION);
 		registerReceiver(receiver, intentFilter);
 		verifyBluetooth();
-		prefs = PreferenceManager.getDefaultSharedPreferences(this);
-		registerPreferenceListener();
+		
 		receiver = new BeaconReceiver();
 
 		registerReceiver(receiver, intentFilter);
@@ -86,8 +85,8 @@ public class MainActivity extends Activity {
 			BackgroundService.getInstance().stopSelf();
 		}
 		
-		boolean logicOnClient = prefs.getBoolean("pref_logic", false);
-		launchMonitoring(logicOnClient);
+		
+		launchMonitoring(true);
 		loadDataDB();
 
 		
@@ -212,26 +211,7 @@ public class MainActivity extends Activity {
 	}	
 	
 	
-	/**
-	 * Preference listener to handle the different ways we send  informations to the server
-	 */
-	private void registerPreferenceListener()
-	{
-	    listener = new SharedPreferences.OnSharedPreferenceChangeListener() {
-	    public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
-
-	    	
-	    Log.d(TAG,"LISTENING! - Pref changed for: " + key + " pref: " +
-	    prefs.getBoolean(key, false));
-	    
-	    boolean logicOnClient = prefs.getBoolean(key, false);
-	    stopService(intent);
-	    launchMonitoring(logicOnClient);
-	    }
-	    };
-
-	    prefs.registerOnSharedPreferenceChangeListener(listener);
-	}
+	
 	
 	/**
 	 * The method sets the BeaconHandler implementation according to settings and starts Monitorin service
