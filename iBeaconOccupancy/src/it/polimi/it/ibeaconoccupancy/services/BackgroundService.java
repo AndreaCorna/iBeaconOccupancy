@@ -32,7 +32,7 @@ public class BackgroundService extends Service implements BootstrapNotifier{
         Region region = new Region("ciao",null, null, null);
         regionBootstrap = new RegionBootstrap(this, region);
         monitoring = new Intent(this, it.polimi.it.ibeaconoccupancy.services.MonitoringService.class);
-        launchTestService();
+  
 		
     }
 	@Override
@@ -68,9 +68,5 @@ public class BackgroundService extends Service implements BootstrapNotifier{
 		stopService(monitoring);
 	}
 	
-	private void launchTestService(){
-		testing = new Intent(this, it.polimi.it.ibeaconoccupancy.services.TestService.class);
-		startService(testing);
-	}
 	
 }

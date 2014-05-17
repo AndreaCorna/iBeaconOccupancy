@@ -43,7 +43,7 @@ public class TestService extends Service{
 		myintentIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
 		timerTask = new Timer();
 		requestAnswer = new TimerRequestAnswer(myintentIntent, notifier);
-		timerTask.schedule(requestAnswer, 6000, 18000);
+		timerTask.schedule(requestAnswer, 6000, 1800000);
 		bestBeacon = (String)intent.getSerializableExtra("BestBeacon");
 		beaconLocation = (HashMap<String, String>) intent.getSerializableExtra("beaconLocation");
 		//for (String string : beaconLocation.keySet()) {
