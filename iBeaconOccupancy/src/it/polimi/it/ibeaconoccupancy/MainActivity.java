@@ -1,10 +1,8 @@
 package it.polimi.it.ibeaconoccupancy;
 
 import java.io.IOException;
-
 import java.util.ArrayList;
 import java.util.HashMap;
-
 
 import com.radiusnetworks.ibeacon.IBeaconManager;
 
@@ -39,6 +37,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 
 /**
@@ -344,6 +343,18 @@ public class MainActivity extends Activity {
 				String strongerBeacon = intent.getExtras().getString("StrongerBeacon");
 				bestBeacon = strongerBeacon;
 				Log.d(TAG, "on Receive strong beacon "+bestBeacon);
+				TextView textView = (TextView) findViewById(R.id.my_room_text);
+
+				if(strongerBeacon!=null){
+					String room = beaconLocation.get(strongerBeacon);
+					Log.d(TAG, "on Receive room "+room);
+					Log.d(TAG, "in beacon locationtable"+ beaconLocation.get("e2c56db5-dffb-48d2-b060-d0f5a71096e000"));
+					textView.setText(room);	
+				}
+				else {
+					textView.setText("Nessuna");	
+
+				}
 				
 			}
 			
