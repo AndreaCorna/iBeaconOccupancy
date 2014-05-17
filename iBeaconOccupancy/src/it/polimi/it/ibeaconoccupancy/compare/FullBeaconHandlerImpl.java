@@ -17,6 +17,7 @@ public class FullBeaconHandlerImpl implements BeaconHandler, Serializable {
 	private final HttpHandler httpHand = new HttpHandler("http://ibeacon.no-ip.org/ibeacon");
 	private IBeacon bestBeacon = null;
 	private boolean lostBeacon = false;
+	private boolean changed = false;
 	
 	@Override
 	public void beaconToSend(Collection<IBeacon> newInformation, String MAC) {
@@ -39,7 +40,16 @@ public class FullBeaconHandlerImpl implements BeaconHandler, Serializable {
 				}
 			}
 			if(found){
-				bestBeacon = big;
+				if(bestBeacon.equals(big))
+					bestBeacon = big;
+				else if(changed){
+					bestBeacon = big;
+					changed = false;
+				}else{
+					big = bestBeacon;
+					changed = true;
+				}
+					
 				lostBeacon = false;
 			}else if(!lostBeacon){
 				big = bestBeacon;
