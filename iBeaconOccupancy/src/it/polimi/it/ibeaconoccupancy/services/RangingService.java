@@ -2,6 +2,7 @@ package it.polimi.it.ibeaconoccupancy.services;
 
 
 import it.polimi.it.ibeaconoccupancy.compare.BeaconHandler;
+import it.polimi.it.ibeaconoccupancy.compare.FullBeaconHandlerImpl;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,7 +33,7 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
 	protected static final String TAG = "RangingService";
 	private final IBeaconManager iBeaconManager = IBeaconManager.getInstanceForApplication(this);
     private final BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-    
+    private FullBeaconHandlerImpl beaconLogic;
     private BeaconHandler sendManager;
     private SensorManager mSensorManager; 
     private Sensor mAccelerometer;
@@ -58,8 +59,8 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
     
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-    	sendManager = (BeaconHandler) intent.getSerializableExtra("BeaconHandler");
-    	
+    	//sendManager = (BeaconHandler) intent.getSerializableExtra("BeaconHandler");
+    	beaconLogic = new FullBeaconHandlerImpl();
 		
     	return super.onStartCommand(intent, flags, startId);
     }
@@ -92,45 +93,13 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
             	if(isMoving){
             		//sendManager.beaconToSend(iBeacons,mBluetoothAdapter.getAddress());
             		Log.d(TAG,"Ranging");
-            		this.notifyActivity(iBeacons); 
+            		notifyActivity(iBeacons); 
             		
             		isMoving = false;
             		restore();
             		
             	}
             }
-        }
-        /**
-         * notify the Mainactivity of the presence of the iBeacons found by the ranging and which is the one with the strongest power
-         * @param iBeacons
-         */
-        private void notifyActivity(Collection<IBeacon> iBeacons){
-        	Intent intent = new Intent();
-        	intent.setAction(ACTION);
-    		intent.putExtra("exitRegion",false);
-
-        	List<String> beaconsInfos = new ArrayList<String>();
-        	IBeacon strongerBeacon = null;
-        	for (IBeacon iBeacon : iBeacons){
-        		if (strongerBeacon==null || strongerBeacon.getRssi()<iBeacon.getRssi()){
-        			strongerBeacon = iBeacon;
-        		}
-        		beaconsInfos.add(iBeacon.getProximityUuid()+iBeacon.getMajor()+iBeacon.getMinor());
- 	    	  
- 	    	  
- 	      }
- 	      intent.putStringArrayListExtra("BeaconInfo",(ArrayList<String>) beaconsInfos);
- 	      if (strongerBeacon !=null){
- 	    	  Log.d(TAG, "notifyingLocationActivity "+strongerBeacon.getProximityUuid()+strongerBeacon.getMajor()+strongerBeacon.getMinor());
- 	    	  intent.putExtra("StrongerBeacon", ""+strongerBeacon.getProximityUuid()+strongerBeacon.getMajor()+strongerBeacon.getMinor());
-
- 	      }
- 	      else {
- 	    	 Log.d(TAG, "notifyingLocationActivity nullStronger Beacon");
- 	    	 intent.putExtra("StrongerBeacon","");
- 	    	 
-		}
- 	      sendBroadcast(intent);
         }
 
         });
@@ -182,6 +151,33 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
 	    }
 			
 	}
+	
+	/**
+     * notify the Mainactivity of the presence of the iBeacons found by the ranging and which is the one with the strongest power
+     * @param iBeacons
+     */
+    private void notifyActivity(Collection<IBeacon> iBeacons){
+    	
+    	Intent intent = new Intent();
+    	intent.setAction(ACTION);
+		intent.putExtra("exitRegion",false);
+
+    	List<String> beaconsInfos = new ArrayList<String>();
+    	IBeacon strongerBeacon = beaconLogic.getBestLocation(iBeacons);
+    	
+	    intent.putStringArrayListExtra("BeaconInfo",(ArrayList<String>) beaconsInfos);
+	    if (strongerBeacon !=null){
+	    	Log.d(TAG, "notifyingLocationActivity "+strongerBeacon.getProximityUuid()+strongerBeacon.getMajor()+strongerBeacon.getMinor());
+	    	intent.putExtra("StrongerBeacon", ""+strongerBeacon.getProximityUuid()+strongerBeacon.getMajor()+strongerBeacon.getMinor());
+
+	    }
+	    else {
+	    	Log.d(TAG, "notifyingLocationActivity nullStronger Beacon");
+	    	intent.putExtra("StrongerBeacon","");
+	    	 
+	    }
+	    sendBroadcast(intent);
+    }
 	
 	
 		
