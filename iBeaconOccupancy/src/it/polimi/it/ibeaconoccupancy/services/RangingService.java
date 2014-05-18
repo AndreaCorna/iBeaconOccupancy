@@ -91,7 +91,7 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
             	Log.d(TAG,"Beacons detected");
         		String message;
         		for (IBeacon beacon : iBeacons) {
-					message = beacon.getProximityUuid()+beacon.getMajor()+beacon.getMinor()+","+beacon.getAccuracy();
+					message = beacon.getProximityUuid()+beacon.getMajor()+beacon.getMinor()+","+beacon.getAccuracy()+"\n";
 					LogFileHelper.writeLogEntry(message);
 				}
         		
@@ -106,8 +106,7 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
             iBeaconManager.startRangingBeaconsInRegion(new Region("myRangingUniqueId", null, null, null));
         } catch (RemoteException e) {   }
         iBeaconManager.setBackgroundMode(this, true);
-        iBeaconManager.setBackgroundScanPeriod(3000);
-        iBeaconManager.setForegroundScanPeriod(2000);
+
 		try {
 			iBeaconManager.updateScanPeriods();
 		} catch (RemoteException e) {

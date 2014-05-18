@@ -3,13 +3,22 @@ package it.polimi.it.ibeaconoccupancy.helper;
 
 import javax.activation.DataHandler;   
 import javax.activation.DataSource;   
+import javax.activation.FileDataSource;
+import javax.mail.BodyPart;
 import javax.mail.Message;   
+import javax.mail.Multipart;
 import javax.mail.PasswordAuthentication;   
 import javax.mail.Session;   
 import javax.mail.Transport;   
 import javax.mail.internet.InternetAddress;   
+import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;   
+import javax.mail.internet.MimeMultipart;
+
+import android.util.Log;
+
 import java.io.ByteArrayInputStream;   
+import java.io.File;
 import java.io.IOException;   
 import java.io.InputStream;   
 import java.io.OutputStream;   
@@ -21,6 +30,8 @@ public class GmailSender extends javax.mail.Authenticator {
     private String user;   
     private String password;   
     private Session session;   
+	private static final String TAG = "GmailSender";
+
 
     static {   
         Security.addProvider(new JSSEProvider());   
@@ -54,16 +65,36 @@ public class GmailSender extends javax.mail.Authenticator {
         DataHandler handler = new DataHandler(new ByteArrayDataSource(body.getBytes(), "text/plain"));   
         message.setSender(new InternetAddress(sender));   
         message.setSubject(subject);   
-        message.setDataHandler(handler);   
+        message.setDataHandler(handler);  
+        
+     // Attach the logFile (path hardcoded in FileHandler)
+    	File logFile = LogFileHelper.getLogFile();
+    	if(logFile != null){
+	        Multipart _multipart = new MimeMultipart(); 
+        	BodyPart messageBodyPart = new MimeBodyPart(); 
+            DataSource source = new FileDataSource(logFile); 
+            messageBodyPart.setDataHandler(new DataHandler(source)); 
+            messageBodyPart.setFileName(logFile.getName()); 
+            _multipart.addBodyPart(messageBodyPart);
+            BodyPart messageBodyPart2 = new MimeBodyPart(); 
+            messageBodyPart2.setText(body); 
+            _multipart.addBodyPart(messageBodyPart2);
+	        message.setContent(_multipart);
+    	}
+        
+        
         if (recipients.indexOf(',') > 0)   
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(recipients));   
         else  
             message.setRecipient(Message.RecipientType.TO, new InternetAddress(recipients));   
         Transport.send(message);   
         }catch(Exception e){
-
+        	e.printStackTrace();
+        	Log.d(TAG, "Error in send mail"+e);
         }
     }   
+    
+   
 
     public class ByteArrayDataSource implements DataSource {   
         private byte[] data;   

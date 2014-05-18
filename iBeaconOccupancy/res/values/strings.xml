@@ -8,5 +8,14 @@
     <string name="pref_client_logic">Logic on client</string>
     <string name="pref_client_logic_summary">Enable the application logic </string>
     
+    <color name="blue">#3051c9</color>
+    <color name="white">#FFFFFF</color>
+    <color name="NiceButtonStartColor">#4AA02C</color>
+    <color name="NiceButtonEndColor">#348017</color>
+    <color name="NiceButtonDisabledStartColor">#565051</color>
+    <color name="NiceButtonDisabledEndColor">#736F6E</color>
+    <color name="NiceButtonBorderColor">#254117</color>
+    <string name="email">Send an Email</string>
+    
 
 </resources>

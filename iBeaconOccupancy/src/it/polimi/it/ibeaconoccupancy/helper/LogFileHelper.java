@@ -19,7 +19,7 @@ public class LogFileHelper {
 	private static final String TAG = "LogFileHelper";
 	
 	private static final String IBEACON_DIR = "Ibeacon";
-	private static final String IBEACON_LOG_FILE = "LogFile.txt";
+	private static final String IBEACON_LOG_FILE = "BeaconLog.txt";
 	
 	public static Boolean writeLogEntry(String logEntry){
 		// Setup folder and dir

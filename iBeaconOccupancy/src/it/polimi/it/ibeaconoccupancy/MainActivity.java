@@ -3,19 +3,22 @@ package it.polimi.it.ibeaconoccupancy;
 
 import com.radiusnetworks.ibeacon.IBeaconManager;
 
-
 import it.polimi.it.ibeaconoccupancy.compare.FullBeaconHandlerImpl;
 import it.polimi.it.ibeaconoccupancy.compare.MinimalBeaconHandlerImpl;
+import it.polimi.it.ibeaconoccupancy.helper.GmailSender;
+import it.polimi.it.ibeaconoccupancy.helper.LogFileHelper;
 import it.polimi.it.ibeaconoccupancy.services.BackgroundService;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
 import android.app.AlertDialog;
 import android.app.Fragment;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -216,7 +219,112 @@ public class MainActivity extends Activity {
 		  }
 		  return false;
 		}
+	public void sendEmail(View v) {
+        // TODO Auto-generated method stub
+		Log.d(TAG, "Sendig an email");
+		EmailSendTask emailSending = new EmailSendTask();
+		emailSending.execute(null, null, null);
+        
+    }
+	public void deleteLog(View v){
+		DeleteLogTask deleteLogTask = new DeleteLogTask();
+		deleteLogTask.execute(null,null,null);
+	}
 	
 	
+	private class EmailSendTask extends AsyncTask<Void, Void, Void>
+	implements DialogInterface.OnCancelListener
+	{
+		private ProgressDialog dialog;
 
+		/**
+		 * Shows the dialog in order to notify the user that the application is loading.
+		 */
+		protected void onPreExecute()
+		{	
+			dialog = ProgressDialog.show(MainActivity.this, "Please wait", "Email sending...", true);
+		}
+		/**
+		 * Executes time consuming stuff.
+		 */
+		protected Void doInBackground(Void... unused)
+		{
+			try {   
+	            GmailSender sender = new GmailSender("traveldream.vacanze@gmail.com", "ingsoftware2");
+	            sender.sendMail("Ibeacon test results",   
+	                    "Here the test result",   
+	                    "traveldream.vacanze@gmail.com",   
+	                    "lord.fontana@gmail.com");   
+	            Log.d(TAG, "sent an email");
+	            
+	        } catch (Exception e) {   
+	            Log.e("SendMail", e.getMessage(), e);  
+	            Log.d(TAG, "Error sending email ");
+            
+	            e.printStackTrace();
+	        }
+			return null; 
+		}
+		/**
+    	 * After the execution, the interface is updated.
+    	 */
+    	protected void onPostExecute(Void unused)
+    	{
+    		
+    		try{
+    			dialog.dismiss();
+    		}catch(IllegalArgumentException e){
+    			Log.e("MainActivity", "Exception while dismissing a dialog: " + e.getMessage());
+    		}
+    	}
+
+		@Override
+		public void onCancel(DialogInterface arg0) {
+			// TODO Auto-generated method stub
+			
+		}
+
+	}
+	
+	private class DeleteLogTask extends AsyncTask<Void, Void, Void>
+	implements DialogInterface.OnCancelListener
+	{
+		private ProgressDialog dialog;
+
+		/**
+		 * Shows the dialog in order to notify the user that the application is loading.
+		 */
+		protected void onPreExecute()
+		{	
+			dialog = ProgressDialog.show(MainActivity.this, "Please wait", "Deleting old log file...", true);
+		}
+		/**
+		 * Executes time consuming stuff.
+		 */
+		protected Void doInBackground(Void... unused)
+		{
+			
+			LogFileHelper.removeLogFile();
+			return null;
+		}
+
+
+		@Override
+		public void onCancel(DialogInterface dialog) {
+			// TODO Auto-generated method stub
+			
+		}
+		/**
+    	 * After the execution, the interface is updated.
+    	 */
+    	protected void onPostExecute(Void unused)
+    	{
+    		
+    		try{
+    			dialog.dismiss();
+    		}catch(IllegalArgumentException e){
+    			Log.e("MainActivity", "Exception while dismissing a dialog: " + e.getMessage());
+    		}
+    	}
+	}
 }
