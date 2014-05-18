@@ -6,7 +6,11 @@ import java.util.Collection;
 
 import com.radiusnetworks.ibeacon.IBeacon;
 
-
+/**
+ * This interface defines all methods used to make http request to the server
+ * @author Andrea Corna - Lorenzo Fontana
+ *
+ */
 public interface  BeaconHandler extends Serializable{
 	/**
 	 * Method which will handle the list of the current beacons which will be send to the server 
