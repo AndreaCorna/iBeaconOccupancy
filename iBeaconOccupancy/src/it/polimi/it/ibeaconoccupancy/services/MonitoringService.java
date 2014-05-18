@@ -90,8 +90,14 @@ public class MonitoringService extends Service implements IBeaconConsumer {
 			}
 		});
 		iBeaconManager.setBackgroundMode(this, true);
-		iBeaconManager.setBackgroundScanPeriod(2000);
-		iBeaconManager.setBackgroundBetweenScanPeriod(500);
+		iBeaconManager.setBackgroundScanPeriod(3000);
+		try {
+			iBeaconManager.updateScanPeriods();
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        
 		try {
 			iBeaconManager.startMonitoringBeaconsInRegion(new Region("myMonitoringUniqueId",null, null, null));
 		} catch (RemoteException e) {

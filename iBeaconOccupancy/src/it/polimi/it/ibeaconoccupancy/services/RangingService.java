@@ -1,6 +1,7 @@
 package it.polimi.it.ibeaconoccupancy.services;
 
 import it.polimi.it.ibeaconoccupancy.compare.BeaconHandler;
+import it.polimi.it.ibeaconoccupancy.helper.LogFileHelper;
 
 import java.util.Collection;
 
@@ -78,20 +79,24 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
 	}
 
 	
+	
+	
     @Override
     public void onIBeaconServiceConnect() {
         iBeaconManager.setRangeNotifier(new RangeNotifier() {
         @Override 
         public void didRangeBeaconsInRegion(Collection<IBeacon> iBeacons, Region region) {
-            if (iBeacons.size() > 0) {
-            	if(true){
-            		sendManager.beaconToSend(iBeacons,mBluetoothAdapter.getAddress());
-            		Log.d(TAG,"Ranging");
+        	Log.d(TAG,"RAnging ");
+        	if (iBeacons.size() > 0) {
+            	Log.d(TAG,"Beacons detected");
+        		String message;
+        		for (IBeacon beacon : iBeacons) {
+					message = beacon.getProximityUuid()+beacon.getMajor()+beacon.getMinor()+","+beacon.getAccuracy();
+					LogFileHelper.writeLogEntry(message);
+				}
+        		
             		
-            		isMoving = false;
-            		restore();
-            		
-            	}
+            	
             }
         }
         
@@ -101,6 +106,8 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
             iBeaconManager.startRangingBeaconsInRegion(new Region("myRangingUniqueId", null, null, null));
         } catch (RemoteException e) {   }
         iBeaconManager.setBackgroundMode(this, true);
+        iBeaconManager.setBackgroundScanPeriod(3000);
+        iBeaconManager.setForegroundScanPeriod(2000);
 		try {
 			iBeaconManager.updateScanPeriods();
 		} catch (RemoteException e) {
