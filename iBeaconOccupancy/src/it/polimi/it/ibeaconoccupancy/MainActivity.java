@@ -1,6 +1,9 @@
 package it.polimi.it.ibeaconoccupancy;
 
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
 import com.radiusnetworks.ibeacon.IBeaconManager;
 
 import it.polimi.it.ibeaconoccupancy.compare.FullBeaconHandlerImpl;
@@ -27,6 +30,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 /**
  * This class implements the main activity of the application.
@@ -321,7 +325,10 @@ public class MainActivity extends Activity {
     	{
     		
     		try{
+    			
+
     			dialog.dismiss();
+    			Toast.makeText(getApplicationContext(), "Log File flushed", Toast.LENGTH_SHORT).show();
     		}catch(IllegalArgumentException e){
     			Log.e("MainActivity", "Exception while dismissing a dialog: " + e.getMessage());
     		}
