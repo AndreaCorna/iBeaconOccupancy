@@ -64,3 +64,4 @@ iBeaconOccupancy/bin/AndroidManifest.xml
 iBeaconOccupancy/bin/dexedLibs/*
 AndroidProximityLibrary/gen/*
 iBeaconOccupancy/gen/*
+iBeaconOccupancy/bin/classes/*
