@@ -28,7 +28,7 @@ import java.util.Properties;
 public class GmailSender extends javax.mail.Authenticator {   
     private String mailhost = "smtp.gmail.com";   
     private String user;   
-    private String password;   
+    private String password; 
     private Session session;   
 	private static final String TAG = "GmailSender";
 

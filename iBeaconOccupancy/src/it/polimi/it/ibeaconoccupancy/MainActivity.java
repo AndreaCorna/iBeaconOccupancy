@@ -254,7 +254,7 @@ public class MainActivity extends Activity {
 	            sender.sendMail("Ibeacon test results",   
 	                    "Here the test result",   
 	                    "traveldream.vacanze@gmail.com",   
-	                    "lord.fontana@gmail.com");   
+	                    "andrea.corna.ac.91@gmail.com");   
 	            Log.d(TAG, "sent an email");
 	            
 	        } catch (Exception e) {   
