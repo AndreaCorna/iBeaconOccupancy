@@ -3,6 +3,8 @@ package it.polimi.it.ibeaconoccupancy.services;
 import it.polimi.it.ibeaconoccupancy.compare.BeaconHandler;
 import it.polimi.it.ibeaconoccupancy.helper.LogFileHelper;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Collection;
 
 import android.app.Service;
@@ -90,8 +92,13 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
         	if (iBeacons.size() > 0) {
             	Log.d(TAG,"Beacons detected");
         		String message;
+        		Calendar c = Calendar.getInstance(); 
+    			
+    			SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
+    			String time = df.format(c.getTime());
         		for (IBeacon beacon : iBeacons) {
-					message = beacon.getProximityUuid()+beacon.getMajor()+beacon.getMinor()+","+beacon.getAccuracy()+"\n";
+        			
+					message = time+","+beacon.getProximityUuid()+beacon.getMajor()+beacon.getMinor()+","+beacon.getAccuracy()+"\n";
 					LogFileHelper.writeLogEntry(message);
 				}
         		
