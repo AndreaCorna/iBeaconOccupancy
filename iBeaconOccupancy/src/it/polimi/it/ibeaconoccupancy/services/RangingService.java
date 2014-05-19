@@ -23,8 +23,13 @@ import com.radiusnetworks.ibeacon.RangeNotifier;
 import com.radiusnetworks.ibeacon.Region;
 
 /**
+ * The class implements the ranging service. In this way the application is able to notify all information
+ * about seen beacons to the server. In order to choose when it has to talk with the server, it looks on accelerometer 
+ * to understand when the device is moving.
+ * @see IBeaconConsumer
+ * @see SensorEventListener
+ * @author Andrea Corna - Lorenzo Fontana
  * 
- * @author andrea
  *
  */
 public class RangingService extends Service implements IBeaconConsumer,SensorEventListener{
@@ -42,7 +47,10 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
     private static final int SHAKE_THRESHOLD = 300;
     private long lastUpdate;
     
-	
+	/**
+	 * The method is called when the service is created and sets up the listener for the acceletometer 
+	 * and bind iBeaconConsumer service.
+	 */
     @Override
     public void onCreate() {
         
@@ -53,12 +61,19 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
         mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
 		Log.d(TAG, "Ranging started");
     }
-    
+    /**
+     * The method is called when the service is started.
+     */
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
     	sendManager = (BeaconHandler) intent.getSerializableExtra("BeaconHandler");
     	return super.onStartCommand(intent, flags, startId);
     }
+    
+    /**
+     * The method is called when the service is stopped. In particular it unregisters the listener for the accelerometer and unbinds
+     * the iBeconConsumer service.
+     */
     @Override
     public void onDestroy() {
     	iBeaconManager.unBind(this);
@@ -73,14 +88,24 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
 		return null;
 	}
 	
+	/**
+	 * The method restores the accelerometer listener
+	 */
 	private void restore(){
 		mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
 	}
 
-	
+	/**
+	 * The method is called when the iBeacon service provided by Radius Library is ready. In this we set up 
+	 * the callback function to use when almost a iBeacon packet has been received.
+	 */
     @Override
     public void onIBeaconServiceConnect() {
         iBeaconManager.setRangeNotifier(new RangeNotifier() {
+        	
+        /**
+         * The method is called when almost beacon in a region is present.
+         */
         @Override 
         public void didRangeBeaconsInRegion(Collection<IBeacon> iBeacons, Region region) {
             if (iBeacons.size() > 0) {
