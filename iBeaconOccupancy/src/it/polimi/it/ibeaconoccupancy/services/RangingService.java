@@ -97,8 +97,8 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
     			SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
     			String time = df.format(c.getTime());
         		for (IBeacon beacon : iBeacons) {
-        			
-					message = time+","+beacon.getProximityUuid()+beacon.getMajor()+beacon.getMinor()+","+beacon.getAccuracy()+"\n";
+        			long timestamp = System.currentTimeMillis();
+					message = timestamp+","+beacon.getProximityUuid()+beacon.getMajor()+beacon.getMinor()+","+beacon.getAccuracy()+"\n";
 					LogFileHelper.writeLogEntry(message);
 				}
         		
