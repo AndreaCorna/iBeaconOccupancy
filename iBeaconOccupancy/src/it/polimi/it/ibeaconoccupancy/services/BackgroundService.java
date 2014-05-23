@@ -19,7 +19,7 @@ public class BackgroundService extends Service implements BootstrapNotifier{
     private BluetoothAdapter adapter;
     private static BackgroundService me;
     private Intent monitoring;
-    private Intent testing;
+
 
     public void onCreate() {
         super.onCreate();

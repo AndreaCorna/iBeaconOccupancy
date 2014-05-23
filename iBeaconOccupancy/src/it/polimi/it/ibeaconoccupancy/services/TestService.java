@@ -3,7 +3,6 @@ package it.polimi.it.ibeaconoccupancy.services;
 import it.polimi.it.ibeaconoccupancy.LocationActivity;
 
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Timer;
@@ -36,6 +35,7 @@ public class TestService extends Service{
 		super.onCreate();
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
     public int onStartCommand(Intent intent, int flags, int startId) {
     	
@@ -46,9 +46,6 @@ public class TestService extends Service{
 		timerTask.schedule(requestAnswer, 6000, 1800000);
 		bestBeacon = (String)intent.getSerializableExtra("BestBeacon");
 		beaconLocation = (HashMap<String, String>) intent.getSerializableExtra("beaconLocation");
-		//for (String string : beaconLocation.keySet()) {
-		//	Log.d(TAG," beacon in test service "+string +" uuid ");
-		//}
 		IntentFilter intentFilter = new IntentFilter();
 		intentFilter.addAction(RangingService.ACTION);
 		intentFilter.addAction(MonitoringService.ACTION);
@@ -113,6 +110,7 @@ public class TestService extends Service{
 				bestBeacon=null;
 			}
 			else {
+				@SuppressWarnings("unused")
 				ArrayList<String> beacons = intent.getStringArrayListExtra("BeaconInfo");
 				String strongerBeacon = intent.getExtras().getString("StrongerBeacon");
 				bestBeacon = strongerBeacon;

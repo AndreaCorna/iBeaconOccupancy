@@ -91,7 +91,6 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
         public void didRangeBeaconsInRegion(Collection<IBeacon> iBeacons, Region region) {
             if (iBeacons.size() > 0) {
             	if(isMoving){
-            		//sendManager.beaconToSend(iBeacons,mBluetoothAdapter.getAddress());
             		Log.d(TAG,"Ranging");
             		notifyActivity(iBeacons); 
             		

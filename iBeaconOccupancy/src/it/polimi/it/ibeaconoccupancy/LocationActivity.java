@@ -54,6 +54,7 @@ public class LocationActivity extends Activity {
 	private DataBaseHelper myDbHelper;
 
 
+	@SuppressWarnings("unchecked")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -216,6 +217,7 @@ public class LocationActivity extends Activity {
 	/**
 	 * This method will  send to the server all the answers which has been given when there was no internet connection
 	 */
+	@SuppressWarnings("static-access")
 	private void sendCachedAnswers(){
 		Log.d(TAG, "");
 		SQLiteDatabase myDb = myDbHelper.getReadableDatabase();
@@ -344,6 +346,7 @@ public class LocationActivity extends Activity {
 				bestBeacon=null;
 			}
 			else {
+				@SuppressWarnings("unused")
 				ArrayList<String> beacons = intent.getStringArrayListExtra("BeaconInfo");
 				String strongerBeacon = intent.getExtras().getString("StrongerBeacon");
 				bestBeacon = strongerBeacon.intern();
