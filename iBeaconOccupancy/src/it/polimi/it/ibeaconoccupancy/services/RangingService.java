@@ -1,8 +1,10 @@
 package it.polimi.it.ibeaconoccupancy.services;
 
 
+import it.polimi.it.ibeaconoccupancy.LocationActivity;
 import it.polimi.it.ibeaconoccupancy.compare.BeaconHandler;
 import it.polimi.it.ibeaconoccupancy.compare.FullBeaconHandlerImpl;
+import it.polimi.it.ibeaconoccupancy.http.HttpHandler;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -11,8 +13,10 @@ import java.util.List;
 
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -29,7 +33,7 @@ import com.radiusnetworks.ibeacon.Region;
 
 public class RangingService extends Service implements IBeaconConsumer,SensorEventListener{
 	
-	public final static String ACTION = "RangingAction";	//used to identify the message sent with the SendBroacast inside notifyActivity method
+	//public final static String ACTION = "RangingAction";	//used to identify the message sent with the SendBroacast inside notifyActivity method
 	protected static final String TAG = "RangingService";
 	private final IBeaconManager iBeaconManager = IBeaconManager.getInstanceForApplication(this);
     private final BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -41,8 +45,9 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
     private float last_x,last_y,last_z;
     private static final int SHAKE_THRESHOLD = 300;
     private long lastUpdate;
-    
-   
+    private BeaconReceiver receiver;
+    private String answerRoom;
+    private Collection<IBeacon> past;
     
 	
     @Override
@@ -53,7 +58,10 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
-        
+        IntentFilter intentFilter = new IntentFilter();
+		intentFilter.addAction(LocationActivity.ACTION);
+		receiver =  new BeaconReceiver();
+		registerReceiver(receiver, intentFilter);
 		Log.d(TAG, "Ranging started");
     }
     
@@ -93,8 +101,8 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
             	if(isMoving){
             		//sendManager.beaconToSend(iBeacons,mBluetoothAdapter.getAddress());
             		Log.d(TAG,"Ranging");
-            		notifyActivity(iBeacons); 
-            		
+            		//notifyActivity(iBeacons); 
+            		past = iBeacons;
             		isMoving = false;
             		restore();
             		
@@ -150,10 +158,7 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
 			
 	}
 	
-	/**
-     * notify the Mainactivity of the presence of the iBeacons found by the ranging and which is the one with the strongest power
-     * @param iBeacons
-     */
+	/*
     private void notifyActivity(Collection<IBeacon> iBeacons){
     	
     	Intent intent = new Intent();
@@ -175,12 +180,17 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
 	    	 
 	    }
 	    sendBroadcast(intent);
-    }
+    }*/
 	
-	
+	private class BeaconReceiver extends BroadcastReceiver{
+
+		@Override
+		public void onReceive(Context arg0, Intent intent) {	
 		
-	
-    
-    
-   
+				answerRoom = intent.getExtras().getString("answer");
+				HttpHandler http = new HttpHandler("http://ibeacon.no-ip.org/ibeacon/training");
+				http.postForTraining(past,answerRoom);
+			
+		}
+	}
 }

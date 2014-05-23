@@ -69,14 +69,6 @@ public class MonitoringService extends Service implements IBeaconConsumer {
 		super.onDestroy();
 	}
 	
-	private void notifyLocationActivity(){
-    	Intent intent = new Intent(); 
-    	intent.setAction(ACTION);
-		intent.putExtra("exitRegion",true);
-		sendBroadcast(intent);
-
-	}
-	
 	@Override
 	public void onIBeaconServiceConnect() {
 		iBeaconManager.setMonitorNotifier(new MonitorNotifier() {
@@ -86,7 +78,7 @@ public class MonitoringService extends Service implements IBeaconConsumer {
 				Log.d(TAG, "Exit a region");
 				sendManager.exitingRegion(mBluetoothAdapter.getAddress());
 				stopRanging();
-				notifyLocationActivity();
+			
 	
 			}
 			
