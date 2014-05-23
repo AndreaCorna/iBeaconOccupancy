@@ -2,13 +2,9 @@ package it.polimi.it.ibeaconoccupancy.services;
 
 
 import it.polimi.it.ibeaconoccupancy.LocationActivity;
-import it.polimi.it.ibeaconoccupancy.compare.BeaconHandler;
-import it.polimi.it.ibeaconoccupancy.compare.FullBeaconHandlerImpl;
 import it.polimi.it.ibeaconoccupancy.http.HttpHandler;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 
 import android.app.Service;
@@ -33,12 +29,9 @@ import com.radiusnetworks.ibeacon.Region;
 
 public class RangingService extends Service implements IBeaconConsumer,SensorEventListener{
 	
-	//public final static String ACTION = "RangingAction";	//used to identify the message sent with the SendBroacast inside notifyActivity method
 	protected static final String TAG = "RangingService";
 	private final IBeaconManager iBeaconManager = IBeaconManager.getInstanceForApplication(this);
     private final BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-    private FullBeaconHandlerImpl beaconLogic;
-    private BeaconHandler sendManager;
     private SensorManager mSensorManager; 
     private Sensor mAccelerometer;
     private boolean isMoving = false;
@@ -66,12 +59,10 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
     }
     
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-    	//sendManager = (BeaconHandler) intent.getSerializableExtra("BeaconHandler");
-    	beaconLogic = new FullBeaconHandlerImpl();
-		
+    public int onStartCommand(Intent intent, int flags, int startId) {		
     	return super.onStartCommand(intent, flags, startId);
     }
+   
     @Override
     public void onDestroy() {
     	iBeaconManager.unBind(this);
@@ -99,13 +90,10 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
         public void didRangeBeaconsInRegion(Collection<IBeacon> iBeacons, Region region) {
             if (iBeacons.size() > 0) {
             	if(isMoving){
-            		//sendManager.beaconToSend(iBeacons,mBluetoothAdapter.getAddress());
             		Log.d(TAG,"Ranging");
-            		//notifyActivity(iBeacons); 
             		past = iBeacons;
             		isMoving = false;
             		restore();
-            		
             	}
             }
         }
@@ -158,29 +146,6 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
 			
 	}
 	
-	/*
-    private void notifyActivity(Collection<IBeacon> iBeacons){
-    	
-    	Intent intent = new Intent();
-    	intent.setAction(ACTION);
-		intent.putExtra("exitRegion",false);
-
-    	List<String> beaconsInfos = new ArrayList<String>();
-    	IBeacon strongerBeacon = beaconLogic.getBestLocation(iBeacons);
-    	
-	    intent.putStringArrayListExtra("BeaconInfo",(ArrayList<String>) beaconsInfos);
-	    if (strongerBeacon !=null){
-	    	Log.d(TAG, "notifyingLocationActivity "+strongerBeacon.getProximityUuid()+strongerBeacon.getMajor()+strongerBeacon.getMinor());
-	    	intent.putExtra("StrongerBeacon", ""+strongerBeacon.getProximityUuid()+strongerBeacon.getMajor()+strongerBeacon.getMinor());
-
-	    }
-	    else {
-	    	Log.d(TAG, "notifyingLocationActivity nullStronger Beacon");
-	    	intent.putExtra("StrongerBeacon","");
-	    	 
-	    }
-	    sendBroadcast(intent);
-    }*/
 	
 	private class BeaconReceiver extends BroadcastReceiver{
 
@@ -189,7 +154,7 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
 		
 				answerRoom = intent.getExtras().getString("answer");
 				HttpHandler http = new HttpHandler("http://ibeacon.no-ip.org/ibeacon/training");
-				http.postForTraining(past,answerRoom);
+				http.postForTraining(past,answerRoom,mBluetoothAdapter.getAddress());
 			
 		}
 	}

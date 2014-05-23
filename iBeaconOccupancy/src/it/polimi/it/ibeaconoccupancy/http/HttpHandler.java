@@ -131,7 +131,7 @@ public class HttpHandler implements Serializable{
     
     }
 
-	public void postForTraining(Collection<IBeacon> past, String answerRoom) {
+	public void postForTraining(Collection<IBeacon> past, String answerRoom, String MAC) {
 		int responseCode = 0;
         String stringPost = url;
         URL urlPost;
@@ -154,7 +154,7 @@ public class HttpHandler implements Serializable{
             	beaconPropertier.accumulate("answer", answerRoom);
             	beaconPropertier.accumulate("power", iBeacon.getAccuracy());
             	beaconPropertier.accumulate("id_beacon", id_beacon);
-            	
+            	beaconPropertier.accumulate("id_device", MAC);
             	iBeacons.put(beaconPropertier);
             	
             	

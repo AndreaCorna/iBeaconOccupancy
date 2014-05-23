@@ -1,10 +1,6 @@
 package it.polimi.it.ibeaconoccupancy;
 
 import it.polimi.it.ibeaconoccupancy.R;
-import it.polimi.it.ibeaconoccupancy.helper.DataBaseHelper;
-import it.polimi.it.ibeaconoccupancy.http.HttpHandler;
-import it.polimi.it.ibeaconoccupancy.services.MonitoringService;
-import it.polimi.it.ibeaconoccupancy.services.RangingService;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,16 +10,7 @@ import java.util.HashMap;
 import android.app.Activity;
 import android.app.ActionBar;
 import android.app.Fragment;
-import android.content.BroadcastReceiver;
-import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.SparseArray;
@@ -34,26 +21,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class LocationActivity extends Activity {
 	
 	protected static final String TAG = "LocationActivity";
-	
-	
-	
 	public final static String ACTION = "LocationActivityAction";	
 	private HashMap<String, String> beaconLocation;
 	private SparseArray<String> answers;
-	//private PostTestOnServerTask taskPost;
-	private String bestBeacon = new String();
-	//private BeaconReceiver receiver;
 
 
-	
-	//private DataBaseHelper myDbHelper;
-
-
+	@SuppressWarnings("unchecked")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -68,12 +45,8 @@ public class LocationActivity extends Activity {
 			getFragmentManager().beginTransaction()
 					.add(R.id.container, new PlaceholderFragment()).commit();
 		}
-		//myDbHelper = new DataBaseHelper(this);
-		bestBeacon = (String)this.getIntent().getSerializableExtra("BestBeacon");
 		beaconLocation = (HashMap<String, String>) this.getIntent().getSerializableExtra("beaconLocation");
-		//receiver =  new BeaconReceiver();
 
-		//registerReceiver(receiver, intentFilter);
 		setupLayout();
      
 	}
@@ -127,59 +100,10 @@ public class LocationActivity extends Activity {
 		
 	}
 	
-	/**
-	 * Method called by the buttons of the view which sends to the server the information about the answer
-	 * @param view button which has called this method
-	 */
+	
 	public void checkAnswer(View view){
 		String answerRoom = answers.get(view.getId());
 		notifyToRanging(answerRoom);
-		/*Log.d(TAG, "in beacon loaction "+bestBeacon);
-		String correctRoom = beaconLocation.get(bestBeacon);
-		
-		Log.d(TAG," correct room "+correctRoom);
-		
-		//checking if answer is different from Nessuna
-		if (view.getId() != R.id.answer7) {
-			String answerRoom = answers.get(view.getId());
-			Log.d(TAG," answer room "+answerRoom);
-			if (correctRoom!=null){
-				if(answerRoom.equals(correctRoom)){
-					Log.d(TAG, "correct specific answer "+answerRoom+" correct"+correctRoom);
-					sendAnswer( answerRoom, correctRoom, 1);
-				}else{
-					Log.d(TAG, "wrong specific answer "+ answerRoom+" "+correctRoom);
-					sendAnswer( answerRoom, correctRoom, 0);
-				}
-			}
-			else {
-				Log.d(TAG, "wrong specific answer "+ answerRoom+"Nessuna");
-				sendAnswer( answerRoom, "Nessuna", 0);
-
-			
-				//http.postAnswer(answerRoom, correctRoom, 0);
-			}	
-		}
-		
-		//checking correctness when answer is  Nessuna
-		else {
-			Log.d(TAG, "correctRoom  "+correctRoom);
-			//check if in the other answers there is the correct one
-			if (correctRoom==null /*|| answers.indexOfValue(correctRoom)<0) {
-				
-				sendAnswer( "Nessuna", "Nessuna", 1);
-				Log.d(TAG, "correct generic answer  "+correctRoom);
-				
-			}
-			else {
-				sendAnswer( "Nessuna",correctRoom, 0);
-				//http.postAnswer("Nessuna", correctRoom, 0);
-				Log.d(TAG, "wrong generic answer "+" correct"+correctRoom);
-			}
-		}
-		Toast.makeText(getApplicationContext(), "Answer submitted!", Toast.LENGTH_SHORT).show();
-		
-		this.finish();*/
 	}
 	
 	private void notifyToRanging(String answer){
@@ -238,34 +162,8 @@ public class LocationActivity extends Activity {
 	
 	@Override
 	protected void onDestroy() {
-		//unregisterReceiver(receiver);
 		super.onDestroy();
 	}
 	
-	
-	
-	
-	
-	/*
-	private class BeaconReceiver extends BroadcastReceiver{
-
-		@Override
-		public void onReceive(Context arg0, Intent intent) {	
-			
-			if (intent.getExtras().getBoolean("exitRegion")){
-				Log.d(TAG, "notify exit");
-				bestBeacon=null;
-			}
-			else {
-				ArrayList<String> beacons = intent.getStringArrayListExtra("BeaconInfo");
-				String strongerBeacon = intent.getExtras().getString("StrongerBeacon");
-				bestBeacon = strongerBeacon.intern();
-				Log.d(TAG, "on Receive strong beacon "+bestBeacon);
-				
-			}
-		}
-	}*/
-	
-		
 
 }
