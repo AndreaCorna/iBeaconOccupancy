@@ -5,7 +5,9 @@ import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Collection;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.util.Log;
@@ -72,6 +74,57 @@ public class HttpHandler implements Serializable{
         	Log.d(TAG,"SEND RESPONSE"+responseCode);
     
     }
+	
+	/**
+	 * This method does a post request to the server contains a json with information
+	 * related to all beacons
+	 * @param ibeacons - list of beacon 
+	 * @param idBluetooth - MAC address of the device
+	 */
+	public void postingOnRanging(Collection<IBeacon> ibeacons, String idBluetooth){
+		int responseCode = 0;
+        String stringPost = url+"/"+idBluetooth;
+        URL urlPost;
+		try {
+			urlPost = new URL(stringPost);
+		   	HttpURLConnection httpCon = (HttpURLConnection) urlPost.openConnection();
+        	httpCon.setDoOutput(true);
+        	httpCon.setDoInput(true);
+        	
+        	httpCon.setRequestMethod("POST");
+        	httpCon.setRequestProperty("content-type","application/json; charset=utf-8"); 
+          	httpCon.setRequestProperty("Accept", "application/json");
+          	
+        	
+          	JSONArray iBeacons = new JSONArray();
+          	/*JSONObject answer = new JSONObject();
+          	answer.put("answer", answerRoom);
+          	iBeacons.put(answer);*/
+            for (IBeacon iBeacon : ibeacons) {
+            	JSONObject beaconPropertier = new JSONObject();
+            	String id_beacon = iBeacon.getProximityUuid()+iBeacon.getMajor()+iBeacon.getMinor();
+            	Log.d(TAG,"id "+id_beacon);
+            	beaconPropertier.accumulate("id_beacon", id_beacon);
+            	beaconPropertier.accumulate("distance", iBeacon.getAccuracy());
+            	//beaconPropertier.accumulate("id_device", idBluetooth);
+            	iBeacons.put(beaconPropertier);
+            	
+            	
+			}
+            Log.d(TAG,"json result "+iBeacons.toString());
+           
+           
+            OutputStreamWriter wr= new OutputStreamWriter(httpCon.getOutputStream());
+            wr.write(iBeacons.toString());
+            wr.flush();
+            responseCode = httpCon.getResponseCode();
+ 
+            
+        } catch (Exception e) {}
+        	Log.d(TAG,"SEND RESPONSE"+responseCode);
+    
+		
+	}
 	
 	/**
 	 * This method does a delete request to server about all information related to

@@ -20,10 +20,10 @@ public class MinimalBeaconHandlerImpl implements BeaconHandler,Serializable {
 
 	@Override
 	public void beaconToSend(Collection<IBeacon> newInformation, String MAC) {
-		for (IBeacon iBeacon : newInformation) {
-    		httpHand.postOnRanging(iBeacon, MAC, 1,iBeacon.getRssi());
-		}
-      	
+		/*for (IBeacon iBeacon : newInformation) {
+		httpHand.postOnRanging(iBeacon, MAC, 1,iBeacon.getRssi(),email);
+		}*/
+		httpHand.postingOnRanging(newInformation, MAC);
 		
 	}
     

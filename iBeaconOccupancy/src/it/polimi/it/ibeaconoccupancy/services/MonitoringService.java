@@ -20,7 +20,7 @@ public class MonitoringService extends Service implements IBeaconConsumer {
 	protected static final String TAG = "MonitoringService";
 	private final IBeaconManager iBeaconManager = IBeaconManager.getInstanceForApplication(this);
     private final BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-    private  BeaconHandler sendManager = new FullBeaconHandlerImpl();
+    private  BeaconHandler sendManager;
 	private Intent ranging;
 	private static MonitoringService me;
 	@SuppressWarnings("unused")
