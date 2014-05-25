@@ -6,7 +6,6 @@ import it.polimi.it.ibeaconoccupancy.http.HttpHandler;
 
 import java.util.Collection;
 
-
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
@@ -17,6 +16,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.AsyncTask;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
@@ -154,8 +154,32 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
 		
 				answerRoom = intent.getExtras().getString("answer");
 				HttpHandler http = new HttpHandler("http://ibeacon.no-ip.org/ibeacon/training");
-				http.postForTraining(past,answerRoom,mBluetoothAdapter.getAddress());
+			
+				PostTrainingOnServerTask taskPost = new PostTrainingOnServerTask(http, answerRoom, mBluetoothAdapter.getAddress(), past);
+				taskPost.execute(null,null,null);
 			
 		}
+	}
+	
+	private class PostTrainingOnServerTask extends AsyncTask<Void, Void, Void>{
+
+		private HttpHandler http;
+		private String answerRoom;
+		private String MAC;
+		private Collection<IBeacon> pastBeacon;
+		
+		public PostTrainingOnServerTask(HttpHandler http, String answerRoom, String MAC, Collection<IBeacon> pastBeacon){
+			this.http = http;
+			this.answerRoom = answerRoom;
+			this.MAC = MAC;
+			this.pastBeacon = pastBeacon;
+		}
+		
+		@Override
+		protected Void doInBackground(Void... arg0) {
+			http.postForTraining(pastBeacon, answerRoom, MAC);
+			return null;
+		}
+		
 	}
 }
