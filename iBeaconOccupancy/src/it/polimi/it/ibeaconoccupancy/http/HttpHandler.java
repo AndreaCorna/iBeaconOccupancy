@@ -147,13 +147,16 @@ public class HttpHandler implements Serializable{
           	
         	
           	JSONArray iBeacons = new JSONArray();
+          	/*JSONObject answer = new JSONObject();
+          	answer.put("answer", answerRoom);
+          	iBeacons.put(answer);*/
             for (IBeacon iBeacon : past) {
             	JSONObject beaconPropertier = new JSONObject();
             	String id_beacon = iBeacon.getProximityUuid()+iBeacon.getMajor()+iBeacon.getMinor();
             	Log.d(TAG,"id "+id_beacon);
-            	beaconPropertier.accumulate("answer", answerRoom);
-            	beaconPropertier.accumulate("power", iBeacon.getAccuracy());
             	beaconPropertier.accumulate("id_beacon", id_beacon);
+            	beaconPropertier.accumulate("answer", answerRoom);
+            	beaconPropertier.accumulate("distance", iBeacon.getAccuracy());
             	beaconPropertier.accumulate("id_device", MAC);
             	iBeacons.put(beaconPropertier);
             	
