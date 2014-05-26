@@ -18,8 +18,9 @@ public interface  BeaconHandler extends Serializable{
 	 * @param MAC				MAC of the device bluetooth 
 	 */
 	public void beaconToSend( Collection<IBeacon> newInformation, String MAC);
+	
 	/**
-	 * Method which will communicate the exit of the device from the monitored region to the server
+	 * Method which will communicate to the server the exit of the device from the monitored region 
 	 * @param idBluetooth MAC of the device bluetooth
 	 */
 	public void exitingRegion(String idBluetooth);
