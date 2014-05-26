@@ -10,6 +10,13 @@ import com.radiusnetworks.ibeacon.Region;
 import com.radiusnetworks.proximity.ibeacon.startup.BootstrapNotifier;
 import com.radiusnetworks.proximity.ibeacon.startup.RegionBootstrap;
 
+/**
+ * This class implements a service launched after boot completed event that waits for entering in a 
+ * ibeacon region and launches the monitoring service.
+ * @author Andrea Corna - Lorenzo Fontana
+ * 
+ *
+ */
 public class BackgroundService extends Service implements BootstrapNotifier{
 
 	@SuppressWarnings("unused")
@@ -20,6 +27,10 @@ public class BackgroundService extends Service implements BootstrapNotifier{
     private static BackgroundService me;
     private Intent monitoring;
 
+    /**
+     * The method enables the bluetooth adapter if it's not enabled yet and launches the background scan service
+     * in order to capture beacon regions.
+     */
     public void onCreate() {
         super.onCreate();
         me = this;
@@ -39,6 +50,10 @@ public class BackgroundService extends Service implements BootstrapNotifier{
 		
 	}
 
+	/**
+	 * Starts the monitoring services
+	 * @see MonitoringService.java
+	 */
 	@Override
 	public void didEnterRegion(Region arg0) {
 		startService(monitoring);
@@ -61,6 +76,9 @@ public class BackgroundService extends Service implements BootstrapNotifier{
 		return me;
 	}
 
+	/**
+	 * Stops the monitoring service launched at boot completed and exits.
+	 */
 	public void onDestroy(){
 		super.onDestroy();
 		stopService(monitoring);
