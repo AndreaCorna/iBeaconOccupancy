@@ -11,6 +11,8 @@ import com.radiusnetworks.ibeacon.IBeacon;
  * The class implements the version of application with logic on server. The posts to the server of this version are done to the 
  * address <ip_of_server>/ibeaconserver
  * @author Andrea Corna - Lorenzo Fontana
+ * @see BeaconHandler.java
+ * @see Serializable
  */
 public class MinimalBeaconHandlerImpl implements BeaconHandler,Serializable {
 	
