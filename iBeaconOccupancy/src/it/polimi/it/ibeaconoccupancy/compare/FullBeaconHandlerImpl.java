@@ -4,7 +4,10 @@ import it.polimi.it.ibeaconoccupancy.http.HttpHandler;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
+import android.text.GetChars;
 import android.util.Log;
 
 import com.radiusnetworks.ibeacon.IBeacon;
@@ -14,20 +17,85 @@ public class FullBeaconHandlerImpl implements BeaconHandler, Serializable {
 	
 	private static final long serialVersionUID = -6887364374840188927L;
 	protected static final String TAG = "BeaconToSendManager";
-	private final HttpHandler httpHand = new HttpHandler("http://ibeacon.no-ip.org/ibeacon");
+	private final HttpHandler httpHand = new HttpHandler("http://192.168.0.152/ibeacon");
 	private IBeacon bestBeacon = null;
 	private boolean lostBeacon = false;
 	private boolean changed = false;
+	HashMap<String, Double> beaconProximity=new HashMap<String, Double>();
 	
 	@Override
 	public void beaconToSend(Collection<IBeacon> newInformation, String MAC) {
 		Log.d(TAG, "sending beaocn to server in a full logic way");
 		IBeacon big = getBestLocation(newInformation);
-		httpHand.postOnRanging(big, MAC, 1,big.getRssi());
+		
 		
     }
-
+	
 	public IBeacon getBestLocation(Collection<IBeacon> newInformation){
+		Double coefficent = 0.8;
+		boolean found = false;
+		//checking if in new beacons there is the old best one
+		for (IBeacon iBeacon : newInformation) {
+			Log.d(TAG, "Old"+bestBeacon+"new "+iBeacon);
+			if (iBeacon.equals(bestBeacon)){
+				
+				found=true;
+			}
+		}
+		//old best beacon found in newInformatio
+		if (found){
+			Log.d(TAG, "Old best beacon found");
+			lostBeacon=false;
+		}		
+		//not found but first time I have missed it
+		if (!found && !lostBeacon) {
+			Log.d(TAG, "Lost the best beacon");
+			lostBeacon=true;
+		}
+		//not found old best beacon in newInformation and already having lost it before
+		if (!found && lostBeacon) {
+			Log.d(TAG, "Removing old best beacon ");
+			try {
+				beaconProximity.remove(getUUIDMaiorMinor(bestBeacon));
+				lostBeacon=false;
+			} catch (Exception e) {
+				Log.d(TAG, "first run");
+			}
+			
+		}
+		for (IBeacon iBeacon : newInformation) {
+		
+			Double current_value = beaconProximity.get(getUUIDMaiorMinor(iBeacon));
+			if (current_value ==null){
+				current_value = 0.0;
+			}
+			Log.d(TAG, getUUIDMaiorMinor(iBeacon)+" current value"+current_value+" accuracy:"+iBeacon.getAccuracy());
+			Double new_value = current_value*coefficent+(1-coefficent)*iBeacon.getAccuracy();
+			beaconProximity.put(getUUIDMaiorMinor(iBeacon), new_value);
+			Log.d(TAG, "updated hashmap "+getUUIDMaiorMinor(iBeacon)+" "+new_value);
+		}
+		
+		Map.Entry<String, Double> maxEntry = null;
+
+		for (Map.Entry<String, Double> entry : beaconProximity.entrySet())
+		{
+		    if (maxEntry == null || entry.getValue().compareTo(maxEntry.getValue()) > 0)
+		    {
+		        maxEntry = entry;
+		    }
+		}
+		
+		Log.d(TAG,"Best Beacon"+maxEntry.getKey());
+		return new IBeacon("21", 21, 21);
+		
+		
+	}
+	
+	private String getUUIDMaiorMinor(IBeacon bestBeacon){
+		return bestBeacon.getProximityUuid()+bestBeacon.getMajor()+bestBeacon.getMinor();
+	}
+
+	public IBeacon getBestLocationV1(Collection<IBeacon> newInformation){
 		IBeacon big = null;
 		if(bestBeacon != null){
 			boolean found = false;
@@ -45,14 +113,14 @@ public class FullBeaconHandlerImpl implements BeaconHandler, Serializable {
 			Log.d(TAG,"found "+found);
 			if(found){
 				if(bestBeacon.equals(big)){
-					Log.d(TAG,"best prima è uguale a best adesso");
+					Log.d(TAG,"best prima �� uguale a best adesso");
 					bestBeacon = big;
 				}else if(changed){
-					Log.d(TAG,"best prima è cambiato per la seconda volta");
+					Log.d(TAG,"best prima �� cambiato per la seconda volta");
 					bestBeacon = big;
 					changed = false;
 				}else{
-					Log.d(TAG,"best prima è cambiato per la prima volta");
+					Log.d(TAG,"best prima �� cambiato per la prima volta");
 					big = bestBeacon;
 					changed = true;
 				}
