@@ -1,6 +1,7 @@
 package it.polimi.it.ibeaconoccupancy.services;
 
 
+import it.polimi.it.ibeaconoccupancy.Constants;
 import it.polimi.it.ibeaconoccupancy.LocationActivity;
 import it.polimi.it.ibeaconoccupancy.http.HttpHandler;
 
@@ -153,7 +154,7 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
 		public void onReceive(Context arg0, Intent intent) {	
 		
 				answerRoom = intent.getExtras().getString("answer");
-				HttpHandler http = new HttpHandler("http://ibeacon.no-ip.org/ibeacon/training");
+				HttpHandler http = new HttpHandler(Constants.ADDRESS_TRAINING_LEARNING);
 			
 				PostTrainingOnServerTask taskPost = new PostTrainingOnServerTask(http, answerRoom, mBluetoothAdapter.getAddress(), past);
 				taskPost.execute(null,null,null);
