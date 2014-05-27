@@ -1,5 +1,6 @@
 package it.polimi.it.ibeaconoccupancy.compare;
 
+import it.polimi.it.ibeaconoccupancy.Constants;
 import it.polimi.it.ibeaconoccupancy.http.HttpHandler;
 
 import java.io.Serializable;
@@ -19,7 +20,7 @@ public class MinimalBeaconHandlerImpl implements BeaconHandler,Serializable {
 
 	private static final long serialVersionUID = -6878023027031829217L;
 	protected static final String TAG = "BeaconToSendManager";
-	private final HttpHandler httpHand = new HttpHandler("http://ibeacon.no-ip.org/ibeaconserver");
+	private final HttpHandler httpHand = new HttpHandler(Constants.ADDRESS_LOGIC_ON_SERVER);
 
 	
 	@Override
