@@ -21,7 +21,7 @@ public class FullBeaconHandlerImpl implements BeaconHandler, Serializable {
 	private IBeacon bestBeacon = null;
 	private boolean lostBeacon = false;
 	private boolean changed = false;
-	HashMap<String, Double> beaconProximity=new HashMap<String, Double>();
+	HashMap<IBeacon, Double> beaconProximity=new HashMap<IBeacon, Double>();
 	
 	@Override
 	public void beaconToSend(Collection<IBeacon> newInformation, String MAC) {
@@ -56,7 +56,7 @@ public class FullBeaconHandlerImpl implements BeaconHandler, Serializable {
 		if (!found && lostBeacon) {
 			Log.d(TAG, "Removing old best beacon ");
 			try {
-				beaconProximity.remove(getUUIDMaiorMinor(bestBeacon));
+				beaconProximity.remove(bestBeacon);
 				lostBeacon=false;
 			} catch (Exception e) {
 				Log.d(TAG, "first run");
@@ -65,19 +65,19 @@ public class FullBeaconHandlerImpl implements BeaconHandler, Serializable {
 		}
 		for (IBeacon iBeacon : newInformation) {
 		
-			Double current_value = beaconProximity.get(getUUIDMaiorMinor(iBeacon));
+			Double current_value = beaconProximity.get(iBeacon);
 			if (current_value ==null){
-				current_value = 0.0;
+				current_value = iBeacon.getAccuracy();
 			}
 			Log.d(TAG, getUUIDMaiorMinor(iBeacon)+" current value"+current_value+" accuracy:"+iBeacon.getAccuracy());
 			Double new_value = current_value*coefficent+(1-coefficent)*iBeacon.getAccuracy();
-			beaconProximity.put(getUUIDMaiorMinor(iBeacon), new_value);
+			beaconProximity.put(iBeacon, new_value);
 			Log.d(TAG, "updated hashmap "+getUUIDMaiorMinor(iBeacon)+" "+new_value);
 		}
 		
-		Map.Entry<String, Double> maxEntry = null;
+		Map.Entry<IBeacon, Double> maxEntry = null;
 
-		for (Map.Entry<String, Double> entry : beaconProximity.entrySet())
+		for (Map.Entry<IBeacon, Double> entry : beaconProximity.entrySet())
 		{
 		    if (maxEntry == null || entry.getValue().compareTo(maxEntry.getValue()) > 0)
 		    {
@@ -86,7 +86,8 @@ public class FullBeaconHandlerImpl implements BeaconHandler, Serializable {
 		}
 		
 		Log.d(TAG,"Best Beacon"+maxEntry.getKey());
-		return new IBeacon("21", 21, 21);
+		bestBeacon = maxEntry.getKey();
+		return maxEntry.getKey();
 		
 		
 	}
