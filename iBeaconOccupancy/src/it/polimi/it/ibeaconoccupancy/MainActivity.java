@@ -3,7 +3,6 @@ package it.polimi.it.ibeaconoccupancy;
 
 import com.radiusnetworks.ibeacon.IBeaconManager;
 
-
 import it.polimi.it.ibeaconoccupancy.compare.FullBeaconHandlerImpl;
 import it.polimi.it.ibeaconoccupancy.compare.MinimalBeaconHandlerImpl;
 import it.polimi.it.ibeaconoccupancy.services.BackgroundService;
@@ -12,6 +11,7 @@ import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
 import android.app.AlertDialog;
 import android.app.Fragment;
+import android.bluetooth.BluetoothAdapter;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -122,18 +122,10 @@ public class MainActivity extends Activity {
 
 		try {
 			if (!IBeaconManager.getInstanceForApplication(this).checkAvailability()) {
-				final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-				builder.setTitle("Bluetooth not enabled");			
-				builder.setMessage("Please enable bluetooth in settings and restart this application.");
-				builder.setPositiveButton(android.R.string.ok, null);
-				builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
-					@Override
-					public void onDismiss(DialogInterface dialog) {
-						finish();
-			            System.exit(0);					
-					}					
-				});
-				builder.show();
+				Intent enableBtIntent = new Intent(
+	             BluetoothAdapter.ACTION_REQUEST_ENABLE);
+	            startActivityForResult(enableBtIntent, 12);
+	
 			}			
 		}
 		catch (RuntimeException e) {
@@ -155,6 +147,17 @@ public class MainActivity extends Activity {
 		}
 		
 	}	
+	
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		
+
+	        if(resultCode != RESULT_OK){
+
+	        	finish();
+	          
+			}
+	   
+	}//onActivityResult
 	
 
 	
