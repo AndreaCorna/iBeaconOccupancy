@@ -8,7 +8,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import android.text.GetChars;
 import android.util.Log;
 
 import com.radiusnetworks.ibeacon.IBeacon;
