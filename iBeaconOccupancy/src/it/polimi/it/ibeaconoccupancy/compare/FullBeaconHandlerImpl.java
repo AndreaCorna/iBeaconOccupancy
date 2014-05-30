@@ -36,6 +36,13 @@ public class FullBeaconHandlerImpl implements BeaconHandler, Serializable {
 		
     }
 		
+	/**
+	 * The method analyzes the new ibeacons and compares them with previous ones in order to determine
+	 * the best beacon seen by the device. First calls the private method updateStatusBeacon, then choose
+	 * the best beacon
+	 * @param newInformation - list of new beacons
+	 * @return best beacon considering the past
+	 */
 	public IBeacon getBestLocation(Collection<IBeacon> newInformation){
 		Double coefficent = 0.8;
 		updateStatusBeacon(newInformation);
@@ -82,38 +89,6 @@ public class FullBeaconHandlerImpl implements BeaconHandler, Serializable {
 		
 	}
 	
-	private void updateStatusBeacon(Collection<IBeacon> newInformation){
-		Iterator<IBeacon> iterator = beaconStatus.keySet().iterator();
-		
-		while(iterator.hasNext()){
-			IBeacon ibeacon = iterator.next();
-			//control if the beacon is in new information
-			if(!newInformation.contains(ibeacon)){
-				//first time lost beacon
-				if(!beaconStatus.get(ibeacon).booleanValue()){
-					Log.d(TAG,"first time lost beacon "+ibeacon.getMinor());
-					beaconStatus.put(ibeacon, Boolean.valueOf(true));
-				}
-				else{
-					Log.d(TAG,"second time lost beacon "+ibeacon.getMinor()+" remove it");
-					beaconProximity.remove(ibeacon);
-					beaconStatus.remove(ibeacon);
-				}
-			}else{
-				Log.d(TAG,"beacon already present "+ibeacon.getMinor());
-				beaconStatus.put(ibeacon,Boolean.valueOf(false));
-			}
-		}
-	
-		for (IBeacon iBeacon : newInformation) {
-			if(!beaconStatus.containsKey(iBeacon)){
-				Log.d(TAG,"add new beacon in status"+iBeacon.getMinor());
-				beaconStatus.put(iBeacon, Boolean.valueOf(false));
-			}
-		}
-	
-	}
-
 	public IBeacon getBestLocationV1(Collection<IBeacon> newInformation){
 		IBeacon big = null;
 		if(bestBeacon != null){
@@ -167,6 +142,39 @@ public class FullBeaconHandlerImpl implements BeaconHandler, Serializable {
 		Log.d(TAG, " best beacon "+big.getProximityUuid()+big.getMajor()+big.getMinor());
 		return big;
 	}
+	
+	private void updateStatusBeacon(Collection<IBeacon> newInformation){
+		Iterator<IBeacon> iterator = beaconStatus.keySet().iterator();
+		
+		while(iterator.hasNext()){
+			IBeacon ibeacon = iterator.next();
+			//control if the beacon is in new information
+			if(!newInformation.contains(ibeacon)){
+				//first time lost beacon
+				if(!beaconStatus.get(ibeacon).booleanValue()){
+					Log.d(TAG,"first time lost beacon "+ibeacon.getMinor());
+					beaconStatus.put(ibeacon, Boolean.valueOf(true));
+				}
+				else{
+					Log.d(TAG,"second time lost beacon "+ibeacon.getMinor()+" remove it");
+					beaconProximity.remove(ibeacon);
+					beaconStatus.remove(ibeacon);
+				}
+			}else{
+				Log.d(TAG,"beacon already present "+ibeacon.getMinor());
+				beaconStatus.put(ibeacon,Boolean.valueOf(false));
+			}
+		}
+	
+		for (IBeacon iBeacon : newInformation) {
+			if(!beaconStatus.containsKey(iBeacon)){
+				Log.d(TAG,"add new beacon in status"+iBeacon.getMinor());
+				beaconStatus.put(iBeacon, Boolean.valueOf(false));
+			}
+		}
+	
+	}
+
     
     @SuppressWarnings({ "null", "unused" })
 	private void deleteFromOld(Collection<IBeacon> oldBeacons, Collection<IBeacon> newBeacons){
