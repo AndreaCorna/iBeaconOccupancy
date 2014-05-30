@@ -23,7 +23,8 @@
         
         <activity
             android:name="it.polimi.it.ibeaconoccupancy.MainActivity"
-            android:label="@string/title_activity_main" >
+            android:label="@string/title_activity_main" 
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

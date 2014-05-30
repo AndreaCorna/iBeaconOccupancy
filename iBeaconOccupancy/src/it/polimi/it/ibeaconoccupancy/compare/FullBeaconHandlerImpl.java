@@ -37,7 +37,7 @@ public class FullBeaconHandlerImpl implements BeaconHandler, Serializable {
 		boolean found = false;
 		//checking if in new beacons there is the old best one
 		for (IBeacon iBeacon : newInformation) {
-			Log.d(TAG, "Old"+bestBeacon+"new "+iBeacon);
+			//Log.d(TAG, "Old"+bestBeacon+"new "+iBeacon);
 			if (iBeacon.equals(bestBeacon)){
 				
 				found=true;
@@ -45,14 +45,10 @@ public class FullBeaconHandlerImpl implements BeaconHandler, Serializable {
 		}
 		//old best beacon found in newInformatio
 		if (found){
-			Log.d(TAG, "Old best beacon found");
+			//Log.d(TAG, "Old best beacon found");
 			lostBeacon=false;
 		}		
-		//not found but first time I have missed it
-		if (!found && !lostBeacon) {
-			Log.d(TAG, "Lost the best beacon");
-			lostBeacon=true;
-		}
+		
 		//not found old best beacon in newInformation and already having lost it before
 		if (!found && lostBeacon) {
 			Log.d(TAG, "Removing old best beacon ");
@@ -64,37 +60,53 @@ public class FullBeaconHandlerImpl implements BeaconHandler, Serializable {
 			}
 			
 		}
+		//not found but first time I have missed it
+		if (!found && !lostBeacon) {
+			Log.d(TAG, "Lost the best beacon");
+			lostBeacon=true;
+		}
+		for (IBeacon iBeacon : newInformation) {
+			Log.d(TAG,"minor: "+iBeacon.getMinor()+" accuracy: "+iBeacon.getAccuracy());
+		}
+		
 		for (IBeacon iBeacon : newInformation) {
 		
 			Double current_value = beaconProximity.get(iBeacon);
 			if (current_value ==null){
 				current_value = iBeacon.getAccuracy();
 			}
-			Log.d(TAG, getUUIDMaiorMinor(iBeacon)+" current value"+current_value+" accuracy:"+iBeacon.getAccuracy());
+			//Log.d(TAG, getUUIDMaiorMinor(iBeacon)+" current value"+current_value+" accuracy:"+iBeacon.getAccuracy());
 			Double new_value = current_value*coefficent+(1-coefficent)*iBeacon.getAccuracy();
 			beaconProximity.put(iBeacon, new_value);
-			Log.d(TAG, "updated hashmap "+getUUIDMaiorMinor(iBeacon)+" "+new_value);
+			//Log.d(TAG, "updated hashmap "+getUUIDMaiorMinor(iBeacon)+" "+new_value);
+		}
+		Log.d(TAG,"---------------------------------------------");
+		for (IBeacon iBeacon : beaconProximity.keySet()) {
+			
+			Log.d(TAG,"hashmap: "+iBeacon.getMinor()+" accuracy "+beaconProximity.get(iBeacon));
 		}
 		
-		Map.Entry<IBeacon, Double> maxEntry = null;
+		Map.Entry<IBeacon, Double> minEntry = null;
 
 		for (Map.Entry<IBeacon, Double> entry : beaconProximity.entrySet())
 		{
-		    if (maxEntry == null || entry.getValue().compareTo(maxEntry.getValue()) > 0)
+		    if (minEntry == null || entry.getValue().compareTo(minEntry.getValue()) < 0)
 		    {
-		        maxEntry = entry;
+		    	minEntry = entry;
 		    }
 		}
 		
-		Log.d(TAG,"Best Beacon"+maxEntry.getKey());
-		bestBeacon = maxEntry.getKey();
-		return maxEntry.getKey();
+		Log.d(TAG,"Best Beacon"+minEntry.getKey().getMinor());
+		if(bestBeacon != null && !bestBeacon.equals(minEntry))
+			lostBeacon = false;
+		bestBeacon = minEntry.getKey();
+		return minEntry.getKey();
 		
 		
 	}
 	
 	private String getUUIDMaiorMinor(IBeacon bestBeacon){
-		return bestBeacon.getProximityUuid()+bestBeacon.getMajor()+bestBeacon.getMinor();
+		return ""+bestBeacon.getMinor();
 	}
 
 	public IBeacon getBestLocationV1(Collection<IBeacon> newInformation){
