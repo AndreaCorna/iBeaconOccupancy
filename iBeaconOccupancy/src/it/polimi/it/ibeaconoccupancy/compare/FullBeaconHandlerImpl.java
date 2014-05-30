@@ -21,7 +21,8 @@ public class FullBeaconHandlerImpl implements BeaconHandler, Serializable {
 	private IBeacon bestBeacon = null;
 	private boolean lostBeacon = false;
 	private boolean changed = false;
-	HashMap<IBeacon, Double> beaconProximity=new HashMap<IBeacon, Double>();
+	HashMap<IBeacon, Double> beaconProximity = new HashMap<IBeacon, Double>();
+	
 	
 	@Override
 	public void beaconToSend(Collection<IBeacon> newInformation, String MAC) {
@@ -31,6 +32,8 @@ public class FullBeaconHandlerImpl implements BeaconHandler, Serializable {
 		
 		
     }
+	
+	
 	
 	public IBeacon getBestLocation(Collection<IBeacon> newInformation){
 		Double coefficent = 0.8;
