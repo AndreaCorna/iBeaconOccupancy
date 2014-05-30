@@ -6,7 +6,9 @@ import it.polimi.it.ibeaconoccupancy.http.HttpHandler;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import android.util.Log;
 
@@ -22,7 +24,8 @@ public class FullBeaconHandlerImpl implements BeaconHandler, Serializable {
 	private boolean lostBeacon = false;
 	private boolean changed = false;
 	HashMap<IBeacon, Double> beaconProximity = new HashMap<IBeacon, Double>();
-	
+	ConcurrentHashMap<IBeacon, Boolean> beaconStatus = new ConcurrentHashMap<IBeacon, Boolean>();
+	private final static int LIMIT_RANGE = 10;
 	
 	@Override
 	public void beaconToSend(Collection<IBeacon> newInformation, String MAC) {
@@ -32,46 +35,10 @@ public class FullBeaconHandlerImpl implements BeaconHandler, Serializable {
 		
 		
     }
-	
-	
-	
+		
 	public IBeacon getBestLocation(Collection<IBeacon> newInformation){
 		Double coefficent = 0.8;
-		boolean found = false;
-		//checking if in new beacons there is the old best one
-		for (IBeacon iBeacon : newInformation) {
-			//Log.d(TAG, "Old"+bestBeacon+"new "+iBeacon);
-			if (iBeacon.equals(bestBeacon)){
-				
-				found=true;
-			}
-		}
-		//old best beacon found in newInformatio
-		if (found){
-			//Log.d(TAG, "Old best beacon found");
-			lostBeacon=false;
-		}		
-		
-		//not found old best beacon in newInformation and already having lost it before
-		if (!found && lostBeacon) {
-			Log.d(TAG, "Removing old best beacon ");
-			try {
-				beaconProximity.remove(bestBeacon);
-				lostBeacon=false;
-			} catch (Exception e) {
-				Log.d(TAG, "first run");
-			}
-			
-		}
-		//not found but first time I have missed it
-		if (!found && !lostBeacon) {
-			Log.d(TAG, "Lost the best beacon");
-			lostBeacon=true;
-		}
-		for (IBeacon iBeacon : newInformation) {
-			Log.d(TAG,"minor: "+iBeacon.getMinor()+" accuracy: "+iBeacon.getAccuracy());
-		}
-		
+		updateStatusBeacon(newInformation);
 		for (IBeacon iBeacon : newInformation) {
 		
 			Double current_value = beaconProximity.get(iBeacon);
@@ -80,7 +47,14 @@ public class FullBeaconHandlerImpl implements BeaconHandler, Serializable {
 			}
 			//Log.d(TAG, getUUIDMaiorMinor(iBeacon)+" current value"+current_value+" accuracy:"+iBeacon.getAccuracy());
 			Double new_value = current_value*coefficent+(1-coefficent)*iBeacon.getAccuracy();
-			beaconProximity.put(iBeacon, new_value);
+			if(new_value <= LIMIT_RANGE){
+				Log.d(TAG,"in limit "+new_value+ " ibeacon "+iBeacon.getMinor());
+				beaconProximity.put(iBeacon, new_value);
+			}else{
+				Log.d(TAG,"over limit "+new_value+ " ibeacon "+iBeacon.getMinor());
+				beaconProximity.remove(iBeacon);
+				beaconStatus.remove(iBeacon);
+			}
 			//Log.d(TAG, "updated hashmap "+getUUIDMaiorMinor(iBeacon)+" "+new_value);
 		}
 		Log.d(TAG,"---------------------------------------------");
@@ -108,8 +82,36 @@ public class FullBeaconHandlerImpl implements BeaconHandler, Serializable {
 		
 	}
 	
-	private String getUUIDMaiorMinor(IBeacon bestBeacon){
-		return ""+bestBeacon.getMinor();
+	private void updateStatusBeacon(Collection<IBeacon> newInformation){
+		Iterator<IBeacon> iterator = beaconStatus.keySet().iterator();
+		
+		while(iterator.hasNext()){
+			IBeacon ibeacon = iterator.next();
+			//control if the beacon is in new information
+			if(!newInformation.contains(ibeacon)){
+				//first time lost beacon
+				if(!beaconStatus.get(ibeacon).booleanValue()){
+					Log.d(TAG,"first time lost beacon "+ibeacon.getMinor());
+					beaconStatus.put(ibeacon, Boolean.valueOf(true));
+				}
+				else{
+					Log.d(TAG,"second time lost beacon "+ibeacon.getMinor()+" remove it");
+					beaconProximity.remove(ibeacon);
+					beaconStatus.remove(ibeacon);
+				}
+			}else{
+				Log.d(TAG,"beacon already present "+ibeacon.getMinor());
+				beaconStatus.put(ibeacon,Boolean.valueOf(false));
+			}
+		}
+	
+		for (IBeacon iBeacon : newInformation) {
+			if(!beaconStatus.containsKey(iBeacon)){
+				Log.d(TAG,"add new beacon in status"+iBeacon.getMinor());
+				beaconStatus.put(iBeacon, Boolean.valueOf(false));
+			}
+		}
+	
 	}
 
 	public IBeacon getBestLocationV1(Collection<IBeacon> newInformation){
