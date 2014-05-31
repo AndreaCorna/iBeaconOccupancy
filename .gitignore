@@ -55,13 +55,7 @@ Thumbs.db
 #####################
 *.apk
 AndroidProximityLibrary/bin/*
-iBeaconOccupancy/bin/R.txt
-iBeaconOccupancy/bin/jarlist.cache
-iBeaconOccupancy/bin/classes.dex
-iBeaconOccupancy/bin/resources.ap_
 iBeaconOccupancy/src/ProximityKit.properties
-iBeaconOccupancy/bin/AndroidManifest.xml
-iBeaconOccupancy/bin/dexedLibs/*
 AndroidProximityLibrary/gen/*
 iBeaconOccupancy/gen/*
-iBeaconOccupancy/bin/classes/*
+iBeaconOccupancy/bin/*
