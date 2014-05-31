@@ -3,9 +3,11 @@ package it.polimi.it.ibeaconoccupancy.services;
 
 import it.polimi.it.ibeaconoccupancy.Constants;
 import it.polimi.it.ibeaconoccupancy.LocationActivity;
+import it.polimi.it.ibeaconoccupancy.compare.FullBeaconHandlerImpl;
 import it.polimi.it.ibeaconoccupancy.http.HttpHandler;
 
 import java.util.Collection;
+import java.util.HashMap;
 
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
@@ -42,7 +44,7 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
     private BeaconReceiver receiver;
     private String answerRoom;
     private Collection<IBeacon> past;
-    
+    private FullBeaconHandlerImpl post = new FullBeaconHandlerImpl();
 	
     @Override
     public void onCreate() {
@@ -178,7 +180,9 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
 		
 		@Override
 		protected Void doInBackground(Void... arg0) {
-			http.postForTraining(pastBeacon, answerRoom, MAC);
+			post.getBestLocation(pastBeacon);
+			HashMap<IBeacon,Double> info = post.getProximityHash();
+			http.postForTraining(info, answerRoom, MAC);
 			return null;
 		}
 		

@@ -6,6 +6,7 @@ import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Collection;
+import java.util.HashMap;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -131,7 +132,7 @@ public class HttpHandler implements Serializable{
     
     }
 
-	public void postForTraining(Collection<IBeacon> past, String answerRoom, String MAC) {
+	public void postForTraining(HashMap<IBeacon,Double> past, String answerRoom, String MAC) {
 		int responseCode = 0;
         String stringPost = url;
         URL urlPost;
@@ -150,13 +151,13 @@ public class HttpHandler implements Serializable{
           	/*JSONObject answer = new JSONObject();
           	answer.put("answer", answerRoom);
           	iBeacons.put(answer);*/
-            for (IBeacon iBeacon : past) {
+            for (IBeacon iBeacon : past.keySet()) {
             	JSONObject beaconPropertier = new JSONObject();
             	String id_beacon = iBeacon.getProximityUuid()+iBeacon.getMajor()+iBeacon.getMinor();
             	Log.d(TAG,"id "+id_beacon);
             	beaconPropertier.accumulate("id_beacon", id_beacon);
             	beaconPropertier.accumulate("answer", answerRoom);
-            	beaconPropertier.accumulate("distance", iBeacon.getAccuracy());
+            	beaconPropertier.accumulate("distance", past.get(iBeacon));
             	beaconPropertier.accumulate("id_device", MAC);
             	iBeacons.put(beaconPropertier);
             	
