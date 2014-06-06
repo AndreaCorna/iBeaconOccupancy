@@ -1,9 +1,7 @@
-package it.polimi.it.ibeaconoccupancy.compare;
+package it.polimi.it.ibeaconoccupancy.training;
 
 import it.polimi.it.ibeaconoccupancy.Constants;
-import it.polimi.it.ibeaconoccupancy.http.HttpHandler;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -14,29 +12,25 @@ import android.util.Log;
 
 import com.radiusnetworks.ibeacon.IBeacon;
 
-
-public class FullBeaconHandlerImpl implements BeaconHandler, Serializable {
+public class Logic {
 	
-	private static final long serialVersionUID = -6887364374840188927L;
-	protected static final String TAG = "BeaconToSendManager";
-	private final HttpHandler httpHand = new HttpHandler(Constants.ADDRESS_LOGIC_ON_CLIENT);
+	private static Logic instance;
+	private static final String TAG ="Logic";
 	private IBeacon bestBeacon = null;
 	HashMap<IBeacon, Double> beaconProximity = new HashMap<IBeacon, Double>();
 	ConcurrentHashMap<IBeacon, Boolean> beaconStatus = new ConcurrentHashMap<IBeacon, Boolean>();
+
 	
-	@Override
-	public void beaconToSend(Collection<IBeacon> newInformation, String MAC) {
-		Log.d(TAG, "sending beaocn to server in a full logic way");
-		IBeacon big = getBestLocation(newInformation);
-		httpHand.postOnRanging(big, MAC, 1,big.getRssi());
-		
-		
-    }
+	private Logic(){}
 	
-	public HashMap<IBeacon, Double> getProximityHash(){
-		return this.beaconProximity;
+	public static Logic getInstance(){
+		if(instance == null){
+			instance = new Logic();
+		}
+		return instance;
 	}
-		
+	
+	
 	/**
 	 * The method analyzes the new ibeacons and compares them with previous ones in order to determine
 	 * the best beacon seen by the device. First calls the private method updateStatusBeacon, then choose
@@ -44,7 +38,7 @@ public class FullBeaconHandlerImpl implements BeaconHandler, Serializable {
 	 * @param newInformation - list of new beacons
 	 * @return best beacon considering the past
 	 */
-	public IBeacon getBestLocation(Collection<IBeacon> newInformation){
+	public void updateInformation(Collection<IBeacon> newInformation){
 		Double coefficent = 0.8;
 		updateStatusBeacon(newInformation);
 		for (IBeacon iBeacon : newInformation) {
@@ -82,13 +76,20 @@ public class FullBeaconHandlerImpl implements BeaconHandler, Serializable {
 		}
 		
 		Log.d(TAG,"Best Beacon"+minEntry.getKey().getMinor());
-		bestBeacon = minEntry.getKey();
-		return bestBeacon;
-		
+		bestBeacon = minEntry.getKey();		
 		
 	}
 	
+	public IBeacon getBestLocation(){
+		return bestBeacon;
+
+	}
 	
+	public 	HashMap<IBeacon, Double> getHashMap(){
+		return this.beaconProximity;
+	}
+	
+			
 	
 	private void updateStatusBeacon(Collection<IBeacon> newInformation){
 		Iterator<IBeacon> iterator = beaconStatus.keySet().iterator();
@@ -121,36 +122,9 @@ public class FullBeaconHandlerImpl implements BeaconHandler, Serializable {
 		}
 	
 	}
-
-    
-    @SuppressWarnings({ "null", "unused" })
-	private void deleteFromOld(Collection<IBeacon> oldBeacons, Collection<IBeacon> newBeacons){
-    	Collection<IBeacon> toDelete = null;
-    	boolean found = false;
-    	for (IBeacon old : oldBeacons) {
-    		found = false;
-    		for (IBeacon iBeacon : newBeacons) {
-    			if(old.getProximityUuid().equals(iBeacon.getProximityUuid()) &&
-						old.getMajor() == iBeacon.getMajor() && old.getMinor() == iBeacon.getMinor()){
-    				found = true;
-    				break;
-    			}
-			}
-    		Log.d(TAG,""+found);
-    		if(!found){
-    			toDelete.add(old);
-    		}
-		}
-    	oldBeacons.clear();
-    	oldBeacons = toDelete;
-    }
-
-	@Override
-	public void exitingRegion(String idBluetooth) {
-		httpHand.postOnMonitoringOut(idBluetooth);
-
-		
-	}
-
 	
+
 }
+
+
+

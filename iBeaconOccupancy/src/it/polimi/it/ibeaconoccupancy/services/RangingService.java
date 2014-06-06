@@ -3,8 +3,8 @@ package it.polimi.it.ibeaconoccupancy.services;
 
 import it.polimi.it.ibeaconoccupancy.Constants;
 import it.polimi.it.ibeaconoccupancy.LocationActivity;
-import it.polimi.it.ibeaconoccupancy.compare.FullBeaconHandlerImpl;
 import it.polimi.it.ibeaconoccupancy.http.HttpHandler;
+import it.polimi.it.ibeaconoccupancy.training.Logic;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -19,7 +19,6 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.os.AsyncTask;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
@@ -43,8 +42,8 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
     private long lastUpdate;
     private BeaconReceiver receiver;
     private String answerRoom;
-    private Collection<IBeacon> past;
-    private FullBeaconHandlerImpl post = new FullBeaconHandlerImpl();
+    private Logic trainingLogic;
+    private HttpHandler http;
 	
     @Override
     public void onCreate() {
@@ -58,6 +57,7 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
 		intentFilter.addAction(LocationActivity.ACTION);
 		receiver =  new BeaconReceiver();
 		registerReceiver(receiver, intentFilter);
+		http = new HttpHandler(Constants.ADDRESS_TRAINING_LEARNING);
 		Log.d(TAG, "Ranging started");
     }
     
@@ -94,7 +94,7 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
             if (iBeacons.size() > 0) {
             	if(isMoving){
             		Log.d(TAG,"Ranging");
-            		past = iBeacons;
+            		trainingLogic.updateInformation(iBeacons);
             		isMoving = false;
             		restore();
             	}
@@ -156,35 +156,11 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
 		public void onReceive(Context arg0, Intent intent) {	
 		
 				answerRoom = intent.getExtras().getString("answer");
-				HttpHandler http = new HttpHandler(Constants.ADDRESS_TRAINING_LEARNING);
-			
-				PostTrainingOnServerTask taskPost = new PostTrainingOnServerTask(http, answerRoom, mBluetoothAdapter.getAddress(), past);
-				taskPost.execute(null,null,null);
+				HashMap<IBeacon,Double> training = trainingLogic.getHashMap();
+				http.postForTraining(training, answerRoom, mBluetoothAdapter.getAddress());
 			
 		}
 	}
 	
-	private class PostTrainingOnServerTask extends AsyncTask<Void, Void, Void>{
-
-		private HttpHandler http;
-		private String answerRoom;
-		private String MAC;
-		private Collection<IBeacon> pastBeacon;
-		
-		public PostTrainingOnServerTask(HttpHandler http, String answerRoom, String MAC, Collection<IBeacon> pastBeacon){
-			this.http = http;
-			this.answerRoom = answerRoom;
-			this.MAC = MAC;
-			this.pastBeacon = pastBeacon;
-		}
-		
-		@Override
-		protected Void doInBackground(Void... arg0) {
-			post.getBestLocation(pastBeacon);
-			HashMap<IBeacon,Double> info = post.getProximityHash();
-			http.postForTraining(info, answerRoom, MAC);
-			return null;
-		}
-		
-	}
+	
 }

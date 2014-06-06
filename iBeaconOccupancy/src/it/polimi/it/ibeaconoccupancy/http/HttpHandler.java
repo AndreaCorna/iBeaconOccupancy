@@ -1,16 +1,18 @@
 package it.polimi.it.ibeaconoccupancy.http;
 
 
+import it.polimi.it.ibeaconoccupancy.Constants;
+
 import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Collection;
 import java.util.HashMap;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import android.os.AsyncTask;
 import android.util.Log;
 
 import com.radiusnetworks.ibeacon.IBeacon;
@@ -133,48 +135,68 @@ public class HttpHandler implements Serializable{
     }
 
 	public void postForTraining(HashMap<IBeacon,Double> past, String answerRoom, String MAC) {
-		int responseCode = 0;
-        String stringPost = url;
-        URL urlPost;
-		try {
-			urlPost = new URL(stringPost);
-		   	HttpURLConnection httpCon = (HttpURLConnection) urlPost.openConnection();
-        	httpCon.setDoOutput(true);
-        	httpCon.setDoInput(true);
-        	
-        	httpCon.setRequestMethod("POST");
-        	httpCon.setRequestProperty("content-type","application/json; charset=utf-8"); 
-          	httpCon.setRequestProperty("Accept", "application/json");
-          	
-        	
-          	JSONArray iBeacons = new JSONArray();
-          	/*JSONObject answer = new JSONObject();
-          	answer.put("answer", answerRoom);
-          	iBeacons.put(answer);*/
-            for (IBeacon iBeacon : past.keySet()) {
-            	JSONObject beaconPropertier = new JSONObject();
-            	String id_beacon = iBeacon.getProximityUuid()+iBeacon.getMajor()+iBeacon.getMinor();
-            	Log.d(TAG,"id "+id_beacon);
-            	beaconPropertier.accumulate("id_beacon", id_beacon);
-            	beaconPropertier.accumulate("answer", answerRoom);
-            	beaconPropertier.accumulate("distance", 10-past.get(iBeacon));
-            	beaconPropertier.accumulate("id_device", MAC);
-            	iBeacons.put(beaconPropertier);
-            	
-            	
-			}
-            Log.d(TAG,"json result "+iBeacons.toString());
-           
-           
-            OutputStreamWriter wr= new OutputStreamWriter(httpCon.getOutputStream());
-            wr.write(iBeacons.toString());
-            wr.flush();
-            responseCode = httpCon.getResponseCode();
- 
-            
-        } catch (Exception e) {}
-        	Log.d(TAG,"SEND RESPONSE"+responseCode);
-    
+		PostTrainingOnServerTask taskTraining = new PostTrainingOnServerTask(url, answerRoom, MAC, past);
+		taskTraining.execute(null,null,null);
+
+		
+	}
+	
+	
+	private class PostTrainingOnServerTask extends AsyncTask<Void, Void, Void>{
+
+		private String url;
+		private String answerRoom;
+		private String MAC;
+		private HashMap<IBeacon,Double> trainingInformation;
+		
+		public PostTrainingOnServerTask(String url, String answerRoom, String MAC, HashMap<IBeacon,Double> trainingInformation){
+			this.url = url;
+			this.trainingInformation = trainingInformation;
+			this.answerRoom = answerRoom;
+			this.MAC = MAC;
+		}
+		
+		@Override
+		protected Void doInBackground(Void... arg0) {
+			int responseCode = 0;
+	        URL urlPost;
+			try {
+				urlPost = new URL(url);
+			   	HttpURLConnection httpCon = (HttpURLConnection) urlPost.openConnection();
+	        	httpCon.setDoOutput(true);
+	        	httpCon.setDoInput(true);
+	        	
+	        	httpCon.setRequestMethod("POST");
+	        	httpCon.setRequestProperty("content-type","application/json; charset=utf-8"); 
+	          	httpCon.setRequestProperty("Accept", "application/json");
+	          	
+	        	
+	          	JSONArray iBeacons = new JSONArray();
+	            for (IBeacon iBeacon : trainingInformation.keySet()) {
+	            	JSONObject beaconPropertier = new JSONObject();
+	            	String id_beacon = iBeacon.getProximityUuid()+iBeacon.getMajor()+iBeacon.getMinor();
+	            	Log.d(TAG,"id "+id_beacon);
+	            	beaconPropertier.accumulate("id_beacon", id_beacon);
+	            	beaconPropertier.accumulate("answer", answerRoom);
+	            	beaconPropertier.accumulate("distance", Constants.UPPER_DISTANCE-trainingInformation.get(iBeacon));
+	            	beaconPropertier.accumulate("id_device", MAC);
+	            	iBeacons.put(beaconPropertier);
+	            	
+	            	
+				}
+	            Log.d(TAG,"json result "+iBeacons.toString());
+	           
+	           
+	            OutputStreamWriter wr= new OutputStreamWriter(httpCon.getOutputStream());
+	            wr.write(iBeacons.toString());
+	            wr.flush();
+	            responseCode = httpCon.getResponseCode();
+	 
+	            
+	        } catch (Exception e) {}
+	        	Log.d(TAG,"SEND RESPONSE"+responseCode);
+				return null;
+		}
 		
 	}
 	
