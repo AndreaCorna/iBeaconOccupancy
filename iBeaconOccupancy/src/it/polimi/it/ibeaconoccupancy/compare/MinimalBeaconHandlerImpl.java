@@ -5,6 +5,7 @@ import it.polimi.it.ibeaconoccupancy.http.HttpHandler;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.HashMap;
 
 import com.radiusnetworks.ibeacon.IBeacon;
 
@@ -21,11 +22,12 @@ public class MinimalBeaconHandlerImpl implements BeaconHandler,Serializable {
 	private static final long serialVersionUID = -6878023027031829217L;
 	protected static final String TAG = "BeaconToSendManager";
 	private final HttpHandler httpHand = new HttpHandler(Constants.ADDRESS_LOGIC_ON_SERVER);
-
+	private Logic appLogic = Logic.getInstance();
 	
 	@Override
 	public void beaconToSend(Collection<IBeacon> newInformation, String MAC) {
-		httpHand.postingOnRanging(newInformation, MAC);
+		HashMap<IBeacon, Double> update = appLogic.getHashMap(newInformation);
+		httpHand.postingOnRanging(update, MAC);
 	}
     
 

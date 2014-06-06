@@ -6,6 +6,7 @@ import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Collection;
+import java.util.HashMap;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -26,6 +27,7 @@ public class HttpHandler implements Serializable{
 	private static final long serialVersionUID = 1L;
 	protected static final String TAG = "HTTP";
 	private String url;
+	private final static int UPPER_DISTANCE = 10;
 	
 	/**
 	 * Create an object of the class, setting the base url of the server
@@ -39,10 +41,8 @@ public class HttpHandler implements Serializable{
 	 * This method does a post on the server with information related to one beacon.
 	 * @param beacon - ibeacon object with all information
 	 * @param idBluetooth - MAC identifier of the device
-	 * @param status - 1 or 0, depending if I see or not a beacon
-	 * @param power - the strength of the signal
 	 */
-	public void postOnRanging(IBeacon beacon, String idBluetooth, int status, int power){
+	public void postOnRanging(IBeacon beacon, String idBluetooth){
 		int responseCode = 0;
         String id_beacon = beacon.getProximityUuid()+beacon.getMajor()+beacon.getMinor();
         String stringPost = url+"/"+idBluetooth+"/"+id_beacon;
@@ -51,22 +51,11 @@ public class HttpHandler implements Serializable{
 			urlPost = new URL(stringPost);
 		   	HttpURLConnection httpCon = (HttpURLConnection) urlPost.openConnection();
         	httpCon.setDoOutput(true);
-        	httpCon.setDoInput(true);
         	
         	httpCon.setRequestMethod("POST");
         	httpCon.setRequestProperty("content-type","application/json; charset=utf-8"); 
           	httpCon.setRequestProperty("Accept", "application/json");
           	
-        	
-       
-            JSONObject jsonObject = new JSONObject();
-            
-            jsonObject.put("status", status);
-            jsonObject.put("power", power);
-            
-            OutputStreamWriter wr= new OutputStreamWriter(httpCon.getOutputStream());
-            wr.write(jsonObject.toString());
-            wr.flush();
             responseCode = httpCon.getResponseCode();
  
             
@@ -78,10 +67,10 @@ public class HttpHandler implements Serializable{
 	/**
 	 * This method does a post request to the server contains a json with information
 	 * related to all beacons
-	 * @param ibeacons - list of beacon 
+	 * @param update.keySet() - list of beacon 
 	 * @param idBluetooth - MAC address of the device
 	 */
-	public void postingOnRanging(Collection<IBeacon> ibeacons, String idBluetooth){
+	public void postingOnRanging(HashMap<IBeacon, Double> update, String idBluetooth){
 		int responseCode = 0;
         String stringPost = url+"/"+idBluetooth;
         URL urlPost;
@@ -97,16 +86,12 @@ public class HttpHandler implements Serializable{
           	
         	
           	JSONArray iBeacons = new JSONArray();
-          	/*JSONObject answer = new JSONObject();
-          	answer.put("answer", answerRoom);
-          	iBeacons.put(answer);*/
-            for (IBeacon iBeacon : ibeacons) {
+            for (IBeacon iBeacon : update.keySet()) {
             	JSONObject beaconPropertier = new JSONObject();
             	String id_beacon = iBeacon.getProximityUuid()+iBeacon.getMajor()+iBeacon.getMinor();
             	Log.d(TAG,"id "+id_beacon);
             	beaconPropertier.accumulate("id_beacon", id_beacon);
-            	beaconPropertier.accumulate("distance", iBeacon.getAccuracy());
-            	//beaconPropertier.accumulate("id_device", idBluetooth);
+            	beaconPropertier.accumulate("distance", UPPER_DISTANCE - update.get(iBeacon));
             	iBeacons.put(beaconPropertier);
             	
             	
