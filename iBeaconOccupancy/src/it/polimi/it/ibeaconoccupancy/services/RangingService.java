@@ -42,7 +42,7 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
     private long lastUpdate;
     private BeaconReceiver receiver;
     private String answerRoom;
-    private Logic trainingLogic;
+    private Logic trainingLogic = Logic.getInstance();
     private HttpHandler http;
 	
     @Override
