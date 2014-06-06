@@ -7,7 +7,7 @@ import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.HashMap;
+import java.util.Collection;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -134,8 +134,8 @@ public class HttpHandler implements Serializable{
     
     }
 
-	public void postForTraining(HashMap<IBeacon,Double> past, String answerRoom, String MAC) {
-		PostTrainingOnServerTask taskTraining = new PostTrainingOnServerTask(url, answerRoom, MAC, past);
+	public void postForTraining(Collection<IBeacon> trainingInformation, String answerRoom, String MAC) {
+		PostTrainingOnServerTask taskTraining = new PostTrainingOnServerTask(url, answerRoom, MAC, trainingInformation);
 		taskTraining.execute(null,null,null);
 
 		
@@ -147,11 +147,11 @@ public class HttpHandler implements Serializable{
 		private String url;
 		private String answerRoom;
 		private String MAC;
-		private HashMap<IBeacon,Double> trainingInformation;
+		private Collection<IBeacon> trainingInformation;
 		
-		public PostTrainingOnServerTask(String url, String answerRoom, String MAC, HashMap<IBeacon,Double> trainingInformation){
+		public PostTrainingOnServerTask(String url, String answerRoom, String MAC, Collection<IBeacon> trainingInformation2){
 			this.url = url;
-			this.trainingInformation = trainingInformation;
+			this.trainingInformation = trainingInformation2;
 			this.answerRoom = answerRoom;
 			this.MAC = MAC;
 		}
@@ -172,13 +172,13 @@ public class HttpHandler implements Serializable{
 	          	
 	        	
 	          	JSONArray iBeacons = new JSONArray();
-	            for (IBeacon iBeacon : trainingInformation.keySet()) {
+	            for (IBeacon iBeacon : trainingInformation) {
 	            	JSONObject beaconPropertier = new JSONObject();
 	            	String id_beacon = iBeacon.getProximityUuid()+iBeacon.getMajor()+iBeacon.getMinor();
 	            	Log.d(TAG,"id "+id_beacon);
 	            	beaconPropertier.accumulate("id_beacon", id_beacon);
 	            	beaconPropertier.accumulate("answer", answerRoom);
-	            	beaconPropertier.accumulate("distance", Constants.UPPER_DISTANCE-trainingInformation.get(iBeacon));
+	            	beaconPropertier.accumulate("distance", Constants.UPPER_DISTANCE-iBeacon.getAccuracy());
 	            	beaconPropertier.accumulate("id_device", MAC);
 	            	iBeacons.put(beaconPropertier);
 	            	
