@@ -5,10 +5,6 @@ import it.polimi.it.ibeaconoccupancy.http.HttpHandler;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import android.util.Log;
 
@@ -27,9 +23,7 @@ public class FullBeaconHandlerImpl implements BeaconHandler, Serializable {
 		Log.d(TAG, "sending beaocn to server in a full logic way");
 		IBeacon big = appLogic.getBestLocation(newInformation);
 		httpHand.postOnRanging(big, MAC);
-		
-		
-    }
+	}
 		
 	@Override
 	public void exitingRegion(String idBluetooth) {

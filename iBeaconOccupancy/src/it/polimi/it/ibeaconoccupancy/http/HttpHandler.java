@@ -5,7 +5,6 @@ import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Collection;
 import java.util.HashMap;
 
 import org.json.JSONArray;
