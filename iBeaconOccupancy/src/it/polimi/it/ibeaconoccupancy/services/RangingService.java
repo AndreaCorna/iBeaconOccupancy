@@ -1,13 +1,10 @@
 package it.polimi.it.ibeaconoccupancy.services;
 
 
-import it.polimi.it.ibeaconoccupancy.Constants;
 import it.polimi.it.ibeaconoccupancy.LocationActivity;
-import it.polimi.it.ibeaconoccupancy.http.HttpHandler;
 import it.polimi.it.ibeaconoccupancy.training.Logic;
 
 import java.util.Collection;
-import java.util.HashMap;
 
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
@@ -43,7 +40,6 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
     private BeaconReceiver receiver;
     private String answerRoom;
     private Logic trainingLogic = Logic.getInstance();
-    private HttpHandler http;
 	
     @Override
     public void onCreate() {
@@ -57,7 +53,6 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
 		intentFilter.addAction(LocationActivity.ACTION);
 		receiver =  new BeaconReceiver();
 		registerReceiver(receiver, intentFilter);
-		http = new HttpHandler(Constants.ADDRESS_TRAINING_LEARNING);
 		Log.d(TAG, "Ranging started");
     }
     
@@ -156,8 +151,7 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
 		public void onReceive(Context arg0, Intent intent) {	
 		
 				answerRoom = intent.getExtras().getString("answer");
-				HashMap<IBeacon,Double> training = trainingLogic.getHashMap();
-				http.postForTraining(training, answerRoom, mBluetoothAdapter.getAddress());
+				trainingLogic.training(answerRoom, mBluetoothAdapter.getAddress());
 			
 		}
 	}

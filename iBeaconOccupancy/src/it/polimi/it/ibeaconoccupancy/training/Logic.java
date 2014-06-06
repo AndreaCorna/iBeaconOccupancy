@@ -1,6 +1,7 @@
 package it.polimi.it.ibeaconoccupancy.training;
 
 import it.polimi.it.ibeaconoccupancy.Constants;
+import it.polimi.it.ibeaconoccupancy.http.HttpHandler;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -19,15 +20,22 @@ public class Logic {
 	private IBeacon bestBeacon = null;
 	HashMap<IBeacon, Double> beaconProximity = new HashMap<IBeacon, Double>();
 	ConcurrentHashMap<IBeacon, Boolean> beaconStatus = new ConcurrentHashMap<IBeacon, Boolean>();
+	private HttpHandler http;
 
 	
-	private Logic(){}
+	private Logic(){
+		http = new HttpHandler(Constants.ADDRESS_TRAINING_LEARNING);
+	}
 	
 	public static Logic getInstance(){
 		if(instance == null){
 			instance = new Logic();
 		}
 		return instance;
+	}
+	
+	public void training(String answer, String MAC){
+		http.postForTraining(beaconProximity, answer, MAC);
 	}
 	
 	
