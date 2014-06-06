@@ -157,7 +157,7 @@ public class HttpHandler implements Serializable{
             	Log.d(TAG,"id "+id_beacon);
             	beaconPropertier.accumulate("id_beacon", id_beacon);
             	beaconPropertier.accumulate("answer", answerRoom);
-            	beaconPropertier.accumulate("distance", past.get(iBeacon));
+            	beaconPropertier.accumulate("distance", 10-past.get(iBeacon));
             	beaconPropertier.accumulate("id_device", MAC);
             	iBeacons.put(beaconPropertier);
             	
