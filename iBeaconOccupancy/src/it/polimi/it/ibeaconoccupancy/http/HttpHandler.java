@@ -1,6 +1,8 @@
 package it.polimi.it.ibeaconoccupancy.http;
 
 
+import it.polimi.it.ibeaconoccupancy.Constants;
+
 import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.net.HttpURLConnection;
@@ -26,7 +28,6 @@ public class HttpHandler implements Serializable{
 	private static final long serialVersionUID = 1L;
 	protected static final String TAG = "HTTP";
 	private String url;
-	private final static int UPPER_DISTANCE = 10;
 	
 	/**
 	 * Create an object of the class, setting the base url of the server
@@ -90,7 +91,7 @@ public class HttpHandler implements Serializable{
             	String id_beacon = iBeacon.getProximityUuid()+iBeacon.getMajor()+iBeacon.getMinor();
             	Log.d(TAG,"id "+id_beacon);
             	beaconPropertier.accumulate("id_beacon", id_beacon);
-            	beaconPropertier.accumulate("distance", UPPER_DISTANCE - update.get(iBeacon));
+            	beaconPropertier.accumulate("distance", Constants.UPPER_DISTANCE - update.get(iBeacon));
             	iBeacons.put(beaconPropertier);
             	
             	

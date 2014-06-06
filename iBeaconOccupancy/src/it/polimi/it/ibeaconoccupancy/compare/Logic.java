@@ -1,5 +1,7 @@
 package it.polimi.it.ibeaconoccupancy.compare;
 
+import it.polimi.it.ibeaconoccupancy.Constants;
+
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
@@ -21,7 +23,6 @@ public class Logic implements Serializable{
 	private IBeacon bestBeacon = null;
 	HashMap<IBeacon, Double> beaconProximity = new HashMap<IBeacon, Double>();
 	ConcurrentHashMap<IBeacon, Boolean> beaconStatus = new ConcurrentHashMap<IBeacon, Boolean>();
-	private final static int LIMIT_RANGE = 10;
 	private static Logic instance;
 	
 	private Logic(){
@@ -55,7 +56,7 @@ public class Logic implements Serializable{
 			}
 			//Log.d(TAG, getUUIDMaiorMinor(iBeacon)+" current value"+current_value+" accuracy:"+iBeacon.getAccuracy());
 			Double new_value = current_value*coefficent+(1-coefficent)*iBeacon.getAccuracy();
-			if(new_value <= LIMIT_RANGE){
+			if(new_value <= Constants.UPPER_DISTANCE){
 				Log.d(TAG,"in limit "+new_value+ " ibeacon "+iBeacon.getMinor());
 				beaconProximity.put(iBeacon, new_value);
 			}else{
