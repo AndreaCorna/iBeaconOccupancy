@@ -7,7 +7,7 @@ import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.HashMap;
+import java.util.Collection;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -70,7 +70,7 @@ public class HttpHandler implements Serializable{
 	 * @param update.keySet() - list of beacon 
 	 * @param idBluetooth - MAC address of the device
 	 */
-	public void postingOnRanging(HashMap<IBeacon, Double> update, String idBluetooth){
+	public void postingOnRanging(Collection<IBeacon> newInformation, String idBluetooth){
 		int responseCode = 0;
         String stringPost = url+"/"+idBluetooth;
         URL urlPost;
@@ -86,12 +86,12 @@ public class HttpHandler implements Serializable{
           	
         	
           	JSONArray iBeacons = new JSONArray();
-            for (IBeacon iBeacon : update.keySet()) {
+            for (IBeacon iBeacon : newInformation) {
             	JSONObject beaconPropertier = new JSONObject();
             	String id_beacon = iBeacon.getProximityUuid()+iBeacon.getMajor()+iBeacon.getMinor();
             	Log.d(TAG,"id "+id_beacon);
             	beaconPropertier.accumulate("id_beacon", id_beacon);
-            	beaconPropertier.accumulate("distance", Constants.UPPER_DISTANCE - update.get(iBeacon));
+            	beaconPropertier.accumulate("distance", Constants.UPPER_DISTANCE - iBeacon.getAccuracy());
             	iBeacons.put(beaconPropertier);
             	
             	
