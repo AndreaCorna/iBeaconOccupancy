@@ -6,13 +6,8 @@ import java.util.HashMap;
 import com.radiusnetworks.ibeacon.IBeaconManager;
 
 import it.polimi.it.ibeaconoccupancy.R;
-import it.polimi.it.ibeaconoccupancy.compare.FullBeaconHandlerImpl;
-import it.polimi.it.ibeaconoccupancy.compare.MinimalBeaconHandlerImpl;
 import it.polimi.it.ibeaconoccupancy.helper.DataBaseHelper;
-import it.polimi.it.ibeaconoccupancy.services.BackgroundService;
 import android.app.Activity;
-import android.app.ActivityManager;
-import android.app.ActivityManager.RunningServiceInfo;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.DialogInterface;
@@ -60,16 +55,8 @@ public class MainActivity extends Activity {
 		
 		verifyBluetooth();
 		
-		if(isBackGroundRunning()){
-			BackgroundService.getInstance().stopSelf();
-		}
-		
-		
-		launchMonitoring(true);
+		launchMonitoring();
 		loadDataDB();
-
-		
-		
 		
 	}
 
@@ -173,46 +160,15 @@ public class MainActivity extends Activity {
 	 * The method sets the BeaconHandler implementation according to settings and starts Monitorin service
 	 * @param logicOnClient - true if the logic is on client side, false otherwise
 	 */
-	private void launchMonitoring(boolean logicOnClient){
-		Log.d(TAG, "launching monitoring "+logicOnClient);
+	private void launchMonitoring(){
 		
 		intent = new Intent(this, it.polimi.it.ibeaconoccupancy.services.MonitoringService.class);
-
-		if (logicOnClient){
-			intent.putExtra("BeaconHandler", new FullBeaconHandlerImpl());
-			
-		}
-		else{
-			intent.putExtra("BeaconHandler", new MinimalBeaconHandlerImpl());
-		}
-		
-		Log.d(TAG, "intent monitoring ");
-		Log.d(TAG, "extra monitoring ");
 		startService(intent);
 		Log.d(TAG, "start monitoring ");
-
 		
 	}
 	
-	
-	/**
-	 * The method controls is the Background service is already active
-	 * @return true if is active, otherwise false
-	 */
-	private boolean isBackGroundRunning() {
-		  ActivityManager manager = (ActivityManager)getSystemService(ACTIVITY_SERVICE);
-		  for (RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-		    if (BackgroundService.class.getName().equals(service.service.getClassName())) {
-		    	return true;
-		    }
-		  }
-		  return false;
-		}
-	
-	
-	
-	
-	
+		
 	/**
 	 * Load the room-beacon associations from a sqlite database and put values in the hashmap locationBeacon
 	 */
