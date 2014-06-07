@@ -10,6 +10,7 @@ import it.polimi.it.ibeaconoccupancy.helper.DataBaseHelper;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
+import android.bluetooth.BluetoothAdapter;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -38,11 +39,6 @@ public class MainActivity extends Activity {
 	private String bestBeacon = new String();
 	private DataBaseHelper myDbHelper;
 	private HashMap<String, String> beaconLocation;
-
-
-
-	
-
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -112,25 +108,14 @@ public class MainActivity extends Activity {
 		startActivity(myintent);
 	}
 	
-	/**
-	 * The method verifies that the bluetooth device is enabled and is the device has the bluetooth 4.0 hardware
-	 */
 	private void verifyBluetooth() {
 
 		try {
 			if (!IBeaconManager.getInstanceForApplication(this).checkAvailability()) {
-				final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-				builder.setTitle("Bluetooth not enabled");			
-				builder.setMessage("Please enable bluetooth in settings and restart this application.");
-				builder.setPositiveButton(android.R.string.ok, null);
-				builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
-					@Override
-					public void onDismiss(DialogInterface dialog) {
-						finish();
-			            System.exit(0);					
-					}					
-				});
-				builder.show();
+				Intent enableBtIntent = new Intent(
+	             BluetoothAdapter.ACTION_REQUEST_ENABLE);
+	            startActivityForResult(enableBtIntent, 12);
+	
 			}			
 		}
 		catch (RuntimeException e) {
@@ -152,6 +137,17 @@ public class MainActivity extends Activity {
 		}
 		
 	}	
+	
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		
+
+	        if(resultCode != RESULT_OK){
+
+	        	finish();
+	          
+			}
+	   
+	}//onActivityResult
 	
 	
 	private void launchMonitoring(){
