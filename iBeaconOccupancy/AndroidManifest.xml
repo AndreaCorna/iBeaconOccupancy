@@ -12,8 +12,6 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <uses-permission android:name="android.permission.VIBRATE"/>
     
 
     <application
@@ -32,9 +30,7 @@
 				<category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="it.polimi.it.ibeaconoccupancy.helper.SettingsActivity" >
-        </activity>
-        
+                
          <activity android:name="it.polimi.it.ibeaconoccupancy.LocationActivity" 
              android:screenOrientation="portrait">
             <action android:name="android.intent.action.MAIN" />
@@ -45,16 +41,6 @@
         </service>
         <service android:name="it.polimi.it.ibeaconoccupancy.services.MonitoringService" >
         </service>
-        <service android:name="it.polimi.it.ibeaconoccupancy.services.BackgroundService">
-        </service>
-        <service android:name="it.polimi.it.ibeaconoccupancy.services.TestService">
-        </service>
-       <!--  <receiver android:name="it.polimi.it.ibeaconoccupancy.boot.BootHandler">
-		   <intent-filter>
-		    <action android:name="android.intent.action.BOOT_COMPLETED" />
-		  	<category android:name="android.intent.category.LAUNCHER" />
-		   </intent-filter>
-	  	</receiver>  -->
     </application>
 
 </manifest>
