@@ -1,21 +1,32 @@
 package it.polimi.it.ibeaconoccupancy;
 
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+
 import com.radiusnetworks.ibeacon.IBeaconManager;
 
 import it.polimi.it.ibeaconoccupancy.compare.FullBeaconHandlerImpl;
 import it.polimi.it.ibeaconoccupancy.compare.MinimalBeaconHandlerImpl;
+import it.polimi.it.ibeaconoccupancy.http.BluetoothHandler;
 import it.polimi.it.ibeaconoccupancy.services.BackgroundService;
+import android.R.string;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -37,7 +48,8 @@ public class MainActivity extends Activity {
 	protected static final String TAG = "MainActivity";
 	private SharedPreferences prefs;
 	OnSharedPreferenceChangeListener listener;
-
+	HashSet<BluetoothDevice> devices;
+	BluetoothHandler bluetoothHandler;
 
 	/**
 	 * Method called on creation of the activity. In this we set up all preferences and settings.
@@ -59,6 +71,13 @@ public class MainActivity extends Activity {
 		}
 		boolean logicOnClient = prefs.getBoolean("pref_logic", true);
 		launchMonitoring(logicOnClient);
+		
+		IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+		registerReceiver(mReceiver, filter); // Don't forget to unregister during onDestroy
+		bluetoothHandler = new BluetoothHandler();
+		devices=new HashSet<BluetoothDevice>();
+		
+
 		
 	}
 
@@ -91,6 +110,7 @@ public class MainActivity extends Activity {
 	 */
 	public void onDestroy(){
 		super.onDestroy();
+		unregisterReceiver(mReceiver);
 		stopService(monitoringIntent);
 		
 	}
@@ -145,6 +165,8 @@ public class MainActivity extends Activity {
 			builder.show();
 			
 		}
+		
+		
 		
 	}	
 	
@@ -219,6 +241,56 @@ public class MainActivity extends Activity {
 		  }
 		  return false;
 		}
+	
+	
+	
+	
+	// Create a BroadcastReceiver for ACTION_FOUND
+	private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
+	    public void onReceive(Context context, Intent intent) {
+	    	Log.d(TAG,"-------received bluetooth devices--------");
+	        String action = intent.getAction();
+	        // When discovery finds a device
+	        if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+	        	
+	            // Get the BluetoothDevice object from the Intent
+	            BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+	            
+				// Add the name and address to an array adapter to show in a ListView
+	         
+	            devices.add(device);
+	            for (BluetoothDevice dev : devices) {
+	            	Log.d(TAG,"found devices"+dev.getName()+" "+dev);
+	            	
+	            	
+					
+				}
+	           
+	           
+	            
+	        }
+	    }
+	};
+	
+	public void  searchBluetooth(View v) {
+		bluetoothHandler.startDiscovery();
+	}
+	
+	public void connect(View v){
+		for (BluetoothDevice device : devices) {
+			 if(device.getName().equals("raspberrypi-0")){
+	            	Log.d(TAG,"init connection");
+	            	bluetoothHandler.connect(device);
+	            } 
+		}
+		
+	}
+
+	public void  sendMessage(View v) {
+		String message = "Hello";
+		byte[] out = message.getBytes();
+		bluetoothHandler.write(out);
+	}
 	
 	
 
