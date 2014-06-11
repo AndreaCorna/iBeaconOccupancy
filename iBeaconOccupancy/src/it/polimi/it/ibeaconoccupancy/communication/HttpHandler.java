@@ -22,7 +22,7 @@ import com.radiusnetworks.ibeacon.IBeacon;
  * @author Andrea Corna - Lorenzo Fontana
  *
  */
-public class HttpHandler implements Serializable{
+public class HttpHandler implements Serializable, CommunicationHandler{
 	
 
 	private static final long serialVersionUID = 1L;

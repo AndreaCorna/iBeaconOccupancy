@@ -4,7 +4,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.UUID;
+
+import com.radiusnetworks.ibeacon.IBeacon;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -16,7 +19,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
-public class BluetoothHandler extends Thread{
+public class BluetoothHandler extends Thread implements CommunicationHandler{
 	
 	BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 	private static final String TAG="BluetoothHandler";
@@ -214,5 +217,24 @@ public class BluetoothHandler extends Thread{
     	mConnectedThread=null;
     	mConnectThread=null;
     }
+
+	@Override
+	public void postOnRanging(IBeacon beacon, String idBluetooth) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void postingOnRanging(HashMap<IBeacon, Double> update,
+			String idBluetooth) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void postOnMonitoringOut(String idBluetooth) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 }

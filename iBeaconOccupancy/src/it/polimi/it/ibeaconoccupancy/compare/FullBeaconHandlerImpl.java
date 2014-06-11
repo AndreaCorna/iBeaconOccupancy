@@ -1,6 +1,7 @@
 package it.polimi.it.ibeaconoccupancy.compare;
 
 import it.polimi.it.ibeaconoccupancy.Constants;
+import it.polimi.it.ibeaconoccupancy.communication.CommunicationHandler;
 import it.polimi.it.ibeaconoccupancy.communication.HttpHandler;
 
 import java.io.Serializable;
@@ -15,7 +16,7 @@ public class FullBeaconHandlerImpl implements BeaconHandler, Serializable {
 	
 	private static final long serialVersionUID = -6887364374840188927L;
 	protected static final String TAG = "BeaconToSendManager";
-	private final HttpHandler httpHand = new HttpHandler(Constants.ADDRESS_LOGIC_ON_CLIENT);
+	private final CommunicationHandler httpHand = new HttpHandler(Constants.ADDRESS_LOGIC_ON_CLIENT);
 	private Logic appLogic = Logic.getInstance();
 	
 	@Override
