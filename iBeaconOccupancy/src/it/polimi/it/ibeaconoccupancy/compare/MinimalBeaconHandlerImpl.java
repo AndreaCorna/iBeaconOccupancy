@@ -1,12 +1,15 @@
 package it.polimi.it.ibeaconoccupancy.compare;
 
-import it.polimi.it.ibeaconoccupancy.Constants;
+import it.polimi.it.ibeaconoccupancy.communication.BluetoothHandler;
 import it.polimi.it.ibeaconoccupancy.communication.CommunicationHandler;
 import it.polimi.it.ibeaconoccupancy.communication.HttpHandler;
+import it.polimi.it.ibeaconoccupancy.helper.Constants;
 
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
+
+import android.util.Log;
 
 import com.radiusnetworks.ibeacon.IBeacon;
 
@@ -22,20 +25,32 @@ public class MinimalBeaconHandlerImpl implements BeaconHandler,Serializable {
 
 	private static final long serialVersionUID = -6878023027031829217L;
 	protected static final String TAG = "BeaconToSendManager";
-	private final CommunicationHandler httpHand = new HttpHandler(Constants.ADDRESS_LOGIC_ON_SERVER);
+	private CommunicationHandler communication;
 	private Logic appLogic = Logic.getInstance();
+	
+	public MinimalBeaconHandlerImpl(boolean bluetoothSender){
+		if(bluetoothSender){
+			Log.d(TAG,"create bluetooth handler");
+
+			communication = new BluetoothHandler();
+		}else{
+			Log.d(TAG,"create http handler");
+
+			communication = new HttpHandler(Constants.ADDRESS_LOGIC_ON_SERVER);
+		}
+	}
 	
 	@Override
 	public void beaconToSend(Collection<IBeacon> newInformation, String MAC) {
 		HashMap<IBeacon, Double> update = appLogic.getHashMap(newInformation);
-		httpHand.postingOnRanging(update, MAC);
+		communication.postingOnRanging(update, MAC);
 	}
     
 
 
 	@Override
 	public void exitingRegion(String idBluetooth) {
-		httpHand.postOnMonitoringOut( idBluetooth);
+		communication.postOnMonitoringOut( idBluetooth);
 		
 	}
 

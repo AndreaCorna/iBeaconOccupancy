@@ -1,4 +1,4 @@
-package it.polimi.it.ibeaconoccupancy;
+package it.polimi.it.ibeaconoccupancy.helper;
 
 import com.radiusnetworks.ibeacon.Region;
 import com.radiusnetworks.proximity.ibeacon.powersave.BackgroundPowerSaver;

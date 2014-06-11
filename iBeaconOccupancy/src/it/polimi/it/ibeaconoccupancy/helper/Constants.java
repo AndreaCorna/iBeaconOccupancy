@@ -1,4 +1,4 @@
-package it.polimi.it.ibeaconoccupancy;
+package it.polimi.it.ibeaconoccupancy.helper;
 
 public class Constants {
 	

@@ -1,7 +1,7 @@
 package it.polimi.it.ibeaconoccupancy.communication;
 
 
-import it.polimi.it.ibeaconoccupancy.Constants;
+import it.polimi.it.ibeaconoccupancy.helper.Constants;
 
 import java.io.OutputStreamWriter;
 import java.io.Serializable;

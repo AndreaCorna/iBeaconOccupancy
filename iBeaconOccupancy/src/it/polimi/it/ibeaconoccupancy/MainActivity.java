@@ -1,17 +1,15 @@
 package it.polimi.it.ibeaconoccupancy;
 
 
-import java.util.ArrayList;
-import java.util.HashMap;
+
 import java.util.HashSet;
 
 import com.radiusnetworks.ibeacon.IBeaconManager;
 
-import it.polimi.it.ibeaconoccupancy.communication.BluetoothHandler;
 import it.polimi.it.ibeaconoccupancy.compare.FullBeaconHandlerImpl;
 import it.polimi.it.ibeaconoccupancy.compare.MinimalBeaconHandlerImpl;
+import it.polimi.it.ibeaconoccupancy.helper.BluetoothHelper;
 import it.polimi.it.ibeaconoccupancy.services.BackgroundService;
-import android.R.string;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
@@ -26,7 +24,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -49,8 +46,8 @@ public class MainActivity extends Activity {
 	private SharedPreferences prefs;
 	OnSharedPreferenceChangeListener listener;
 	HashSet<BluetoothDevice> devices;
-	BluetoothHandler bluetoothHandler;
-
+	//BluetoothHandler bluetoothHandler;
+	BluetoothHelper bluetoothHelper;
 	/**
 	 * Method called on creation of the activity. In this we set up all preferences and settings.
 	 */
@@ -70,11 +67,13 @@ public class MainActivity extends Activity {
 			BackgroundService.getInstance().stopSelf();
 		}
 		boolean logicOnClient = prefs.getBoolean("pref_logic", true);
-		launchMonitoring(logicOnClient);
+		boolean sendWithBluetooth = prefs.getBoolean("pref_bluetooth", true);
+		launchMonitoring(logicOnClient, sendWithBluetooth);
 		
 		IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
 		registerReceiver(mReceiver, filter); // Don't forget to unregister during onDestroy
-		bluetoothHandler = new BluetoothHandler();
+		//bluetoothHandler = new BluetoothHandler();
+		bluetoothHelper = new BluetoothHelper();
 		devices=new HashSet<BluetoothDevice>();
 		
 
@@ -196,8 +195,10 @@ public class MainActivity extends Activity {
 	    prefs.getBoolean(key, false));
 	    
 	    boolean logicOnClient = prefs.getBoolean(key, false);
+		boolean sendWithBluetooth = prefs.getBoolean("pref_bluetooth", true);
+
 	    stopService(monitoringIntent);
-	    launchMonitoring(logicOnClient);
+	    launchMonitoring(logicOnClient, sendWithBluetooth);
 	    }
 	    };
 
@@ -208,17 +209,17 @@ public class MainActivity extends Activity {
 	 * The method sets the BeaconHandler implementation according to settings and starts Monitorin service
 	 * @param logicOnClient - true if the logic is on client side, false otherwise
 	 */
-	private void launchMonitoring(boolean logicOnClient){
+	private void launchMonitoring(boolean logicOnClient, boolean sendWithBluetooth){
 		Log.d(TAG, "launching monitoring "+logicOnClient);
 		
 		monitoringIntent = new Intent(this, it.polimi.it.ibeaconoccupancy.services.MonitoringService.class);
 
 		if (logicOnClient){
-			monitoringIntent.putExtra("BeaconHandler", new FullBeaconHandlerImpl());
+			monitoringIntent.putExtra("BeaconHandler", new FullBeaconHandlerImpl(sendWithBluetooth));
 			
 		}
 		else{
-			monitoringIntent.putExtra("BeaconHandler", new MinimalBeaconHandlerImpl());
+			monitoringIntent.putExtra("BeaconHandler", new MinimalBeaconHandlerImpl(sendWithBluetooth));
 		}
 
 		startService(monitoringIntent);
@@ -273,7 +274,7 @@ public class MainActivity extends Activity {
 	};
 	
 	public void  searchBluetooth(View v) {
-		bluetoothHandler.startDiscovery();
+		bluetoothHelper.startDiscovery();
 	}
 	
 	public void connect(View v){
@@ -283,7 +284,7 @@ public class MainActivity extends Activity {
 			}
 			 if(device.getName().equals("andrea-notebook-0")){
 	            	Log.d(TAG,"init connection");
-	            	bluetoothHandler.connect(device);
+	            	bluetoothHelper.connect(device);
 	            } 
 		}
 		
@@ -293,11 +294,11 @@ public class MainActivity extends Activity {
 		 Log.d(TAG,"saying hello in main");
 		String message = "Hello";
 		byte[] out = message.getBytes();
-		bluetoothHandler.write(out);
+		bluetoothHelper.write(out);
 	}
 	
 	public void cancel(View v){
-		bluetoothHandler.cancel();
+		bluetoothHelper.cancel();
 	}
 	
 	
