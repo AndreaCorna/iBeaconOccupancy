@@ -2,6 +2,7 @@ package it.polimi.it.ibeaconoccupancy.helper;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -10,16 +11,25 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.util.Log;
 
-public class BluetoothHelper {
+public class BluetoothHelper implements Serializable{
+	
 	BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-	private static final String TAG="BluetoothHandler";
+	private static final String TAG="BluetoothHelpers";
 	ArrayList<String> discoveredDevices;
 	private ConnectThread mConnectThread;
 	private ConnectedThread mConnectedThread;
+	private static BluetoothHelper instance;
 	
-	public BluetoothHelper() {
+	private BluetoothHelper() {
 		discoveredDevices = new ArrayList<String>();
 		
+	}
+	
+	public static BluetoothHelper getInstance(){
+		if(instance == null){
+			instance = new BluetoothHelper();
+		}
+		return instance;
 	}
 	
 	public void startDiscovery() {  // If we're already discovering, stop it
@@ -140,15 +150,17 @@ public class BluetoothHelper {
      * @see ConnectedThread#write(byte[])
      */
     public void write(byte[] out) {
-        // Create temporary object
-        ConnectedThread r;
-        // Synchronize a copy of the ConnectedThread
-        synchronized (this) {
-            
-            r = mConnectedThread;
-        }
-        // Perform the write unsynchronized
-        r.write(out);
+        //if(mConnectedThread != null){
+	    	// Create temporary object
+	        ConnectedThread r;
+	        // Synchronize a copy of the ConnectedThread
+	        synchronized (this) {
+	            
+	            r = mConnectedThread;
+	        }
+	        // Perform the write unsynchronized
+	        r.write(out);
+       //}
     }
     
     

@@ -73,7 +73,7 @@ public class MainActivity extends Activity {
 		IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
 		registerReceiver(mReceiver, filter); // Don't forget to unregister during onDestroy
 		//bluetoothHandler = new BluetoothHandler();
-		bluetoothHelper = new BluetoothHelper();
+		bluetoothHelper = BluetoothHelper.getInstance();
 		devices=new HashSet<BluetoothDevice>();
 		
 
@@ -285,7 +285,7 @@ public class MainActivity extends Activity {
 			 if(device.getName().equals("andrea-notebook-0")){
 	            	Log.d(TAG,"init connection");
 	            	bluetoothHelper.connect(device);
-	            } 
+	           } 
 		}
 		
 	}
