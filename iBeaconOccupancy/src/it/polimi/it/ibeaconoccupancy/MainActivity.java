@@ -278,7 +278,10 @@ public class MainActivity extends Activity {
 	
 	public void connect(View v){
 		for (BluetoothDevice device : devices) {
-			 if(device.getName().equals("raspberrypi-0")){
+			if (device == null){
+				break;
+			}
+			 if(device.getName().equals("andrea-notebook-0")){
 	            	Log.d(TAG,"init connection");
 	            	bluetoothHandler.connect(device);
 	            } 
@@ -287,6 +290,7 @@ public class MainActivity extends Activity {
 	}
 
 	public void  sendMessage(View v) {
+		 Log.d(TAG,"saying hello in main");
 		String message = "Hello";
 		byte[] out = message.getBytes();
 		bluetoothHandler.write(out);

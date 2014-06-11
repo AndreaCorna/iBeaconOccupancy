@@ -71,11 +71,12 @@ public class BluetoothHandler extends Thread{
 	        // Get a BluetoothSocket to connect with the given BluetoothDevice
 	        try {
 	            // MY_UUID is the app's UUID string, also used by the server code
-	            tmp = device.createInsecureRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
+	            tmp = device.createInsecureRfcommSocketToServiceRecord(UUID.fromString("94f39d29-7d6d-437d-973b-fba39e49d4ee"));
 	        } catch (IOException e) {
 	        	Log.d(TAG,"Error creating socket");
 	        }
 	        mmSocket = tmp;
+	        Log.d(TAG, "in ConnectThread socket"+mmSocket);
 	    }
 	 
 	    public void run() {
@@ -121,14 +122,17 @@ public class BluetoothHandler extends Thread{
     public synchronized void connected(BluetoothSocket socket, BluetoothDevice device) {
         Log.d(TAG, "connected");
         // Cancel the thread that completed the connection
-        if (mConnectThread != null) {mConnectThread.cancel(); mConnectThread = null;}
+      
         // Cancel any thread currently running a connection
         if (mConnectedThread != null) {mConnectedThread.cancel(); mConnectedThread = null;}
+     // if (mConnectThread != null) {mConnectThread.cancel(); mConnectThread = null;}
 
         
         // Start the thread to manage the connection and perform transmissions
         mConnectedThread = new ConnectedThread(socket);
         mConnectedThread.start();
+        
+      
         // Send the name of the connected device back to the UI Activity
         
         
@@ -158,23 +162,24 @@ public class BluetoothHandler extends Thread{
      * It handles all incoming and outgoing transmissions.
      */
     private class ConnectedThread extends Thread {
-        private final BluetoothSocket mmSocket;
-        private final InputStream mmInStream;
-        private final OutputStream mmOutStream;
+        private  final BluetoothSocket mmSocket;
+        private  final OutputStream mmOutStream;
         public ConnectedThread(BluetoothSocket socket) {
             Log.d(TAG, "create ConnectedThread");
+        
             mmSocket = socket;
-            InputStream tmpIn = null;
             OutputStream tmpOut = null;
             // Get the BluetoothSocket input and output streams
             try {
-                tmpIn = socket.getInputStream();
                 tmpOut = socket.getOutputStream();
             } catch (IOException e) {
                 Log.e(TAG, "temp sockets not created", e);
             }
-            mmInStream = tmpIn;
             mmOutStream = tmpOut;
+            
+          
+           
+           
         }
     
        
