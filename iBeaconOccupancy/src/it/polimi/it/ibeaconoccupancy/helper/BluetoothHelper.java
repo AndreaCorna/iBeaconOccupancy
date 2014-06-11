@@ -13,6 +13,10 @@ import android.util.Log;
 
 public class BluetoothHelper implements Serializable{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 	private static final String TAG="BluetoothHelpers";
 	ArrayList<String> discoveredDevices;

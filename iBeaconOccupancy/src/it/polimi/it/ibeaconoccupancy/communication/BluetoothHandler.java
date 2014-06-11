@@ -11,7 +11,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.bluetooth.BluetoothDevice;
 import android.util.Log;
 
 import com.radiusnetworks.ibeacon.IBeacon;
