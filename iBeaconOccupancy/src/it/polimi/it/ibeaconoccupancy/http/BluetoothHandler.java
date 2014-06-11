@@ -50,7 +50,10 @@ public class BluetoothHandler extends Thread{
         Log.d(TAG, "connect to: " + device);
        
         
-       
+        if (mConnectThread != null) {mConnectThread.cancel(); mConnectThread = null;}
+    
+        // Cancel any thread currently running a connection
+        if (mConnectedThread != null) {mConnectedThread.cancel(); mConnectedThread = null;}
         // Start the thread to connect with the given device
         mConnectThread = new ConnectThread(device);
         mConnectThread.start();
@@ -204,6 +207,12 @@ public class BluetoothHandler extends Thread{
                 Log.e(TAG, "close() of connect socket failed", e);
             }
         }
+    }
+    
+    public void cancel(){
+    	mConnectedThread.cancel();
+    	mConnectedThread=null;
+    	mConnectThread=null;
     }
 	
 }

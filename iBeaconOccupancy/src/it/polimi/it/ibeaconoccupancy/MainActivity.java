@@ -296,6 +296,10 @@ public class MainActivity extends Activity {
 		bluetoothHandler.write(out);
 	}
 	
+	public void cancel(View v){
+		bluetoothHandler.cancel();
+	}
+	
 	
 
 }
