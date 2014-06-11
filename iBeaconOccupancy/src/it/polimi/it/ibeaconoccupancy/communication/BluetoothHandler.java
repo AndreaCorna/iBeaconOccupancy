@@ -1,4 +1,4 @@
-package it.polimi.it.ibeaconoccupancy.http;
+package it.polimi.it.ibeaconoccupancy.communication;
 
 import java.io.IOException;
 import java.io.InputStream;

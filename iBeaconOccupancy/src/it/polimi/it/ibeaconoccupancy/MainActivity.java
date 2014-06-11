@@ -7,9 +7,9 @@ import java.util.HashSet;
 
 import com.radiusnetworks.ibeacon.IBeaconManager;
 
+import it.polimi.it.ibeaconoccupancy.communication.BluetoothHandler;
 import it.polimi.it.ibeaconoccupancy.compare.FullBeaconHandlerImpl;
 import it.polimi.it.ibeaconoccupancy.compare.MinimalBeaconHandlerImpl;
-import it.polimi.it.ibeaconoccupancy.http.BluetoothHandler;
 import it.polimi.it.ibeaconoccupancy.services.BackgroundService;
 import android.R.string;
 import android.app.Activity;
