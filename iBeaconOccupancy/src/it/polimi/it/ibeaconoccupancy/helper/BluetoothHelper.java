@@ -27,8 +27,8 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
 	private ConnectThread mConnectThread;
 	private ConnectedThread mConnectedThread;
 	private static BluetoothHelper instance;
-	private static HashSet<BluetoothDevice> devices = new HashSet<BluetoothDevice>();
-
+	private static HashSet<String> devices = new HashSet<String>();
+	
 	
 	public BluetoothHelper() {
 		discoveredDevices = new ArrayList<String>();
@@ -53,29 +53,16 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
 			Log.d(TAG, "problem in discovering bluetooth");
 		}
 		Log.d(TAG,"remote "+mBluetoothAdapter.getRemoteDevice("00:1A:7D:DA:71:13").getName());
-		devices.add(mBluetoothAdapter.getRemoteDevice("00:1A:7D:DA:71:13"));
-		connect();
+		devices.add("00:1A:7D:DA:71:13");
+		connect(mBluetoothAdapter.getRemoteDevice("00:1A:7D:DA:71:13"));
 	}
 	
 	  /**
      * Start the ConnectThread to initiate a connection to a remote device.
      * @param device  The BluetoothDevice to connect
      */
-    public synchronized void connect() {
-		Log.d(TAG,"size "+devices.size());
-
-        //BluetoothDevice device = devices.iterator().next();
-    	for (BluetoothDevice device : devices) {
-			Log.d(TAG,"device "+device.getName());
-
-			if (device == null){
-				break;
-			}
-			Log.d(TAG,"device "+device.getName());
-			 if(device.getName().contains("andrea-notebook-0")){
-	            	Log.d(TAG,"init connection");
-	            	Log.d(TAG, "connect to: " + device);
-
+    public synchronized void connect(BluetoothDevice device) {
+		
 	    
 	        
 	        if (mConnectThread != null) {mConnectThread.cancel(); mConnectThread = null;}
@@ -86,9 +73,9 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
 	        mConnectThread = new ConnectThread(device);
 	        mConnectThread.start();
 			 }
-    	}
+    	
        
-    }
+    
 	
 	
 	private class ConnectThread extends Thread {
@@ -177,6 +164,7 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
      * @see ConnectedThread#write(byte[])
      */
     public void write(byte[] out) {
+    	
         //if(mConnectedThread != null){
 	    	// Create temporary object
 	        ConnectedThread r;
@@ -186,7 +174,14 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
 	            r = mConnectedThread;
 	        }
 	        // Perform the write unsynchronized
-	        r.write(out);
+	        try{
+	        	r.write(out);
+	        }catch (Exception e){
+	        	startDiscovery();
+	        	for (String macAddress : devices) {
+	        		connect(mBluetoothAdapter.getRemoteDevice(macAddress));
+				}
+	        }
        //}
     }
     
@@ -256,9 +251,9 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
         	// Get the BluetoothDevice object from the Intent
             BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
             	// Add the name and address to an array adapter to show in a ListView
-            devices.add(device);
-            for (BluetoothDevice dev : devices) {
-            	Log.d(TAG,"found devices"+dev.getName()+" "+dev);
+            devices.add(device.getAddress());
+            for (String dev : devices) {
+            	Log.d(TAG,"found devices"+dev);
             }
        }
 		

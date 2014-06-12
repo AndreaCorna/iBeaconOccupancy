@@ -276,7 +276,8 @@ public class MainActivity extends Activity {
 	public void  searchBluetooth(View v) {
 		bluetoothHelper.startDiscovery();
 	}
-	
+	BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
 	public void connect(View v){
 		/*for (BluetoothDevice device : devices) {
 			if (device == null){
@@ -284,7 +285,8 @@ public class MainActivity extends Activity {
 			}
 			 if(device.getName().equals("andrea-notebook-0")){*/
 	            	Log.d(TAG,"init connection");
-	            	bluetoothHelper.connect();
+	            	bluetoothHelper.connect(mBluetoothAdapter.getRemoteDevice("00:1A:7D:DA:71:13"));
+
 	      //     } 
 		//}
 		
