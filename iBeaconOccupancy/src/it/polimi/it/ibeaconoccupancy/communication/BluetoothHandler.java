@@ -37,7 +37,6 @@ public class BluetoothHandler implements CommunicationHandler,Serializable{
 			//data.put(beaconData);
 			obj.put("type","client");
 			obj.put("method","post");
-			helper.connect();
 
 			Log.d(TAG,obj.toString());
 			helper.write(obj.toString().getBytes());
@@ -59,7 +58,6 @@ public class BluetoothHandler implements CommunicationHandler,Serializable{
 			obj.put("data", data);
 			obj.put("device", idBluetooth);
 			Log.d(TAG,obj.toString());
-			helper.connect();
 			helper.write(obj.toString().getBytes());
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
@@ -84,8 +82,6 @@ public class BluetoothHandler implements CommunicationHandler,Serializable{
 			obj.put("device",idBluetooth);
 			obj.put("id_beacon", id_beacon);
 			Log.d(TAG,obj.toString());
-			helper.connect();
-
 			helper.write(obj.toString().getBytes());
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
