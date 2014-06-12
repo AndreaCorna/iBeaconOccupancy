@@ -54,7 +54,7 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
 		}
 		Log.d(TAG,"remote "+mBluetoothAdapter.getRemoteDevice("00:1A:7D:DA:71:13").getName());
 		devices.add(mBluetoothAdapter.getRemoteDevice("00:1A:7D:DA:71:13"));
-		//connect();
+		connect();
 	}
 	
 	  /**
