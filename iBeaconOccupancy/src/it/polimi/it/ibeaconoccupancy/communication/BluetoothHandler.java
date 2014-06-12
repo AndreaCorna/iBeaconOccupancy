@@ -28,18 +28,18 @@ public class BluetoothHandler implements CommunicationHandler,Serializable{
 	public void postOnRanging(IBeacon beacon, String idBluetooth) {
 		JSONObject obj = new JSONObject();
 		JSONArray data = new JSONArray();
-		JSONObject beaconData = new JSONObject();
+		//JSONObject beaconData = new JSONObject();
         String id_beacon = beacon.getProximityUuid()+beacon.getMajor()+beacon.getMinor();
         BluetoothHelper helper = BluetoothHelper.getInstance();
 		try {
-			beaconData.put("device",idBluetooth);
-			beaconData.put("beacon", id_beacon);
-			data.put(beaconData);
+			obj.put("device",idBluetooth);
+			obj.put("beacon", id_beacon);
+			//data.put(beaconData);
 			obj.put("type","client");
 			obj.put("method","post");
 			obj.put("data",data);
 			Log.d(TAG,obj.toString());
-			//helper.write(obj.toString().getBytes());
+			helper.write(obj.toString().getBytes());
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -58,7 +58,7 @@ public class BluetoothHandler implements CommunicationHandler,Serializable{
 			obj.put("data", data);
 			obj.put("device", idBluetooth);
 			Log.d(TAG,obj.toString());
-			//helper.write(obj.toString().getBytes());
+			helper.write(obj.toString().getBytes());
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -84,7 +84,7 @@ public class BluetoothHandler implements CommunicationHandler,Serializable{
 			obj.put("data",data);
 			Log.d(TAG,obj.toString());
 			
-			//helper.write(obj.toString().getBytes());
+			helper.write(obj.toString().getBytes());
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -71,7 +71,7 @@ public class MainActivity extends Activity {
 		launchMonitoring(logicOnClient, sendWithBluetooth);
 		
 		IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-		registerReceiver(mReceiver, filter); // Don't forget to unregister during onDestroy
+		//registerReceiver(mReceiver, filter); // Don't forget to unregister during onDestroy
 		//bluetoothHandler = new BluetoothHandler();
 		bluetoothHelper = BluetoothHelper.getInstance();
 		devices=new HashSet<BluetoothDevice>();
@@ -109,7 +109,7 @@ public class MainActivity extends Activity {
 	 */
 	public void onDestroy(){
 		super.onDestroy();
-		unregisterReceiver(mReceiver);
+		//unregisterReceiver(mReceiver);
 		stopService(monitoringIntent);
 		
 	}
@@ -246,7 +246,7 @@ public class MainActivity extends Activity {
 	
 	
 	
-	// Create a BroadcastReceiver for ACTION_FOUND
+	/*// Create a BroadcastReceiver for ACTION_FOUND
 	private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
 	    public void onReceive(Context context, Intent intent) {
 	    	Log.d(TAG,"-------received bluetooth devices--------");
@@ -271,22 +271,22 @@ public class MainActivity extends Activity {
 	            
 	        }
 	    }
-	};
+	};*/
 	
 	public void  searchBluetooth(View v) {
 		bluetoothHelper.startDiscovery();
 	}
 	
 	public void connect(View v){
-		for (BluetoothDevice device : devices) {
+		/*for (BluetoothDevice device : devices) {
 			if (device == null){
 				break;
 			}
-			 if(device.getName().equals("andrea-notebook-0")){
+			 if(device.getName().equals("andrea-notebook-0")){*/
 	            	Log.d(TAG,"init connection");
-	            	bluetoothHelper.connect(device);
-	           } 
-		}
+	            	bluetoothHelper.connect();
+	      //     } 
+		//}
 		
 	}
 

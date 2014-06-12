@@ -4,14 +4,18 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.UUID;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 
-public class BluetoothHelper implements Serializable{
+public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
 	
 	/**
 	 * 
@@ -23,10 +27,11 @@ public class BluetoothHelper implements Serializable{
 	private ConnectThread mConnectThread;
 	private ConnectedThread mConnectedThread;
 	private static BluetoothHelper instance;
+	private static HashSet<BluetoothDevice> devices = new HashSet<BluetoothDevice>();
+
 	
-	private BluetoothHelper() {
+	public BluetoothHelper() {
 		discoveredDevices = new ArrayList<String>();
-		
 	}
 	
 	public static BluetoothHelper getInstance(){
@@ -53,17 +58,32 @@ public class BluetoothHelper implements Serializable{
      * Start the ConnectThread to initiate a connection to a remote device.
      * @param device  The BluetoothDevice to connect
      */
-    public synchronized void connect(BluetoothDevice device) {
-        Log.d(TAG, "connect to: " + device);
-       
-        
-        if (mConnectThread != null) {mConnectThread.cancel(); mConnectThread = null;}
-    
-        // Cancel any thread currently running a connection
-        if (mConnectedThread != null) {mConnectedThread.cancel(); mConnectedThread = null;}
-        // Start the thread to connect with the given device
-        mConnectThread = new ConnectThread(device);
-        mConnectThread.start();
+    public synchronized void connect() {
+		Log.d(TAG,"size "+devices.size());
+
+        //BluetoothDevice device = devices.iterator().next();
+    	for (BluetoothDevice device : devices) {
+			Log.d(TAG,"device "+device.getName());
+
+			if (device == null){
+				break;
+			}
+			Log.d(TAG,"device "+device.getName());
+			 if(device.getName().contains("andrea-notebook-0")){
+	            	Log.d(TAG,"init connection");
+	            	Log.d(TAG, "connect to: " + device);
+
+	    
+	        
+	        if (mConnectThread != null) {mConnectThread.cancel(); mConnectThread = null;}
+	    
+	        // Cancel any thread currently running a connection
+	        if (mConnectedThread != null) {mConnectedThread.cancel(); mConnectedThread = null;}
+	        // Start the thread to connect with the given device
+	        mConnectThread = new ConnectThread(device);
+	        mConnectThread.start();
+			 }
+    	}
        
     }
 	
@@ -223,4 +243,21 @@ public class BluetoothHelper implements Serializable{
     	mConnectedThread=null;
     	mConnectThread=null;
     }
+
+	@Override
+	public void onReceive(Context context, Intent intent) {
+		Log.d(TAG,"-------received bluetooth devices--------");
+        String action = intent.getAction();
+        // When discovery finds a device
+        if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+        	// Get the BluetoothDevice object from the Intent
+            BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+            	// Add the name and address to an array adapter to show in a ListView
+            devices.add(device);
+            for (BluetoothDevice dev : devices) {
+            	Log.d(TAG,"found devices"+dev.getName()+" "+dev);
+            }
+       }
+		
+	}
 }
