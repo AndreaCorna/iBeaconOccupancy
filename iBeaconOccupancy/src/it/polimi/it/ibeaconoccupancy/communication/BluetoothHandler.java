@@ -27,17 +27,18 @@ public class BluetoothHandler implements CommunicationHandler,Serializable{
 	@Override
 	public void postOnRanging(IBeacon beacon, String idBluetooth) {
 		JSONObject obj = new JSONObject();
-		JSONArray data = new JSONArray();
+		//JSONArray data = new JSONArray();
 		//JSONObject beaconData = new JSONObject();
         String id_beacon = beacon.getProximityUuid()+beacon.getMajor()+beacon.getMinor();
         BluetoothHelper helper = BluetoothHelper.getInstance();
 		try {
 			obj.put("device",idBluetooth);
-			obj.put("beacon", id_beacon);
+			obj.put("id_beacon", id_beacon);
 			//data.put(beaconData);
 			obj.put("type","client");
 			obj.put("method","post");
-			obj.put("data",data);
+			helper.connect();
+
 			Log.d(TAG,obj.toString());
 			helper.write(obj.toString().getBytes());
 		} catch (JSONException e) {
@@ -58,6 +59,7 @@ public class BluetoothHandler implements CommunicationHandler,Serializable{
 			obj.put("data", data);
 			obj.put("device", idBluetooth);
 			Log.d(TAG,obj.toString());
+			helper.connect();
 			helper.write(obj.toString().getBytes());
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
@@ -70,20 +72,20 @@ public class BluetoothHandler implements CommunicationHandler,Serializable{
 	@Override
 	public void postOnMonitoringOut(String idBluetooth) {
 		JSONObject obj = new JSONObject();
-		JSONArray data = new JSONArray();
-		JSONObject beaconData = new JSONObject();
+		//9JSONArray data = new JSONArray();
+		//JSONObject beaconData = new JSONObject();
         String id_beacon = "empty";
         BluetoothHelper helper = BluetoothHelper.getInstance();
 
 		try {
-			beaconData.put("device",idBluetooth);
-			beaconData.put("beacon", id_beacon);
-			data.put(beaconData);
+			
 			obj.put("type","client");
 			obj.put("method","delete");
-			obj.put("data",data);
+			obj.put("device",idBluetooth);
+			obj.put("id_beacon", id_beacon);
 			Log.d(TAG,obj.toString());
-			
+			helper.connect();
+
 			helper.write(obj.toString().getBytes());
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
@@ -99,8 +101,8 @@ public class BluetoothHandler implements CommunicationHandler,Serializable{
 	        String id_beacon = ibeacon.getProximityUuid()+ibeacon.getMajor()+ibeacon.getMinor();
 
 			try {
-				objBeacon.put("beacon", id_beacon);
-				objBeacon.put("accuracy", Constants.UPPER_DISTANCE - info.get(ibeacon));
+				objBeacon.put("id_beacon", id_beacon);
+				objBeacon.put("distance", Constants.UPPER_DISTANCE - info.get(ibeacon));
 				data.put(objBeacon);
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
