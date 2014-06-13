@@ -2,12 +2,15 @@ package it.polimi.it.ibeaconoccupancy.services;
 
 import it.polimi.it.ibeaconoccupancy.compare.BeaconHandler;
 import it.polimi.it.ibeaconoccupancy.compare.FullBeaconHandlerImpl;
+import it.polimi.it.ibeaconoccupancy.compare.MinimalBeaconHandlerImpl;
 import it.polimi.it.ibeaconoccupancy.helper.SaveBattery;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.radiusnetworks.ibeacon.IBeaconConsumer;
@@ -25,6 +28,8 @@ public class MonitoringService extends Service implements IBeaconConsumer {
 	private static MonitoringService me;
 	@SuppressWarnings("unused")
 	private SaveBattery save;
+	private SharedPreferences prefs;
+
 	
 	@Override
 	public void onCreate() {
@@ -37,8 +42,11 @@ public class MonitoringService extends Service implements IBeaconConsumer {
 	
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
+		prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		boolean logicOnClient = prefs.getBoolean("pref_logic", true);
+		boolean sendWithBluetooth = prefs.getBoolean("pref_bluetooth", true);
         Log.d(TAG, "onStartCommand monitoring");
-        if(intent != null){
+       /* if(intent != null){
         if((BeaconHandler) intent.getSerializableExtra("BeaconHandler") != null)
         	sendManager = (BeaconHandler) intent.getSerializableExtra("BeaconHandler");		
 		if (intent.getSerializableExtra("BeaconHandler")==null) {
@@ -48,7 +56,12 @@ public class MonitoringService extends Service implements IBeaconConsumer {
 			sendManager = new FullBeaconHandlerImpl(true);
 
 		}
-		 Log.d(TAG, "sendManager monitoring");
+		 Log.d(TAG, "sendManager monitoring");*/
+        if(logicOnClient){
+        	sendManager = new FullBeaconHandlerImpl(sendWithBluetooth);
+        }else{
+        	sendManager = new MinimalBeaconHandlerImpl(sendWithBluetooth);
+        }
 		 
 		ranging= new Intent(this,it.polimi.it.ibeaconoccupancy.services.RangingService.class);
 		ranging.putExtra("BeaconHandler", sendManager);
