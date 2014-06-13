@@ -44,9 +44,12 @@ public class MonitoringService extends Service implements IBeaconConsumer {
 		if (intent.getSerializableExtra("BeaconHandler")==null) {
 			Log.d(TAG,"fewjgirtngirt");
 			sendManager = new FullBeaconHandlerImpl(true);
-		}}
-		 Log.d(TAG, "sendManager monitoring");
+		}}else{
+			sendManager = new FullBeaconHandlerImpl(true);
 
+		}
+		 Log.d(TAG, "sendManager monitoring");
+		 
 		ranging= new Intent(this,it.polimi.it.ibeaconoccupancy.services.RangingService.class);
 		ranging.putExtra("BeaconHandler", sendManager);
 		save = new SaveBattery();

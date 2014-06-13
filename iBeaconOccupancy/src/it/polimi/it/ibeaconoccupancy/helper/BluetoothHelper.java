@@ -233,15 +233,16 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
         /**
          * Write to the connected OutStream.
          * @param buffer  The bytes to write
+         * @throws IOException 
          */
-        public void write(byte[] buffer) {
-            try {
+        public void write(byte[] buffer) throws IOException {
+            //try {
                 mmOutStream.write(buffer);
                 // Share the sent message back to the UI Activity
                
-            } catch (IOException e) {
-                Log.e(TAG, "Exception during write", e);
-            }
+            //} catch (IOException e) {
+               // Log.e(TAG, "Exception during write", e);
+            //}
         }
         public void cancel() {
             try {
