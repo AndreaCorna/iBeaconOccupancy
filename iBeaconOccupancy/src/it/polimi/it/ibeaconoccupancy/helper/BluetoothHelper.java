@@ -13,6 +13,7 @@ import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.ParcelUuid;
 import android.util.Log;
 
 public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
@@ -27,7 +28,9 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
 	private ConnectThread mConnectThread;
 	private ConnectedThread mConnectedThread;
 	private static BluetoothHelper instance;
-	private static HashSet<String> devices = new HashSet<String>();
+	private static HashSet<BluetoothDevice> devices = new HashSet<BluetoothDevice>();
+	private static final UUID uuid = UUID.fromString("94f39d29-7d6d-437d-973b-fba39e49d4ee");
+	private Boolean lock = new Boolean(true);
 	
 	
 	public BluetoothHelper() {
@@ -52,9 +55,9 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
 		else {
 			Log.d(TAG, "problem in discovering bluetooth");
 		}
-		Log.d(TAG,"remote "+mBluetoothAdapter.getRemoteDevice("00:1A:7D:DA:71:13").getName());
-		devices.add("00:1A:7D:DA:71:13");
-		connect(mBluetoothAdapter.getRemoteDevice("00:1A:7D:DA:71:13"));
+		//Log.d(TAG,"remote "+mBluetoothAdapter.getRemoteDevice("00:1A:7D:DA:71:13").getName());
+		//devices.add("00:1A:7D:DA:71:13");
+		//connect(mBluetoothAdapter.getRemoteDevice("00:1A:7D:DA:71:13"));
 	}
 	
 	  /**
@@ -91,7 +94,7 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
 	        // Get a BluetoothSocket to connect with the given BluetoothDevice
 	        try {
 	            // MY_UUID is the app's UUID string, also used by the server code
-	            tmp = device.createInsecureRfcommSocketToServiceRecord(UUID.fromString("94f39d29-7d6d-437d-973b-fba39e49d4ee"));
+	            tmp = device.createInsecureRfcommSocketToServiceRecord(uuid);
 	        } catch (IOException e) {
 	        	Log.d(TAG,"Error creating socket");
 	        }
@@ -176,11 +179,24 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
 	        // Perform the write unsynchronized
 	        try{
 	        	r.write(out);
+	        	//startDiscovery();
 	        }catch (Exception e){
 	        	startDiscovery();
-	        	for (String macAddress : devices) {
-	        		connect(mBluetoothAdapter.getRemoteDevice(macAddress));
-				}
+	        	for (BluetoothDevice device : devices) {
+	        		Log.d(TAG,"device in write "+device.getAddress());
+	        		if(device.getName().contains("rasp") || device.getName().contains("andrea")){
+							connect(device);
+							try {
+								Thread.sleep(6000);
+							} catch (InterruptedException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+							write(out);
+							
+		        	}
+	        	}
+				
 	        }
        //}
     }
@@ -251,9 +267,9 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
         	// Get the BluetoothDevice object from the Intent
             BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
             	// Add the name and address to an array adapter to show in a ListView
-            devices.add(device.getAddress());
-            for (String dev : devices) {
-            	Log.d(TAG,"found devices"+dev);
+            devices.add(device);
+            for (BluetoothDevice dev : devices) {
+            	Log.d(TAG,"found devices"+dev.getAddress());
             }
        }
 		
