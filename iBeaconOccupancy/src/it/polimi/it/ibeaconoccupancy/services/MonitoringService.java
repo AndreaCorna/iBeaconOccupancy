@@ -46,7 +46,8 @@ public class MonitoringService extends Service implements IBeaconConsumer {
 		boolean logicOnClient = prefs.getBoolean("pref_logic", true);
 		boolean sendWithBluetooth = prefs.getBoolean("pref_bluetooth", true);
         Log.d(TAG, "onStartCommand monitoring");
-       /* if(intent != null){
+       /* DA TOGLLIERE SNCHE IN MAIN
+        * if(intent != null){
         if((BeaconHandler) intent.getSerializableExtra("BeaconHandler") != null)
         	sendManager = (BeaconHandler) intent.getSerializableExtra("BeaconHandler");		
 		if (intent.getSerializableExtra("BeaconHandler")==null) {
