@@ -43,7 +43,12 @@ public class MinimalBeaconHandlerImpl implements BeaconHandler,Serializable {
 	@Override
 	public void beaconToSend(Collection<IBeacon> newInformation, String MAC) {
 		HashMap<IBeacon, Double> update = appLogic.getHashMap(newInformation);
-		communication.postingOnRanging(update, MAC);
+		if (!update.keySet().isEmpty()){
+			communication.postingOnRanging(update, MAC);	
+		}
+		else{
+			communication.postOnMonitoringOut(MAC);
+		}
 	}
     
 

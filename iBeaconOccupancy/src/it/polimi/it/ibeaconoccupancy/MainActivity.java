@@ -19,6 +19,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -138,7 +139,7 @@ public class MainActivity extends Activity {
 			builder.setMessage("Sorry, this device does not support Bluetooth LE.");
 			builder.setPositiveButton(android.R.string.ok, null);
 			builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
-
+				
 				@Override
 				public void onDismiss(DialogInterface dialog) {
 					finish();
@@ -162,6 +163,7 @@ public class MainActivity extends Activity {
 	        	finish();
 	          
 			}
+	        SystemClock.sleep(3000);
 	   
 	}//onActivityResult
 	

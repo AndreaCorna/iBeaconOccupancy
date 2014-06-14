@@ -36,7 +36,13 @@ public class FullBeaconHandlerImpl implements BeaconHandler, Serializable {
 	public void beaconToSend(Collection<IBeacon> newInformation, String MAC) {
 		Log.d(TAG, "sending beaocn to server in a full logic way");
 		IBeacon big = appLogic.getBestLocation(newInformation);
-		communication.postOnRanging(big, MAC);
+		if (big != null){
+			communication.postOnRanging(big, MAC);
+		}
+		else{
+			communication.postOnMonitoringOut(MAC);
+		}
+			
 	}
 		
 	@Override
