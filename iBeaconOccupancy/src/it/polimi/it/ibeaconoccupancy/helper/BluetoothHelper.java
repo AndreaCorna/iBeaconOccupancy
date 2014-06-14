@@ -181,7 +181,6 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
 	        	startDiscovery();
 	        	for (BluetoothDevice device : devices) {
 	        		Log.d(TAG,"device in write "+device.getAddress());
-	        		if(device.getName().contains("rasp") || device.getName().contains("andrea")){
 							connect(device);
 							synchronized(lock) {
 								try {
@@ -194,7 +193,7 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
 							}
 							write(out);
 							
-					}
+					
 	        	}
 				
 	        }
@@ -258,13 +257,19 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
         if (BluetoothDevice.ACTION_FOUND.equals(action)) {
         	// Get the BluetoothDevice object from the Intent
             BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-            	// Add the name and address to an array adapter to show in a ListView
-            devices.add(device);
+    		if(device.getName().contains("rasp") || device.getName().contains("andrea"))
+    			devices.add(device);
             
             for (BluetoothDevice dev : devices) {
             	Log.d(TAG,"found devices"+dev.getAddress());
             }
        }
 		
+	}
+
+	public void stopDiscovery() {
+        if (mBluetoothAdapter.isDiscovering()) {
+        	mBluetoothAdapter.cancelDiscovery();
+        }
 	}
 }
