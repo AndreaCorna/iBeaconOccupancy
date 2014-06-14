@@ -28,10 +28,13 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
 	private ConnectedThread mConnectedThread;
 	private static BluetoothHelper instance;
 	private static HashSet<BluetoothDevice> devices = new HashSet<BluetoothDevice>();
-
+	private static final UUID uuid = UUID.fromString("94f39d29-7d6d-437d-973b-fba39e49d4ee");
+	private Boolean lock;
+	private BluetoothDevice current;
 	
 	public BluetoothHelper() {
 		discoveredDevices = new ArrayList<String>();
+		lock = Boolean.valueOf(true);
 	}
 	
 	public static BluetoothHelper getInstance(){
@@ -45,50 +48,30 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
         if (mBluetoothAdapter.isDiscovering()) {
         	mBluetoothAdapter.cancelDiscovery();
         }
-
 		if (mBluetoothAdapter.startDiscovery()){
 			Log.d(TAG, "discovering bluetooth");
 		}
 		else {
 			Log.d(TAG, "problem in discovering bluetooth");
 		}
-		Log.d(TAG,"remote "+mBluetoothAdapter.getRemoteDevice("00:1A:7D:DA:71:13").getName());
-		devices.add(mBluetoothAdapter.getRemoteDevice("00:1A:7D:DA:71:13"));
-		connect();
+		
 	}
 	
 	  /**
      * Start the ConnectThread to initiate a connection to a remote device.
      * @param device  The BluetoothDevice to connect
      */
-    public synchronized void connect() {
-		Log.d(TAG,"size "+devices.size());
-
-        //BluetoothDevice device = devices.iterator().next();
-    	for (BluetoothDevice device : devices) {
-			Log.d(TAG,"device "+device.getName());
-
-			if (device == null){
-				break;
-			}
-			Log.d(TAG,"device "+device.getName());
-			 if(device.getName().contains("andrea-notebook-0")){
-	            	Log.d(TAG,"init connection");
-	            	Log.d(TAG, "connect to: " + device);
-
-	    
-	        
-	        if (mConnectThread != null) {mConnectThread.cancel(); mConnectThread = null;}
-	    
-	        // Cancel any thread currently running a connection
-	        if (mConnectedThread != null) {mConnectedThread.cancel(); mConnectedThread = null;}
-	        // Start the thread to connect with the given device
-	        mConnectThread = new ConnectThread(device);
-	        mConnectThread.start();
-			 }
-    	}
+    public synchronized void connect(BluetoothDevice device) {
+    	if (mConnectThread != null) {mConnectThread.cancel(); mConnectThread = null;}
+    	// Cancel any thread currently running a connection
+	    if (mConnectedThread != null) {mConnectedThread.cancel(); mConnectedThread = null;}
+	    // Start the thread to connect with the given device
+	    mConnectThread = new ConnectThread(device);
+	    mConnectThread.start();
+	}
+    	
        
-    }
+    
 	
 	
 	private class ConnectThread extends Thread {
@@ -104,7 +87,7 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
 	        // Get a BluetoothSocket to connect with the given BluetoothDevice
 	        try {
 	            // MY_UUID is the app's UUID string, also used by the server code
-	            tmp = device.createInsecureRfcommSocketToServiceRecord(UUID.fromString("94f39d29-7d6d-437d-973b-fba39e49d4ee"));
+	            tmp = device.createInsecureRfcommSocketToServiceRecord(uuid);
 	        } catch (IOException e) {
 	        	Log.d(TAG,"Error creating socket");
 	        }
@@ -124,6 +107,7 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
 	        } catch (IOException connectException) {
 	            // Unable to connect; close the socket and get out
 	        	Log.d(TAG,"cannot open connection");
+	        	current = null;
 	        	connectException.printStackTrace();
 	            try {
 	                mmSocket.close();
@@ -165,9 +149,11 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
         mConnectedThread = new ConnectedThread(socket);
         mConnectedThread.start();
         
-      
+        synchronized(lock) {
+        	lock.notifyAll();
+        }
         // Send the name of the connected device back to the UI Activity
-        
+        current = device;
         
     }
     
@@ -177,6 +163,7 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
      * @see ConnectedThread#write(byte[])
      */
     public void write(byte[] out) {
+    	
         //if(mConnectedThread != null){
 	    	// Create temporary object
 	        ConnectedThread r;
@@ -186,8 +173,32 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
 	            r = mConnectedThread;
 	        }
 	        // Perform the write unsynchronized
-	        r.write(out);
-       //}
+	        try{
+	        	r.write(out);
+	        }catch (Exception e){
+	        	if(current != null)
+	        		devices.remove(current);
+	        	startDiscovery();
+	        	for (BluetoothDevice device : devices) {
+	        		Log.d(TAG,"device in write "+device.getAddress());
+	        		if(device.getName().contains("rasp") || device.getName().contains("andrea")){
+							connect(device);
+							synchronized(lock) {
+								try {
+									lock.wait();
+								} catch (InterruptedException e1) {
+									// TODO Auto-generated catch block
+									e1.printStackTrace();
+								}
+							
+							}
+							write(out);
+							
+					}
+	        	}
+				
+	        }
+       
     }
     
     
@@ -211,27 +222,19 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
                 Log.e(TAG, "temp sockets not created", e);
             }
             mmOutStream = tmpOut;
-            
-          
-           
-           
-        }
+       }
     
        
         
         /**
          * Write to the connected OutStream.
          * @param buffer  The bytes to write
+         * @throws IOException 
          */
-        public void write(byte[] buffer) {
-            try {
-                mmOutStream.write(buffer);
-                // Share the sent message back to the UI Activity
-               
-            } catch (IOException e) {
-                Log.e(TAG, "Exception during write", e);
-            }
+        public void write(byte[] buffer) throws IOException {
+            mmOutStream.write(buffer);
         }
+        
         public void cancel() {
             try {
                 mmSocket.close();
@@ -257,8 +260,9 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
             BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
             	// Add the name and address to an array adapter to show in a ListView
             devices.add(device);
+            
             for (BluetoothDevice dev : devices) {
-            	Log.d(TAG,"found devices"+dev.getName()+" "+dev);
+            	Log.d(TAG,"found devices"+dev.getAddress());
             }
        }
 		

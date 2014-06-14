@@ -7,51 +7,6 @@
     tools:context="it.polimi.it.ibeaconoccupancy.MainActivity"
     tools:ignore="MergeRootFrame" >
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" >
-
-        <Button
-            android:id="@+id/button2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentTop="true"
-            android:layout_marginRight="30dp"
-            android:layout_marginTop="34dp"
-            android:onClick="sendMessage"
-            android:text="Hello" />
-
-        <Button
-            android:id="@+id/button1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBaseline="@+id/button2"
-            android:layout_alignBottom="@+id/button2"
-            android:layout_alignParentLeft="true"
-            android:onClick="searchBluetooth"
-            android:text="Discovery" />
-
-        <Button
-            android:id="@+id/button3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/button1"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="54dp"
-            android:text="Connect"
-            android:onClick="connect" />
-
-        <Button
-            android:id="@+id/button4"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/button3"
-            android:layout_marginTop="38dp"
-            android:layout_toLeftOf="@+id/button3"
-            android:text="Cancel"
-            android:onClick="cancel" />
-
-    </RelativeLayout>
+  
 
 </FrameLayout>
