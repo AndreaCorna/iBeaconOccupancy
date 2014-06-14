@@ -44,9 +44,11 @@ public class MinimalBeaconHandlerImpl implements BeaconHandler,Serializable {
 	public void beaconToSend(Collection<IBeacon> newInformation, String MAC) {
 		HashMap<IBeacon, Double> update = appLogic.getHashMap(newInformation);
 		if (!update.keySet().isEmpty()){
+			Log.d(TAG, "sending beaocn to server in a minimal logic way");
 			communication.postingOnRanging(update, MAC);	
 		}
 		else{
+			Log.d(TAG, "sending out of region in  minimallogic way");
 			communication.postOnMonitoringOut(MAC);
 		}
 	}

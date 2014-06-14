@@ -34,12 +34,14 @@ public class FullBeaconHandlerImpl implements BeaconHandler, Serializable {
 	
 	@Override
 	public void beaconToSend(Collection<IBeacon> newInformation, String MAC) {
-		Log.d(TAG, "sending beaocn to server in a full logic way");
+		
 		IBeacon big = appLogic.getBestLocation(newInformation);
 		if (big != null){
+			Log.d(TAG, "sending beacon to server in a full logic way");
 			communication.postOnRanging(big, MAC);
 		}
 		else{
+			Log.d(TAG, "sending out of region fullbeacon way");
 			communication.postOnMonitoringOut(MAC);
 		}
 			
