@@ -75,49 +75,53 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
 	}
     	
     private class DiscoverThread extends Thread{
-    	private ArrayList<String> Addresses = new ArrayList<String>();
+    	private HashSet<BluetoothDevice> addresses = new HashSet<BluetoothDevice>();
     	public DiscoverThread() {
-    		Addresses.add(new String("B9:44:86:DD:C6:5D"));
-    		Addresses.add(new String("BC:44:86:DD:C6:5D"));
-			Addresses.add(new String("00:1A:7D:DA:71:13"));
+    		BluetoothAdapter.getDefaultAdapter().startDiscovery();
 		}
     	
+    	
     	public void run(){
-    		for (String currentAddress : Addresses) {
-	    		BluetoothDevice device =BluetoothAdapter.getDefaultAdapter().getRemoteDevice(currentAddress);
-	    		Log.d(TAG,"inside loop");
-	    		if(device.getName() == null){
-	    			Log.d(TAG, "device is null");
-	    			continue;
-	    		}
-	    		Log.d(TAG,"discover thread"+device.getName());
+    		while(true){
+    			
+	    		synchronized (devices) {
+					addresses =(HashSet<BluetoothDevice>) devices.clone();
+				}
+	    		for (BluetoothDevice device : addresses) {
+		    		Log.d(TAG,"inside loop");
+		    		if(device.getName() == null){
+		    			Log.d(TAG, "device is null");
+		    			continue;
+		    		}
+		    		Log.d(TAG,"discover thread"+device.getName());
+		    		
+		    		connect(device);
+		    		synchronized(lock) {
+						try {
+							lock.wait();
+						} catch (InterruptedException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+		    		}
+		    		Log.d(TAG, "over ");	
+		    		if (current==null){
+		    			Log.d(TAG, "address not reachable");
+		    			continue;
+		    		}
+		    		else{
+		    			Log.d(TAG, "connected");
+		    			try {
+							keepAlive();
+						} catch (IOException e) {
+							Log.d(TAG, "disconnected from current device ");
+							continue;
+						}
+		    		}
 	    		
-	    		connect(device);
-	    		synchronized(lock) {
-					try {
-						lock.wait();
-					} catch (InterruptedException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
 	    		}
-	    		Log.d(TAG, "over ");	
-	    		if (current==null){
-	    			Log.d(TAG, "address not reachable");
-	    			continue;
-	    		}
-	    		else{
-	    			Log.d(TAG, "connected");
-	    			try {
-						keepAlive();
-					} catch (IOException e) {
-						Log.d(TAG, "disconnected from current device ");
-						continue;
-					}
-	    		}
-    		
     		}
-    		
+	    		
     		
     	}
     	
@@ -327,8 +331,10 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
         if (BluetoothDevice.ACTION_FOUND.equals(action)) {
         	// Get the BluetoothDevice object from the Intent
             BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-    		if(device.getName().contains("rasp") || device.getName().contains("andrea"))
-    			devices.add(device);
+    		//if(device.getName().contains("rasp") || device.getName().contains("andrea"))
+			synchronized (devices) {
+				devices.add(device);
+			}
             
             for (BluetoothDevice dev : devices) {
             	Log.d(TAG,"found devices"+dev.getAddress());
