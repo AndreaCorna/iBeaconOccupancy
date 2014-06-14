@@ -68,7 +68,6 @@ public class MonitoringService extends Service implements IBeaconConsumer {
 		ranging= new Intent(this,it.polimi.it.ibeaconoccupancy.services.RangingService.class);
 		ranging.putExtra("BeaconHandler", sendManager);
 		save = new SaveBattery();
-		BluetoothHelper.getInstance().startDiscovery();
 		return super.onStartCommand(intent, flags, startId);
 	}
 	
@@ -91,12 +90,16 @@ public class MonitoringService extends Service implements IBeaconConsumer {
 				Log.d(TAG, "Exit a region");
 				sendManager.exitingRegion(mBluetoothAdapter.getAddress());
 				stopRanging();
+				BluetoothHelper.getInstance().stopDiscovery();
+
 				
 				
 			}
 			
 			@Override
 			public void didEnterRegion(Region arg0) {
+				BluetoothHelper.getInstance().startDiscovery();
+
 				Log.d(TAG, "Enter a region");
 				startRanging();
 				
