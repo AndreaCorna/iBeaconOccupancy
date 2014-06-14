@@ -30,14 +30,17 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
 	private static HashSet<BluetoothDevice> devices = new HashSet<BluetoothDevice>();
 	private static final UUID uuid = UUID.fromString("94f39d29-7d6d-437d-973b-fba39e49d4ee");
 	private Boolean lock;
-	private BluetoothDevice current;
+	private  BluetoothDevice current;
 	
 	public BluetoothHelper() {
+		DiscoverThread discover = new DiscoverThread();
+		discover.start();
 		discoveredDevices = new ArrayList<String>();
 		lock = Boolean.valueOf(true);
 	}
 	
 	public static BluetoothHelper getInstance(){
+		
 		if(instance == null){
 			instance = new BluetoothHelper();
 		}
@@ -45,6 +48,7 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
 	}
 	
 	public void startDiscovery() {  // If we're already discovering, stop it
+		
         if (mBluetoothAdapter.isDiscovering()) {
         	mBluetoothAdapter.cancelDiscovery();
         }
@@ -70,7 +74,67 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
 	    mConnectThread.start();
 	}
     	
-       
+    private class DiscoverThread extends Thread{
+    	private ArrayList<String> Addresses = new ArrayList<String>();
+    	public DiscoverThread() {
+    		Addresses.add(new String("B9:44:86:DD:C6:5D"));
+    		Addresses.add(new String("BC:44:86:DD:C6:5D"));
+			Addresses.add(new String("00:1A:7D:DA:71:13"));
+		}
+    	
+    	public void run(){
+    		for (String currentAddress : Addresses) {
+	    		BluetoothDevice device =BluetoothAdapter.getDefaultAdapter().getRemoteDevice(currentAddress);
+	    		Log.d(TAG,"inside loop");
+	    		if(device.getName() == null){
+	    			Log.d(TAG, "device is null");
+	    			continue;
+	    		}
+	    		Log.d(TAG,"discover thread"+device.getName());
+	    		
+	    		connect(device);
+	    		synchronized(lock) {
+					try {
+						lock.wait();
+					} catch (InterruptedException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+	    		}
+	    		Log.d(TAG, "over ");	
+	    		if (current==null){
+	    			Log.d(TAG, "address not reachable");
+	    			continue;
+	    		}
+	    		else{
+	    			Log.d(TAG, "connected");
+	    			try {
+						keepAlive();
+					} catch (IOException e) {
+						Log.d(TAG, "disconnected from current device ");
+						continue;
+					}
+	    		}
+    		
+    		}
+    		
+    		
+    	}
+    	
+    	private void keepAlive() throws IOException{
+    		while(true){
+    				Log.d(TAG,"keeping alive");
+					mConnectedThread.write("Hello".getBytes());
+					try {
+						sleep(5000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				
+    		}
+    	}
+    }   
     
 	
 	
@@ -116,6 +180,9 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
 		        	closeException.printStackTrace();
 
 	            }
+	            synchronized(lock) {
+	            	lock.notifyAll();
+	            }
 	            return;
 	        }
 	 
@@ -149,11 +216,13 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
         mConnectedThread = new ConnectedThread(socket);
         mConnectedThread.start();
         
+       
+        // Send the name of the connected device back to the UI Activity
+        current = device;
+        
         synchronized(lock) {
         	lock.notifyAll();
         }
-        // Send the name of the connected device back to the UI Activity
-        current = device;
         
     }
     
@@ -163,7 +232,7 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
      * @see ConnectedThread#write(byte[])
      */
     public void write(byte[] out) {
-    	
+    	/*
         //if(mConnectedThread != null){
 	    	// Create temporary object
 	        ConnectedThread r;
@@ -197,6 +266,7 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
 	        	}
 				
 	        }
+	        */
        
     }
     

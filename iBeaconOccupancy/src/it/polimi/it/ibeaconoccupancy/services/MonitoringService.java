@@ -90,7 +90,6 @@ public class MonitoringService extends Service implements IBeaconConsumer {
 				Log.d(TAG, "Exit a region");
 				sendManager.exitingRegion(mBluetoothAdapter.getAddress());
 				stopRanging();
-				BluetoothHelper.getInstance().stopDiscovery();
 
 				
 				
@@ -98,7 +97,6 @@ public class MonitoringService extends Service implements IBeaconConsumer {
 			
 			@Override
 			public void didEnterRegion(Region arg0) {
-				BluetoothHelper.getInstance().startDiscovery();
 
 				Log.d(TAG, "Enter a region");
 				startRanging();
