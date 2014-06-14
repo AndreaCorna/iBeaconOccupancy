@@ -2,13 +2,11 @@ package it.polimi.it.ibeaconoccupancy;
 
 
 
-import java.util.HashSet;
 
 import com.radiusnetworks.ibeacon.IBeaconManager;
 
 import it.polimi.it.ibeaconoccupancy.compare.FullBeaconHandlerImpl;
 import it.polimi.it.ibeaconoccupancy.compare.MinimalBeaconHandlerImpl;
-import it.polimi.it.ibeaconoccupancy.helper.BluetoothHelper;
 import it.polimi.it.ibeaconoccupancy.services.BackgroundService;
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -16,12 +14,8 @@ import android.app.ActivityManager.RunningServiceInfo;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
@@ -45,9 +39,7 @@ public class MainActivity extends Activity {
 	protected static final String TAG = "MainActivity";
 	private SharedPreferences prefs;
 	OnSharedPreferenceChangeListener listener;
-	HashSet<BluetoothDevice> devices;
-	//BluetoothHandler bluetoothHandler;
-	BluetoothHelper bluetoothHelper;
+
 	/**
 	 * Method called on creation of the activity. In this we set up all preferences and settings.
 	 */
@@ -70,14 +62,7 @@ public class MainActivity extends Activity {
 		boolean sendWithBluetooth = prefs.getBoolean("pref_bluetooth", true);
 		launchMonitoring(logicOnClient, sendWithBluetooth);
 		
-		IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-		//registerReceiver(mReceiver, filter); // Don't forget to unregister during onDestroy
-		//bluetoothHandler = new BluetoothHandler();
-		bluetoothHelper = BluetoothHelper.getInstance();
-		devices=new HashSet<BluetoothDevice>();
-		
-
-		
+	
 	}
 
 	@Override
@@ -272,37 +257,6 @@ public class MainActivity extends Activity {
 	        }
 	    }
 	};*/
-	
-	public void  searchBluetooth(View v) {
-		bluetoothHelper.startDiscovery();
-	}
-	BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
-	public void connect(View v){
-		/*for (BluetoothDevice device : devices) {
-			if (device == null){
-				break;
-			}
-			 if(device.getName().equals("andrea-notebook-0")){*/
-	            	Log.d(TAG,"init connection");
-	            	bluetoothHelper.connect(mBluetoothAdapter.getRemoteDevice("00:1A:7D:DA:71:13"));
-
-	      //     } 
-		//}
-		
-	}
-
-	public void  sendMessage(View v) {
-		 Log.d(TAG,"saying hello in main");
-		String message = "Hello";
-		byte[] out = message.getBytes();
-		bluetoothHelper.write(out);
-	}
-	
-	public void cancel(View v){
-		bluetoothHelper.cancel();
-	}
-	
-	
 
 }

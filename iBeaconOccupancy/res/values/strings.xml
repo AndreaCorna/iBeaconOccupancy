@@ -3,7 +3,7 @@
 
     <string name="app_name">iBeacon Occupancy</string>
     <string name="title_activity_main">iBeacon Occupancy</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="hello_world">IBeaconOccupancy Detection</string>
     <string name="action_settings">Settings</string>
     <string name="pref_client_logic">Logic on client</string>
     <string name="pref_client_logic_summary">Enable the application logic </string>
