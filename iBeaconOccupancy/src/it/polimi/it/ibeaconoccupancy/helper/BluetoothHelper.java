@@ -155,7 +155,9 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
         mConnectedThread = new ConnectedThread(socket);
         mConnectedThread.start();
         
-      
+        synchronized(lock) {
+        	lock.notifyAll();
+        }
         // Send the name of the connected device back to the UI Activity
         
         
@@ -179,26 +181,28 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
 	        // Perform the write unsynchronized
 	        try{
 	        	r.write(out);
-	        	//startDiscovery();
 	        }catch (Exception e){
 	        	startDiscovery();
 	        	for (BluetoothDevice device : devices) {
 	        		Log.d(TAG,"device in write "+device.getAddress());
 	        		if(device.getName().contains("rasp") || device.getName().contains("andrea")){
 							connect(device);
-							try {
-								Thread.sleep(6000);
-							} catch (InterruptedException e1) {
-								// TODO Auto-generated catch block
-								e1.printStackTrace();
+							synchronized(lock) {
+								try {
+									lock.wait();
+								} catch (InterruptedException e1) {
+									// TODO Auto-generated catch block
+									e1.printStackTrace();
+								}
+							
 							}
 							write(out);
 							
-		        	}
+					}
 	        	}
 				
 	        }
-       //}
+       
     }
     
     
