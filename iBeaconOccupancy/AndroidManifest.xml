@@ -31,7 +31,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="it.polimi.it.ibeaconoccupancy.SettingsActivity"></activity>
+        <activity android:name="it.polimi.it.ibeaconoccupancy.SettingsActivity"
+            		android:screenOrientation="portrait"></activity>
         <service android:name="it.polimi.it.ibeaconoccupancy.services.RangingService" >
         </service>
         <service android:name="it.polimi.it.ibeaconoccupancy.services.MonitoringService">
