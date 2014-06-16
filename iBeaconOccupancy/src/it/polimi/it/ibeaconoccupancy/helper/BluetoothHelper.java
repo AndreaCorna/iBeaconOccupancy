@@ -13,6 +13,7 @@ import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.SystemClock;
 import android.util.Log;
 
 public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
@@ -30,11 +31,13 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
 	private static HashSet<BluetoothDevice> devices = new HashSet<BluetoothDevice>();
 	private static final UUID uuid = UUID.fromString("94f39d29-7d6d-437d-973b-fba39e49d4ee");
 	private Boolean lock;
-	private  BluetoothDevice current;
+	private BluetoothDevice current;
+	private final DiscoverThread discover = new DiscoverThread();
+	private boolean connected;
 	
 	public BluetoothHelper() {
-		DiscoverThread discover = new DiscoverThread();
-		discover.start();
+		if(!discover.isAlive())
+			discover.start();
 		discoveredDevices = new ArrayList<String>();
 		lock = Boolean.valueOf(true);
 	}
@@ -68,7 +71,7 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
     public synchronized void connect(BluetoothDevice device) {
     	if (mConnectThread != null) {mConnectThread.cancel(); mConnectThread = null;}
     	// Cancel any thread currently running a connection
-	    if (mConnectedThread != null) {mConnectedThread.cancel(); mConnectedThread = null;}
+	   //if (mConnectedThread != null) {mConnectedThread.cancel(); mConnectedThread = null;}
 	    // Start the thread to connect with the given device
 	    mConnectThread = new ConnectThread(device);
 	    mConnectThread.start();
@@ -105,13 +108,14 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
 						}
 		    		}
 		    		Log.d(TAG, "over ");	
-		    		if (current==null){
+		    		if (!connected){
 		    			Log.d(TAG, "address not reachable");
 		    			continue;
 		    		}
 		    		else{
 		    			Log.d(TAG, "connected");
 		    			try {
+		    				current = device;
 							keepAlive();
 						} catch (IOException e) {
 							Log.d(TAG, "disconnected from current device ");
@@ -120,6 +124,8 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
 		    		}
 	    		
 	    		}
+	    		SystemClock.sleep(3000);
+
     		}
 	    		
     		
@@ -128,7 +134,9 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
     	private void keepAlive() throws IOException{
     		while(true){
     				Log.d(TAG,"keeping alive");
-					mConnectedThread.write("Hello".getBytes());
+    				synchronized (mConnectedThread) {
+    		            mConnectedThread.write("Hello".getBytes());
+    				}
 					try {
 						sleep(5000);
 					} catch (InterruptedException e) {
@@ -185,7 +193,9 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
 
 	            }
 	            synchronized(lock) {
-	            	lock.notifyAll();
+	            	connected = false;
+	            	lock.notify();
+	            	
 	            }
 	            return;
 	        }
@@ -225,7 +235,8 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
         current = device;
         
         synchronized(lock) {
-        	lock.notifyAll();
+        	connected = true;
+        	lock.notify();
         }
         
     }
@@ -236,7 +247,7 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
      * @see ConnectedThread#write(byte[])
      */
     public void write(byte[] out) {
-    	/*
+    	
         //if(mConnectedThread != null){
 	    	// Create temporary object
 	        ConnectedThread r;
@@ -249,7 +260,7 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
 	        try{
 	        	r.write(out);
 	        }catch (Exception e){
-	        	if(current != null)
+	        	/*if(current != null)
 	        		devices.remove(current);
 	        	startDiscovery();
 	        	for (BluetoothDevice device : devices) {
@@ -267,10 +278,10 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
 							write(out);
 							
 					
-	        	}
+	        	}*/
 				
 	        }
-	        */
+	        
        
     }
     
