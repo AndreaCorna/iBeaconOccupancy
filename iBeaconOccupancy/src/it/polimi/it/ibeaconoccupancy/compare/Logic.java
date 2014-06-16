@@ -102,6 +102,10 @@ public class Logic implements Serializable{
 		return this.beaconProximity;
 	}
 	
+	public 	HashMap<IBeacon, Double> getHashMap(){
+		return this.beaconProximity;
+	}
+	
 				
 	
 	private void updateStatusBeacon(Collection<IBeacon> newInformation){

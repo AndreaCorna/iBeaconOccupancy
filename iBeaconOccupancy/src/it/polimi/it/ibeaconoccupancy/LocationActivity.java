@@ -211,7 +211,7 @@ public class LocationActivity extends Activity {
     		else
     			http =new HttpHandler(Constants.ADDRESS_TEST_SERVER_LEARNING);
 
-			taskPost = new PostTestOnServerTask(http, answerRoom, correctRoom, correct);
+			taskPost = new PostTestOnServerTask(http, answerRoom, correctRoom, correct, onClient);
 			taskPost.execute(null,null,null);
 			Log.d(TAG,"connection available Sending cached data");
 			sendCachedAnswers();
@@ -240,9 +240,15 @@ public class LocationActivity extends Activity {
 			String answer = cursor.getString(1);
 			String correct_answer  = cursor.getString(2);
 			int correct  = cursor.getInt(3);
-			
-			HttpHandler http =new HttpHandler("http://ibeacon.no-ip.org/ibeacon/test");
-			taskPost = new PostTestOnServerTask(http, answer, correct_answer, correct);
+			prefs = PreferenceManager.getDefaultSharedPreferences(this);
+    		boolean onClient = prefs.getBoolean("pref_logic", true);
+			HttpHandler http;
+    		if(onClient)
+    			http =new HttpHandler(Constants.ADDRESS_TEST_SERVER_CLIENT);
+    		else
+    			http =new HttpHandler(Constants.ADDRESS_TEST_SERVER_LEARNING);
+
+			taskPost = new PostTestOnServerTask(http, answer, correct_answer, correct, onClient);
 			taskPost.execute(null,null,null);
 			
 			Log.d(TAG, "In SQLITEDB  answer "+answer+" correct_answer "+correct_answer+" correct "+correct);
@@ -328,17 +334,23 @@ public class LocationActivity extends Activity {
 		private String answerRoom;
 		private String correctRoom;
 		private int correct;
+		private boolean onClient;
 		
-		public PostTestOnServerTask(HttpHandler http, String answerRoom, String correctRoom, int correct){
+		public PostTestOnServerTask(HttpHandler http, String answerRoom, String correctRoom, int correct, boolean onClient){
 			this.http = http;
 			this.answerRoom = answerRoom;
 			this.correct = correct;
 			this.correctRoom = correctRoom;
+			this.onClient = onClient;
 		}
 		
 		@Override
 		protected Void doInBackground(Void... arg0) {
-			http.postAnswer(answerRoom, correctRoom, correct);
+			if(onClient)
+				http.postAnswerClient(answerRoom, correctRoom, correct);
+			else{
+				http.postAnswerLearning(Logic.getInstance().getHashMap(),answerRoom);
+			}
 			return null;
 		}
 		
