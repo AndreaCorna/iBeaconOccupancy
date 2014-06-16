@@ -10,7 +10,6 @@ import it.polimi.it.ibeaconoccupancy.R;
 import it.polimi.it.ibeaconoccupancy.compare.FullBeaconHandlerImpl;
 import it.polimi.it.ibeaconoccupancy.compare.MinimalBeaconHandlerImpl;
 import it.polimi.it.ibeaconoccupancy.helper.DataBaseHelper;
-import it.polimi.it.ibeaconoccupancy.services.BackgroundService;
 import it.polimi.it.ibeaconoccupancy.services.RangingService;
 import it.polimi.it.ibeaconoccupancy.services.TestService;
 import android.app.Activity;
@@ -80,11 +79,7 @@ public class MainActivity extends Activity {
 
 		registerReceiver(receiver, intentFilter);
 		
-		if(isBackGroundRunning()){
-			BackgroundService.getInstance().stopSelf();
-		}
-		
-		
+				
 		launchMonitoring(true);
 		loadDataDB();
 
@@ -246,22 +241,7 @@ public class MainActivity extends Activity {
 		  return false;
 	}
 	
-	/**
-	 * The method controls is the Background service is already active
-	 * @return true if is active, otherwise false
-	 */
-	private boolean isBackGroundRunning() {
-		  ActivityManager manager = (ActivityManager)getSystemService(ACTIVITY_SERVICE);
-		  for (RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-		    if (BackgroundService.class.getName().equals(service.service.getClassName())) {
-		    	return true;
-		    }
-		  }
-		  return false;
-		}
-	
-	
-	
+		
 	
 	
 	/**
