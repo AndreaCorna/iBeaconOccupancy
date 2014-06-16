@@ -43,6 +43,10 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
 		lock = Boolean.valueOf(true);
 	}
 	
+	private void loadDevices(){
+		
+	}
+	
 	public static BluetoothHelper getInstance(){
 		
 		if(instance == null){
@@ -50,21 +54,9 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
 		}
 		return instance;
 	}
+
+		
 	
-	public void startDiscovery() {  // If we're already discovering, stop it
-		
-        if (mBluetoothAdapter.isDiscovering()) {
-        	mBluetoothAdapter.cancelDiscovery();
-        }
-		if (mBluetoothAdapter.startDiscovery()){
-			Log.d(TAG, "discovering bluetooth");
-			devices = new HashSet<BluetoothDevice>();
-		}
-		else {
-			Log.d(TAG, "problem in discovering bluetooth");
-		}
-		
-	}
 	
 	  /**
      * Start the ConnectThread to initiate a connection to a remote device.
@@ -89,7 +81,7 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
     	public void run(){
     		while(true){
     			try {
-    				startDiscovery();
+    				
 					sleep(8000);
 				} catch (InterruptedException e2) {
 					// TODO Auto-generated catch block
@@ -179,7 +171,7 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
 	    public void run() {
 	    	Log.d(TAG, "in run of connectThread");
 	        // Cancel discovery because it will slow down the connection
-	        stopDiscovery();;
+	       
 	 
 	        try {
 	            // Connect the device through the socket. This will block
@@ -332,10 +324,5 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
 		
 	}
 
-	public void stopDiscovery() {
-        if (mBluetoothAdapter.isDiscovering()) {
-        	Log.d(TAG, "cancel discovering");
-        	mBluetoothAdapter.cancelDiscovery();
-        }
-	}
+	
 }
