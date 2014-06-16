@@ -3,11 +3,11 @@ package it.polimi.it.ibeaconoccupancy.services;
 
 import it.polimi.it.ibeaconoccupancy.compare.BeaconHandler;
 import it.polimi.it.ibeaconoccupancy.compare.FullBeaconHandlerImpl;
+import it.polimi.it.ibeaconoccupancy.compare.Logic;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
 
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
@@ -41,6 +41,7 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
     private float last_x,last_y,last_z;
     private static final int SHAKE_THRESHOLD = 300;
     private long lastUpdate;
+    private IBeacon strongerBeacon;
     
    
     
@@ -92,8 +93,9 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
             if (iBeacons.size() > 0) {
             	if(isMoving){
             		Log.d(TAG,"Ranging");
+            		strongerBeacon = Logic.getInstance().getBestLocation(iBeacons);
+
             		notifyActivity(iBeacons); 
-            		
             		isMoving = false;
             		restore();
             		
@@ -160,7 +162,6 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
 		intent.putExtra("exitRegion",false);
 
     	List<String> beaconsInfos = new ArrayList<String>();
-    	IBeacon strongerBeacon = beaconLogic.getBestLocation(iBeacons);
     	
 	    intent.putStringArrayListExtra("BeaconInfo",(ArrayList<String>) beaconsInfos);
 	    if (strongerBeacon !=null){

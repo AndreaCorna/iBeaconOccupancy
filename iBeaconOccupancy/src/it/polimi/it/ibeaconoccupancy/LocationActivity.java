@@ -1,6 +1,7 @@
 package it.polimi.it.ibeaconoccupancy;
 
 import it.polimi.it.ibeaconoccupancy.R;
+import it.polimi.it.ibeaconoccupancy.compare.Logic;
 import it.polimi.it.ibeaconoccupancy.helper.DataBaseHelper;
 import it.polimi.it.ibeaconoccupancy.http.HttpHandler;
 import it.polimi.it.ibeaconoccupancy.services.MonitoringService;
@@ -10,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 
+import com.radiusnetworks.ibeacon.IBeacon;
 
 import android.app.Activity;
 import android.app.ActionBar;
@@ -137,6 +139,7 @@ public class LocationActivity extends Activity {
 	 */
 	public void checkAnswer(View view){
 		Log.d(TAG, "in beacon loaction "+bestBeacon);
+		
 		String correctRoom = beaconLocation.get(bestBeacon);
 		
 		Log.d(TAG," correct room "+correctRoom);
@@ -197,7 +200,7 @@ public class LocationActivity extends Activity {
  
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         if (null != activeNetwork){
-			HttpHandler http =new HttpHandler("http://ibeacon.no-ip.org/ibeacon/test");
+			HttpHandler http =new HttpHandler(Constants.ADDRESS_TEST_SERVER);
 			taskPost = new PostTestOnServerTask(http, answerRoom, correctRoom, correct);
 			taskPost.execute(null,null,null);
 			Log.d(TAG,"connection available Sending cached data");
