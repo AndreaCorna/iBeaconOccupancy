@@ -21,6 +21,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
@@ -50,6 +51,8 @@ public class LocationActivity extends Activity {
 	private PostTestOnServerTask taskPost;
 	private String bestBeacon = new String();
 	private BeaconReceiver receiver;
+	private SharedPreferences prefs;
+
 
 
 	
@@ -200,7 +203,8 @@ public class LocationActivity extends Activity {
  
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         if (null != activeNetwork){
-			HttpHandler http =new HttpHandler(Constants.ADDRESS_TEST_SERVER);
+        	
+			HttpHandler http =new HttpHandler(Constants.ADDRESS_TEST_SERVER_CLIENT);
 			taskPost = new PostTestOnServerTask(http, answerRoom, correctRoom, correct);
 			taskPost.execute(null,null,null);
 			Log.d(TAG,"connection available Sending cached data");
