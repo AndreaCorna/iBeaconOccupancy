@@ -21,14 +21,12 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
@@ -52,7 +50,6 @@ public class LocationActivity extends Activity {
 	private PostTestOnServerTask taskPost;
 	private String bestBeacon = new String();
 	private BeaconReceiver receiver;
-	private SharedPreferences prefs;
 
 
 
@@ -206,16 +203,9 @@ public class LocationActivity extends Activity {
  
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         if (null != activeNetwork){
-    		prefs = PreferenceManager.getDefaultSharedPreferences(this);
-    		boolean onClient = prefs.getBoolean("pref_logic", true);
-    		Log.d(TAG,"on client"+onClient);
-    		HttpHandler http;
-    		if(onClient)
-    			http =new HttpHandler(Constants.ADDRESS_TEST_SERVER_CLIENT);
-    		else
-    			http =new HttpHandler(Constants.ADDRESS_TEST_SERVER_LEARNING);
-
-			taskPost = new PostTestOnServerTask(http, answerRoom, correctRoom, correct, onClient);
+        	HttpHandler http;
+    		http =new HttpHandler(Constants.ADDRESS_TEST_BASIC);
+    		taskPost = new PostTestOnServerTask(http, answerRoom, correctRoom, correct);
 			taskPost.execute(null,null,null);
 			Log.d(TAG,"connection available Sending cached data");
 			sendCachedAnswers();
@@ -244,15 +234,10 @@ public class LocationActivity extends Activity {
 			String answer = cursor.getString(1);
 			String correct_answer  = cursor.getString(2);
 			int correct  = cursor.getInt(3);
-			prefs = PreferenceManager.getDefaultSharedPreferences(this);
-    		boolean onClient = prefs.getBoolean("pref_logic", true);
+			
 			HttpHandler http;
-    		if(onClient)
-    			http =new HttpHandler(Constants.ADDRESS_TEST_SERVER_CLIENT);
-    		else
-    			http =new HttpHandler(Constants.ADDRESS_TEST_SERVER_LEARNING);
-
-			taskPost = new PostTestOnServerTask(http, answer, correct_answer, correct, onClient);
+    		http =new HttpHandler(Constants.ADDRESS_TEST_BASIC);
+    		taskPost = new PostTestOnServerTask(http, answer, correct_answer, correct);
 			taskPost.execute(null,null,null);
 			
 			Log.d(TAG, "In SQLITEDB  answer "+answer+" correct_answer "+correct_answer+" correct "+correct);
@@ -338,23 +323,18 @@ public class LocationActivity extends Activity {
 		private String answerRoom;
 		private String correctRoom;
 		private int correct;
-		private boolean onClient;
 		
-		public PostTestOnServerTask(HttpHandler http, String answerRoom, String correctRoom, int correct, boolean onClient){
+		public PostTestOnServerTask(HttpHandler http, String answerRoom, String correctRoom, int correct){
 			this.http = http;
 			this.answerRoom = answerRoom;
 			this.correct = correct;
 			this.correctRoom = correctRoom;
-			this.onClient = onClient;
 		}
 		
 		@Override
 		protected Void doInBackground(Void... arg0) {
-			if(onClient)
-				http.postAnswerClient(answerRoom, correctRoom, correct);
-			else{
-				http.postAnswerLearning(Logic.getInstance().getHashMap(),answerRoom);
-			}
+			http.postAnswerClient(answerRoom, correctRoom, correct);
+			
 			return null;
 		}
 		

@@ -1,15 +1,12 @@
 package it.polimi.it.ibeaconoccupancy.http;
 
 
-import it.polimi.it.ibeaconoccupancy.Constants;
 
 import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.HashMap;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.util.Log;
@@ -133,49 +130,5 @@ public class HttpHandler implements Serializable{
     
     }
 	
-	public void postAnswerLearning(HashMap<IBeacon, Double> update,String answer){
-		int responseCode = 0;
-        String stringPost = url;
-        URL urlPost;
-		try {
-			urlPost = new URL(stringPost);
-		   	HttpURLConnection httpCon = (HttpURLConnection) urlPost.openConnection();
-        	httpCon.setDoOutput(true);
-        	httpCon.setDoInput(true);
-        	
-        	httpCon.setRequestMethod("POST");
-        	httpCon.setRequestProperty("content-type","application/json; charset=utf-8"); 
-          	httpCon.setRequestProperty("Accept", "application/json");
-          	
-        	JSONObject obj = new JSONObject();
-        	obj.put("answer", answer);
-          	JSONArray iBeacons = new JSONArray();
-            for (IBeacon iBeacon : update.keySet()) {
-            	JSONObject beaconPropertier = new JSONObject();
-            	String id_beacon = iBeacon.getProximityUuid()+iBeacon.getMajor()+iBeacon.getMinor();
-            	Log.d(TAG,"id "+id_beacon);
-            	beaconPropertier.accumulate("id_beacon", id_beacon);
-            	beaconPropertier.accumulate("distance", Constants.UPPER_DISTANCE - update.get(iBeacon));
-            	iBeacons.put(beaconPropertier);
-            	
-            	
-			}
-            obj.put("data", iBeacons);
-            Log.d(TAG,"json result "+obj.toString());
-           
-           
-            OutputStreamWriter wr= new OutputStreamWriter(httpCon.getOutputStream());
-            wr.write(obj.toString());
-            wr.flush();
-            responseCode = httpCon.getResponseCode();
- 
-            
-        } catch (Exception e) {}
-        	Log.d(TAG,"SEND RESPONSE"+responseCode);
-    
-		
-	}
-	
-
 
 }

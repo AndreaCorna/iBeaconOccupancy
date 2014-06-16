@@ -8,7 +8,6 @@ import com.radiusnetworks.ibeacon.IBeaconManager;
 
 import it.polimi.it.ibeaconoccupancy.R;
 import it.polimi.it.ibeaconoccupancy.helper.DataBaseHelper;
-import it.polimi.it.ibeaconoccupancy.helper.SettingsActivity;
 import it.polimi.it.ibeaconoccupancy.services.RangingService;
 import it.polimi.it.ibeaconoccupancy.services.TestService;
 import android.app.Activity;
@@ -100,12 +99,8 @@ public class MainActivity extends Activity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		
+		@SuppressWarnings("unused")
 		int id = item.getItemId();
-		if (id == R.id.action_settings) {
-			 Intent i = new Intent(this, SettingsActivity.class);
-			 startActivity(i);			 
-			return true;
-		}
 		return super.onOptionsItemSelected(item);
 	}
 	
