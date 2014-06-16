@@ -66,6 +66,7 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
     	iBeaconManager.unBind(this);
         super.onDestroy();
         mSensorManager.unregisterListener(this);
+        unregisterReceiver(receiver);
         
         Log.d(TAG, "Ranging finished");
     }
