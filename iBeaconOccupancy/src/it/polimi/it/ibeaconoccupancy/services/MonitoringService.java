@@ -2,9 +2,7 @@ package it.polimi.it.ibeaconoccupancy.services;
 
 
 import android.app.Service;
-import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
@@ -20,7 +18,6 @@ public class MonitoringService extends Service implements IBeaconConsumer {
 	public static final String ACTION = "MonitoringAction";
 
 	private final IBeaconManager iBeaconManager = IBeaconManager.getInstanceForApplication(this);
-    private final BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 	private Intent ranging;
 	private static MonitoringService me;
 
@@ -86,7 +83,6 @@ public class MonitoringService extends Service implements IBeaconConsumer {
 			
 			@Override
 			public void didDetermineStateForRegion(int arg0, Region arg1) {
-				// TODO Auto-generated method stub
 				
 			}
 		});
@@ -97,14 +93,12 @@ public class MonitoringService extends Service implements IBeaconConsumer {
 			iBeaconManager.updateScanPeriods();
 			iBeaconManager.startMonitoringBeaconsInRegion(new Region("myMonitoringUniqueId",null, null, null));
 		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
 	@Override
 	public IBinder onBind(Intent arg0) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 	

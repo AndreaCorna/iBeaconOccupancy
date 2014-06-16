@@ -8,6 +8,7 @@ import com.radiusnetworks.ibeacon.IBeaconManager;
 
 import it.polimi.it.ibeaconoccupancy.R;
 import it.polimi.it.ibeaconoccupancy.helper.DataBaseHelper;
+import it.polimi.it.ibeaconoccupancy.helper.SettingsActivity;
 import it.polimi.it.ibeaconoccupancy.services.RangingService;
 import it.polimi.it.ibeaconoccupancy.services.TestService;
 import android.app.Activity;
@@ -99,15 +100,20 @@ public class MainActivity extends Activity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		
-		@SuppressWarnings("unused")
 		int id = item.getItemId();
+		if (id == R.id.action_settings) {
+			 Intent i = new Intent(this, SettingsActivity.class);
+			 startActivity(i);			 
+			return true;
+		}
 		return super.onOptionsItemSelected(item);
 	}
 	
 	public void onDestroy(){
 		super.onDestroy();
 		stopService(intent);
-		stopService(testService);
+		if(isTestRunning())
+			stopService(testService);
 		unregisterReceiver(receiver);
 	}
 	
@@ -259,6 +265,7 @@ public class MainActivity extends Activity {
 			throw sqle;
 		}
 		SQLiteDatabase myDb = myDbHelper.getReadableDatabase();
+		@SuppressWarnings("static-access")
 		Cursor cursor = myDb.query(myDbHelper.TABLE_ROOMS, null, null, null, null, null, null);
 		cursor.moveToFirst();
 		while(cursor.isAfterLast()==false){
@@ -285,6 +292,7 @@ public class MainActivity extends Activity {
 				bestBeacon=null;
 			}
 			else {
+				@SuppressWarnings("unused")
 				ArrayList<String> beacons = intent.getStringArrayListExtra("BeaconInfo");
 				String strongerBeacon = intent.getExtras().getString("StrongerBeacon");
 				bestBeacon = strongerBeacon;

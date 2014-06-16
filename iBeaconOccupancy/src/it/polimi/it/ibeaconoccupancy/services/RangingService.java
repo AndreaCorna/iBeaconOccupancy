@@ -8,7 +8,6 @@ import java.util.Collection;
 import java.util.List;
 
 import android.app.Service;
-import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
 import android.hardware.Sensor;
@@ -30,7 +29,6 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
 	public final static String ACTION = "RangingAction";	//used to identify the message sent with the SendBroacast inside notifyActivity method
 	protected static final String TAG = "RangingService";
 	private final IBeaconManager iBeaconManager = IBeaconManager.getInstanceForApplication(this);
-    private final BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
     private SensorManager mSensorManager; 
     private Sensor mAccelerometer;
     private boolean isMoving = false;
@@ -70,7 +68,6 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
 
 	@Override
 	public IBinder onBind(Intent intent) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 	
@@ -105,7 +102,6 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
 		try {
 			iBeaconManager.updateScanPeriods();
 		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
     
@@ -116,7 +112,6 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
 
    	@Override
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
-		// TODO Auto-generated method stub
 		
 	}
 	@Override
