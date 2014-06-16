@@ -5,6 +5,7 @@ import it.polimi.it.ibeaconoccupancy.http.HttpHandler;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Iterator;
 
 import android.util.Log;
 
@@ -17,8 +18,7 @@ public class FullBeaconHandlerImpl implements BeaconHandler, Serializable {
 	protected static final String TAG = "BeaconToSendManager";
 	private final HttpHandler httpHand = new HttpHandler(Constants.ADDRESS_LOGIC_ON_CLIENT);
 	private IBeacon bestBeacon = null;
-	private boolean lostBeacon = false;
-	private boolean changed = false;
+	
 	
 	@Override
 	public void beaconToSend(Collection<IBeacon> newInformation, String MAC) {
@@ -29,80 +29,17 @@ public class FullBeaconHandlerImpl implements BeaconHandler, Serializable {
     }
 
 	public IBeacon getBestLocation(Collection<IBeacon> newInformation){
-		IBeacon big = null;
-		if(bestBeacon != null){
-			boolean found = false;
-			big = newInformation.iterator().next();
-			Log.d(TAG," start search in beacon");
-			for (IBeacon iBeacon : newInformation) {
-				if(!found && iBeacon.equals(bestBeacon))
-					found = true;
-				Log.d(TAG,"beacon "+iBeacon.getProximityUuid()+iBeacon.getMajor()+iBeacon.getMinor()+" Accuracy "+iBeacon.getAccuracy()+ "\n best "+bestBeacon.getAccuracy()+" "+bestBeacon.getProximityUuid()+bestBeacon.getMajor()+bestBeacon.getMinor());
-				if(iBeacon.getAccuracy() <big.getAccuracy()){
-					big = iBeacon;
-				}
+		Iterator<IBeacon> iterator = newInformation.iterator();
+		bestBeacon = iterator.next();
+		while(iterator.hasNext()){
+			IBeacon beacon = iterator.next();
+			if (bestBeacon.getAccuracy() > beacon.getAccuracy()){
+				bestBeacon = beacon;
 			}
-			Log.d(TAG,"best Beacon "+big.getProximityUuid()+big.getMajor()+big.getMinor());
-			Log.d(TAG,"found "+found);
-			if(found){
-				if(bestBeacon.equals(big)){
-					Log.d(TAG,"best prima è uguale a best adesso");
-					bestBeacon = big;
-				}else if(changed){
-					Log.d(TAG,"best prima è cambiato per la seconda volta");
-					bestBeacon = big;
-					changed = false;
-				}else{
-					Log.d(TAG,"best prima è cambiato per la prima volta");
-					big = bestBeacon;
-					changed = true;
-				}
-				
-				lostBeacon = false;
-			}else if(!lostBeacon){
-				Log.d(TAG,"ho perso il beacon per la prima volta");
-				big = bestBeacon;
-				lostBeacon = true;
-			}else{
-				Log.d(TAG,"ho perso il beacon per la seconda volta");
-				bestBeacon = big;
-				lostBeacon = false;
-			}
-			
-		}else{
-			big = newInformation.iterator().next();
-			for (IBeacon iBeacon : newInformation) {
-				if(iBeacon.getRssi() > big.getRssi()){
-					big = iBeacon;
-				}
-			}
-			bestBeacon = big;
 		}
-		Log.d(TAG, " best beacon "+big.getProximityUuid()+big.getMajor()+big.getMinor());
-		return big;
+		return bestBeacon;
 	}
     
-    @SuppressWarnings({ "null", "unused" })
-	private void deleteFromOld(Collection<IBeacon> oldBeacons, Collection<IBeacon> newBeacons){
-    	Collection<IBeacon> toDelete = null;
-    	boolean found = false;
-    	for (IBeacon old : oldBeacons) {
-    		found = false;
-    		for (IBeacon iBeacon : newBeacons) {
-    			if(old.getProximityUuid().equals(iBeacon.getProximityUuid()) &&
-						old.getMajor() == iBeacon.getMajor() && old.getMinor() == iBeacon.getMinor()){
-    				found = true;
-    				break;
-    			}
-			}
-    		Log.d(TAG,""+found);
-    		if(!found){
-    			toDelete.add(old);
-    		}
-		}
-    	oldBeacons.clear();
-    	oldBeacons = toDelete;
-    }
 
 	@Override
 	public void exitingRegion(String idBluetooth) {
