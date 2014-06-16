@@ -23,7 +23,6 @@ public class MonitoringService extends Service implements IBeaconConsumer {
     private final BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 	private Intent ranging;
 	private static MonitoringService me;
-	private SharedPreferences prefs;
 
 	
 	

@@ -21,13 +21,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -48,7 +46,6 @@ public class MainActivity extends Activity {
 	private Intent intent;
 	private Intent testService;
 	protected static final String TAG = "MainActivity";
-	private SharedPreferences prefs;
 	OnSharedPreferenceChangeListener listener;
 	private BeaconReceiver receiver;
 	private String bestBeacon = new String();
@@ -102,6 +99,7 @@ public class MainActivity extends Activity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		
+		@SuppressWarnings("unused")
 		int id = item.getItemId();
 		return super.onOptionsItemSelected(item);
 	}

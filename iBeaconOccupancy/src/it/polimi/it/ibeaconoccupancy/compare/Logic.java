@@ -93,6 +93,10 @@ public class Logic implements Serializable{
 
 	}
 	
+	public IBeacon getBestLocation(){
+		return bestBeacon;
+	}
+	
 	public 	HashMap<IBeacon, Double> getHashMap(Collection<IBeacon> newInformation){
 		updateInformation(newInformation);
 		return this.beaconProximity;

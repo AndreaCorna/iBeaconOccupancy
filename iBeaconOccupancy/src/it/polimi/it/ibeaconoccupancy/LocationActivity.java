@@ -28,6 +28,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
@@ -142,8 +143,9 @@ public class LocationActivity extends Activity {
 	 */
 	public void checkAnswer(View view){
 		Log.d(TAG, "in beacon loaction "+bestBeacon);
-		
-		String correctRoom = beaconLocation.get(bestBeacon);
+		IBeacon best = Logic.getInstance().getBestLocation();
+		//String correctRoom = beaconLocation.get(bestBeacon);
+		String correctRoom = beaconLocation.get(best.getProximityUuid()+best.getMajor()+best.getMinor());
 		
 		Log.d(TAG," correct room "+correctRoom);
 		
@@ -165,7 +167,6 @@ public class LocationActivity extends Activity {
 				sendAnswer( answerRoom, "Nessuna", 0);
 
 			
-				//http.postAnswer(answerRoom, correctRoom, 0);
 			}	
 		}
 		
@@ -181,7 +182,6 @@ public class LocationActivity extends Activity {
 			}
 			else {
 				sendAnswer( "Nessuna",correctRoom, 0);
-				//http.postAnswer("Nessuna", correctRoom, 0);
 				Log.d(TAG, "wrong generic answer "+" correct"+correctRoom);
 			}
 		}
@@ -203,8 +203,14 @@ public class LocationActivity extends Activity {
  
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         if (null != activeNetwork){
-        	
-			HttpHandler http =new HttpHandler(Constants.ADDRESS_TEST_SERVER_CLIENT);
+    		prefs = PreferenceManager.getDefaultSharedPreferences(this);
+    		boolean onClient = prefs.getBoolean("pref_logic", true);
+    		HttpHandler http;
+    		if(onClient)
+    			http =new HttpHandler(Constants.ADDRESS_TEST_SERVER_CLIENT);
+    		else
+    			http =new HttpHandler(Constants.ADDRESS_TEST_SERVER_LEARNING);
+
 			taskPost = new PostTestOnServerTask(http, answerRoom, correctRoom, correct);
 			taskPost.execute(null,null,null);
 			Log.d(TAG,"connection available Sending cached data");
