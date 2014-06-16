@@ -1,12 +1,10 @@
 package it.polimi.it.ibeaconoccupancy.services;
 
 
-import it.polimi.it.ibeaconoccupancy.compare.BeaconHandler;
-import it.polimi.it.ibeaconoccupancy.compare.FullBeaconHandlerImpl;
-import it.polimi.it.ibeaconoccupancy.helper.SaveBattery;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
@@ -23,11 +21,10 @@ public class MonitoringService extends Service implements IBeaconConsumer {
 
 	private final IBeaconManager iBeaconManager = IBeaconManager.getInstanceForApplication(this);
     private final BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-    private  BeaconHandler sendManager = new FullBeaconHandlerImpl();
 	private Intent ranging;
 	private static MonitoringService me;
-	@SuppressWarnings("unused")
-	private SaveBattery save;
+	private SharedPreferences prefs;
+
 	
 	
 	@Override
@@ -42,22 +39,12 @@ public class MonitoringService extends Service implements IBeaconConsumer {
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand monitoring");
-        if(intent != null){
-        if((BeaconHandler) intent.getSerializableExtra("BeaconHandler") != null)
-        	sendManager = (BeaconHandler) intent.getSerializableExtra("BeaconHandler");		
-		if (intent.getSerializableExtra("BeaconHandler")==null) {
-			Log.d(TAG,"fewjgirtngirt");
-			sendManager = new FullBeaconHandlerImpl();
-		}}
+        
 		 Log.d(TAG, "sendManager monitoring");
 
 		ranging= new Intent(this,it.polimi.it.ibeaconoccupancy.services.RangingService.class);
-		ranging.putExtra("BeaconHandler", sendManager);
 		//iBeaconManager.setBackgroundScanPeriod(3000);
-		save = new SaveBattery();
-		
-		
-		
+	
 		return super.onStartCommand(intent, flags, startId);
 	}
 	
@@ -84,7 +71,6 @@ public class MonitoringService extends Service implements IBeaconConsumer {
 			@Override
 			public void didExitRegion(Region arg0) {
 				Log.d(TAG, "Exit a region");
-				sendManager.exitingRegion(mBluetoothAdapter.getAddress());
 				stopRanging();
 				notifyLocationActivity();
 	

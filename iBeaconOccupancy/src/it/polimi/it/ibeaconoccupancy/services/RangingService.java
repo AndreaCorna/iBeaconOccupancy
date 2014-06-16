@@ -1,8 +1,6 @@
 package it.polimi.it.ibeaconoccupancy.services;
 
 
-import it.polimi.it.ibeaconoccupancy.compare.BeaconHandler;
-import it.polimi.it.ibeaconoccupancy.compare.FullBeaconHandlerImpl;
 import it.polimi.it.ibeaconoccupancy.compare.Logic;
 
 import java.util.ArrayList;
@@ -33,8 +31,6 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
 	protected static final String TAG = "RangingService";
 	private final IBeaconManager iBeaconManager = IBeaconManager.getInstanceForApplication(this);
     private final BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-    private FullBeaconHandlerImpl beaconLogic;
-    private BeaconHandler sendManager;
     private SensorManager mSensorManager; 
     private Sensor mAccelerometer;
     private boolean isMoving = false;
@@ -60,8 +56,6 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
     
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-    	//sendManager = (BeaconHandler) intent.getSerializableExtra("BeaconHandler");
-    	beaconLogic = new FullBeaconHandlerImpl();
 		
     	return super.onStartCommand(intent, flags, startId);
     }

@@ -7,8 +7,6 @@ import java.util.HashMap;
 import com.radiusnetworks.ibeacon.IBeaconManager;
 
 import it.polimi.it.ibeaconoccupancy.R;
-import it.polimi.it.ibeaconoccupancy.compare.FullBeaconHandlerImpl;
-import it.polimi.it.ibeaconoccupancy.compare.MinimalBeaconHandlerImpl;
 import it.polimi.it.ibeaconoccupancy.helper.DataBaseHelper;
 import it.polimi.it.ibeaconoccupancy.services.RangingService;
 import it.polimi.it.ibeaconoccupancy.services.TestService;
@@ -80,7 +78,7 @@ public class MainActivity extends Activity {
 		registerReceiver(receiver, intentFilter);
 		
 				
-		launchMonitoring(true);
+		launchMonitoring();
 		loadDataDB();
 
 		
@@ -206,21 +204,12 @@ public class MainActivity extends Activity {
 	 * The method sets the BeaconHandler implementation according to settings and starts Monitorin service
 	 * @param logicOnClient - true if the logic is on client side, false otherwise
 	 */
-	private void launchMonitoring(boolean logicOnClient){
-		Log.d(TAG, "launching monitoring "+logicOnClient);
+	private void launchMonitoring(){
+		Log.d(TAG, "launching monitoring ");
 		
 		intent = new Intent(this, it.polimi.it.ibeaconoccupancy.services.MonitoringService.class);
-
-		if (logicOnClient){
-			intent.putExtra("BeaconHandler", new FullBeaconHandlerImpl());
-			
-		}
-		else{
-			intent.putExtra("BeaconHandler", new MinimalBeaconHandlerImpl());
-		}
+		//METTERE LOGIC SETTINGS
 		
-		Log.d(TAG, "intent monitoring ");
-		Log.d(TAG, "extra monitoring ");
 		startService(intent);
 		Log.d(TAG, "start monitoring ");
 
