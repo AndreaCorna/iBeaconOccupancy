@@ -107,6 +107,7 @@ public class MainActivity extends Activity {
 	public void onDestroy(){
 		super.onDestroy();
 		stopService(intent);
+		stopService(testService);
 		unregisterReceiver(receiver);
 	}
 	

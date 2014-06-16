@@ -145,8 +145,11 @@ public class LocationActivity extends Activity {
 		Log.d(TAG, "in beacon loaction "+bestBeacon);
 		IBeacon best = Logic.getInstance().getBestLocation();
 		//String correctRoom = beaconLocation.get(bestBeacon);
-		String correctRoom = beaconLocation.get(best.getProximityUuid()+best.getMajor()+best.getMinor());
-		
+		String correctRoom;
+		if(best != null)
+			correctRoom = beaconLocation.get(best.getProximityUuid()+best.getMajor()+best.getMinor());
+		else
+			correctRoom = null;
 		Log.d(TAG," correct room "+correctRoom);
 		
 		//checking if answer is different from Nessuna
@@ -205,6 +208,7 @@ public class LocationActivity extends Activity {
         if (null != activeNetwork){
     		prefs = PreferenceManager.getDefaultSharedPreferences(this);
     		boolean onClient = prefs.getBoolean("pref_logic", true);
+    		Log.d(TAG,"on client"+onClient);
     		HttpHandler http;
     		if(onClient)
     			http =new HttpHandler(Constants.ADDRESS_TEST_SERVER_CLIENT);
