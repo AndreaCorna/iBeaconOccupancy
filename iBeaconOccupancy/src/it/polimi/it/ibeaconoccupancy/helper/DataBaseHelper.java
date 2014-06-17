@@ -11,6 +11,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 public class DataBaseHelper extends SQLiteOpenHelper implements Serializable{
  
@@ -48,7 +49,7 @@ public class DataBaseHelper extends SQLiteOpenHelper implements Serializable{
     	if(dbExist){
     		//do nothing - database already exist
     	}else{
- 
+    		Log.d("DatabaseHelper", "creating database");
     		//By calling this method and empty database will be created into the default system path
                //of your application so we are gonna be able to overwrite that database with our database.
         	this.getReadableDatabase();

@@ -45,12 +45,7 @@
 		  	<category android:name="android.intent.category.LAUNCHER" />
 		   </intent-filter>
 	  	</receiver>
-	  	<receiver android:name="it.polimi.it.ibeaconoccupancy.helper.BluetoothHelper">
-	  	    <intent-filter >
-	  	        <action android:name="android.bluetooth.device.action.FOUND"/>
-	  	    </intent-filter>
-	  	</receiver>
-	  	
+	  
     </application>
 
 </manifest>

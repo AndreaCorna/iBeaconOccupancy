@@ -35,7 +35,7 @@ public class BluetoothHelper implements Serializable{
 	
 	public BluetoothHelper() {
 		if (discover==null){
-			devices=Constants.addresses;
+			
 			Log.d(TAG, "instantiating first time");
 			discover = new DiscoverThread();
 			discover.start();
@@ -43,6 +43,10 @@ public class BluetoothHelper implements Serializable{
 		
 		discoveredDevices = new ArrayList<String>();
 		lock = Boolean.valueOf(true);
+	}
+	
+	public void setDevices(HashSet<String> listdevices) {
+		devices=listdevices;
 	}
 	
 	
@@ -79,10 +83,13 @@ public class BluetoothHelper implements Serializable{
     	
     	
     	public void run(){
+    		
+
     		while(true){
+    			Log.d(TAG, "Devices in discovery "+devices);
     			try {
     				
-					sleep(8000);
+					sleep(3000);
 				} catch (InterruptedException e2) {
 					// TODO Auto-generated catch block
 					e2.printStackTrace();
@@ -95,9 +102,10 @@ public class BluetoothHelper implements Serializable{
 		    		BluetoothDevice device = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(mac);
 		    		if (device.getName()==null){
 		    			Log.d(TAG,"name null of device");
+		    			continue;
 		    		}
 		    		
-		    		Log.d(TAG,"discover thread"+device.getName());
+		    		Log.d(TAG,"Trying to connect to  "+device.getName());
 		    		
 		    		connect(device);
 		    		synchronized(lock) {
@@ -108,7 +116,7 @@ public class BluetoothHelper implements Serializable{
 							e1.printStackTrace();
 						}
 		    		}
-		    		Log.d(TAG, "over ");	
+		    		
 		    		if (current==null){
 		    			Log.d(TAG, "address not reachable");
 		    			continue;

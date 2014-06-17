@@ -49,9 +49,15 @@ public class MonitoringService extends Service implements IBeaconConsumer {
         super.onCreate();
         iBeaconManager.bind(this);
         Log.d(TAG, "Starting monitoring");
-        if(Constants.addresses==null){
-        	Constants.addresses = loadDevicesFromDb();
-        }
+        BluetoothHelper bluetoothHelper = BluetoothHelper.getInstance();
+        HashSet<String>dev =loadDevicesFromDb();
+        bluetoothHelper.setDevices(dev);
+		Log.d(TAG, "Loading devices in monitor");
+
+        for (String string : dev) {
+			Log.d(TAG, "loaded "+string);
+		}
+        
         
 	}
 	
@@ -178,6 +184,7 @@ public class MonitoringService extends Service implements IBeaconConsumer {
 		Cursor cursor = myDb.query(myDbHelper.TABLE_DEVICES, null, null, null, null, null, null);
 		cursor.moveToFirst();
 		while(cursor.isAfterLast()==false){
+			Log.d(TAG,cursor.getString(0));
 			String mac = cursor.getString(1);
 			devices.add(mac);
 			Log.d(TAG, "Inserting in beaconLocation: mac "+mac);
