@@ -3,14 +3,21 @@ package it.polimi.it.ibeaconoccupancy.communication;
 
 import it.polimi.it.ibeaconoccupancy.helper.BluetoothHelper;
 import it.polimi.it.ibeaconoccupancy.helper.Constants;
+import it.polimi.it.ibeaconoccupancy.helper.DataBaseHelper;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Context;
+import android.database.Cursor;
+import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import com.radiusnetworks.ibeacon.IBeacon;
@@ -23,6 +30,8 @@ public class BluetoothHandler implements CommunicationHandler,Serializable{
 	 */
 	private static final long serialVersionUID = 1L;
 	private static final String TAG = "BluetoothHandler";
+	
+	
 	
 	@Override
 	public void postOnRanging(IBeacon beacon, String idBluetooth) {
@@ -107,5 +116,7 @@ public class BluetoothHandler implements CommunicationHandler,Serializable{
 		}
 		return data;
 	}
+	
+
 	
 }

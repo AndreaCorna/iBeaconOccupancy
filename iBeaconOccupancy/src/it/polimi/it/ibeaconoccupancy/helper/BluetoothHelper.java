@@ -15,7 +15,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
+public class BluetoothHelper implements Serializable{
 	
 	/**
 	 * 
@@ -28,25 +28,25 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
 	private ConnectedThread mConnectedThread;
 	private static DiscoverThread discover;
 	private static BluetoothHelper instance;
-	private static HashSet<BluetoothDevice> devices = new HashSet<BluetoothDevice>();
+	private static HashSet<String> devices = new HashSet<String>();
 	private static final UUID uuid = UUID.fromString("94f39d29-7d6d-437d-973b-fba39e49d4ee");
 	private Boolean lock;
 	private  BluetoothDevice current;
 	
 	public BluetoothHelper() {
 		if (discover==null){
+			devices=Constants.addresses;
 			Log.d(TAG, "instantiating first time");
 			discover = new DiscoverThread();
 			discover.start();
 		}
+		
 		discoveredDevices = new ArrayList<String>();
 		lock = Boolean.valueOf(true);
 	}
 	
-	private void loadDevices(){
-		
-	}
 	
+
 	public static BluetoothHelper getInstance(){
 		
 		if(instance == null){
@@ -72,7 +72,7 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
 	}
     	
     private class DiscoverThread extends Thread{
-    	private HashSet<BluetoothDevice> addresses = new HashSet<BluetoothDevice>();
+   
     	public DiscoverThread() {
     		BluetoothAdapter.getDefaultAdapter().startDiscovery();
 		}
@@ -87,17 +87,16 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
 					// TODO Auto-generated catch block
 					e2.printStackTrace();
 				}
-	    		synchronized (devices) {
-					addresses =(HashSet<BluetoothDevice>) devices.clone(); //copy list of current dicovered devices
-				}
 	    		
 	    		
-	    		for (BluetoothDevice device : addresses) {
+	    		
+	    		for (String mac : devices) {
 		    		Log.d(TAG,"inside loop");
-		    		if(device.getName() == null){
-		    			Log.d(TAG, "device is null");
-		    			continue;
+		    		BluetoothDevice device = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(mac);
+		    		if (device.getName()==null){
+		    			Log.d(TAG,"name null of device");
 		    		}
+		    		
 		    		Log.d(TAG,"discover thread"+device.getName());
 		    		
 		    		connect(device);
@@ -304,25 +303,7 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
     	mConnectThread=null;
     }
 
-	@Override
-	public void onReceive(Context context, Intent intent) {
-		Log.d(TAG,"-------received bluetooth devices--------");
-        String action = intent.getAction();
-        // When discovery finds a device
-        if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-        	// Get the BluetoothDevice object from the Intent
-            BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-    		//if(device.getName().contains("rasp") || device.getName().contains("andrea"))
-			synchronized (devices) {
-				devices.add(device);
-			}
-            
-            for (BluetoothDevice dev : devices) {
-            	Log.d(TAG,"found devices"+dev.getAddress());
-            }
-       }
-		
-	}
+
 
 	
 }

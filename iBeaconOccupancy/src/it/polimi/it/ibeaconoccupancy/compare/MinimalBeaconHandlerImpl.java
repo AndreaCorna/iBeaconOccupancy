@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.radiusnetworks.ibeacon.IBeacon;
@@ -27,8 +28,10 @@ public class MinimalBeaconHandlerImpl implements BeaconHandler,Serializable {
 	protected static final String TAG = "BeaconToSendManager";
 	private CommunicationHandler communication;
 	private Logic appLogic = Logic.getInstance();
+
 	
 	public MinimalBeaconHandlerImpl(boolean bluetoothSender){
+
 		if(bluetoothSender){
 			Log.d(TAG,"create bluetooth handler");
 

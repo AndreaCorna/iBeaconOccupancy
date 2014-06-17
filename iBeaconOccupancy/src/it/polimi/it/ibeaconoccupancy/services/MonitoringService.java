@@ -1,14 +1,22 @@
 package it.polimi.it.ibeaconoccupancy.services;
 
+import java.io.IOException;
+import java.util.HashSet;
+
 import it.polimi.it.ibeaconoccupancy.compare.BeaconHandler;
 import it.polimi.it.ibeaconoccupancy.compare.FullBeaconHandlerImpl;
 import it.polimi.it.ibeaconoccupancy.compare.MinimalBeaconHandlerImpl;
 import it.polimi.it.ibeaconoccupancy.helper.BluetoothHelper;
+import it.polimi.it.ibeaconoccupancy.helper.Constants;
+import it.polimi.it.ibeaconoccupancy.helper.DataBaseHelper;
 import it.polimi.it.ibeaconoccupancy.helper.SaveBattery;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
@@ -30,6 +38,9 @@ public class MonitoringService extends Service implements IBeaconConsumer {
 	@SuppressWarnings("unused")
 	private SaveBattery save;
 	private SharedPreferences prefs;
+	private DataBaseHelper myDbHelper;
+
+	
 
 	
 	@Override
@@ -38,6 +49,9 @@ public class MonitoringService extends Service implements IBeaconConsumer {
         super.onCreate();
         iBeaconManager.bind(this);
         Log.d(TAG, "Starting monitoring");
+        if(Constants.addresses==null){
+        	Constants.addresses = loadDevicesFromDb();
+        }
         
 	}
 	
@@ -140,5 +154,41 @@ public class MonitoringService extends Service implements IBeaconConsumer {
 	public static MonitoringService getInstance(){
 		return me;
 	}
+	
+	private HashSet<String> loadDevicesFromDb(){
+		HashSet<String> devices = new HashSet<String>();
+		myDbHelper = new DataBaseHelper(this);
+
+		try {
+
+			myDbHelper.createDataBase();
+			Log.d(TAG, "DB created");
+		} catch (IOException ioe) {
+
+			throw new Error("Unable to create database");
+		}
+
+		try {
+			myDbHelper.openDataBase();
+			Log.d(TAG, "DB opened");
+		}catch(SQLException sqle){
+			throw sqle;
+		}
+		SQLiteDatabase myDb = myDbHelper.getReadableDatabase();
+		Cursor cursor = myDb.query(myDbHelper.TABLE_DEVICES, null, null, null, null, null, null);
+		cursor.moveToFirst();
+		while(cursor.isAfterLast()==false){
+			String mac = cursor.getString(1);
+			devices.add(mac);
+			Log.d(TAG, "Inserting in beaconLocation: mac "+mac);
+			cursor.moveToNext();
+		}
+		cursor.close();
+		return devices;
+	 
+		
+	}
+	
+	
 
 }

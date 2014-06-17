@@ -4,6 +4,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 
 import android.content.Context;
 import android.database.SQLException;
@@ -11,7 +12,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 
-public class DataBaseHelper extends SQLiteOpenHelper{
+public class DataBaseHelper extends SQLiteOpenHelper implements Serializable{
  
     //The Android's default system path of your application database.
     private static String DB_PATH = "/data/data/it.polimi.it.ibeaconoccupancy/databases/";
@@ -42,7 +43,7 @@ public class DataBaseHelper extends SQLiteOpenHelper{
      * */
     public void createDataBase() throws IOException{
  
-    	boolean dbExist = checkDataBase();
+    	boolean dbExist = false;//checkDataBase();
  
     	if(dbExist){
     		//do nothing - database already exist

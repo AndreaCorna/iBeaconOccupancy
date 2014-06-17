@@ -3,10 +3,14 @@ package it.polimi.it.ibeaconoccupancy;
 
 
 
+import java.io.IOException;
+import java.util.HashSet;
+
 import com.radiusnetworks.ibeacon.IBeaconManager;
 
 import it.polimi.it.ibeaconoccupancy.compare.FullBeaconHandlerImpl;
 import it.polimi.it.ibeaconoccupancy.compare.MinimalBeaconHandlerImpl;
+import it.polimi.it.ibeaconoccupancy.helper.DataBaseHelper;
 import it.polimi.it.ibeaconoccupancy.services.BackgroundService;
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -18,6 +22,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
@@ -40,6 +45,7 @@ public class MainActivity extends Activity {
 	protected static final String TAG = "MainActivity";
 	private SharedPreferences prefs;
 	OnSharedPreferenceChangeListener listener;
+	
 
 	/**
 	 * Method called on creation of the activity. In this we set up all preferences and settings.
@@ -233,32 +239,6 @@ public class MainActivity extends Activity {
 	
 	
 	
-	/*// Create a BroadcastReceiver for ACTION_FOUND
-	private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
-	    public void onReceive(Context context, Intent intent) {
-	    	Log.d(TAG,"-------received bluetooth devices--------");
-	        String action = intent.getAction();
-	        // When discovery finds a device
-	        if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-	        	
-	            // Get the BluetoothDevice object from the Intent
-	            BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-	            
-				// Add the name and address to an array adapter to show in a ListView
-	         
-	            devices.add(device);
-	            for (BluetoothDevice dev : devices) {
-	            	Log.d(TAG,"found devices"+dev.getName()+" "+dev);
-	            	
-	            	
-					
-				}
-	           
-	           
-	            
-	        }
-	    }
-	};*/
 
 
 }
