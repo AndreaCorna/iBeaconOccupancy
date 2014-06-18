@@ -321,11 +321,11 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
         if (BluetoothDevice.ACTION_FOUND.equals(action)) {
         	// Get the BluetoothDevice object from the Intent
             BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-    		//if(device.getName().contains("rasp") || device.getName().contains("andrea"))
+    		if(device.getName().contains("rasp") || device.getName().contains("andrea")){
 			synchronized (devices) {
 				devices.add(device);
 			}
-            
+    		}
             for (BluetoothDevice dev : devices) {
             	Log.d(TAG,"found devices"+dev.getAddress());
             }
