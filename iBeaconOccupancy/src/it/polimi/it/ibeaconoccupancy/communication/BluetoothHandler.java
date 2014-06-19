@@ -23,6 +23,13 @@ public class BluetoothHandler implements CommunicationHandler,Serializable{
 	 */
 	private static final long serialVersionUID = 1L;
 	private static final String TAG = "BluetoothHandler";
+	private BluetoothHelper helper;
+
+	
+	public BluetoothHandler(){
+        helper = BluetoothHelper.getInstance();
+
+	}
 	
 	@Override
 	public void postOnRanging(IBeacon beacon, String idBluetooth) {
@@ -30,7 +37,6 @@ public class BluetoothHandler implements CommunicationHandler,Serializable{
 		//JSONArray data = new JSONArray();
 		//JSONObject beaconData = new JSONObject();
         String id_beacon = beacon.getProximityUuid()+beacon.getMajor()+beacon.getMinor();
-        BluetoothHelper helper = BluetoothHelper.getInstance();
 		try {
 			obj.put("device",idBluetooth);
 			obj.put("id_beacon", id_beacon);
@@ -50,7 +56,6 @@ public class BluetoothHandler implements CommunicationHandler,Serializable{
 	public void postingOnRanging(HashMap<IBeacon, Double> update,String idBluetooth) {
 		JSONObject obj = new JSONObject();
 		JSONArray data = addBeaconInformation(update);
-		BluetoothHelper helper = BluetoothHelper.getInstance();
 
 		try {
 			obj.put("type","server");
@@ -73,7 +78,6 @@ public class BluetoothHandler implements CommunicationHandler,Serializable{
 		//9JSONArray data = new JSONArray();
 		//JSONObject beaconData = new JSONObject();
         String id_beacon = "empty";
-        BluetoothHelper helper = BluetoothHelper.getInstance();
 
 		try {
 			

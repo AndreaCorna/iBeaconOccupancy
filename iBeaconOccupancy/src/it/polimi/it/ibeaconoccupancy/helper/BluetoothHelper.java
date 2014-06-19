@@ -8,15 +8,12 @@ import java.util.HashSet;
 import java.util.UUID;
 
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothAdapter.LeScanCallback;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.os.SystemClock;
 import android.util.Log;
 
-public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
+public class BluetoothHelper implements Serializable{
 	
 	/**
 	 * 
@@ -34,7 +31,7 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
 	private Boolean lock;
 	private  BluetoothDevice current;
 	
-	public BluetoothHelper() {
+	private BluetoothHelper() {
 		if (discover==null){
 			Log.d(TAG, "instantiating first time");
 			discover = new DiscoverThread();
@@ -79,23 +76,41 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
 	    mConnectThread = new ConnectThread(device);
 	    mConnectThread.start();
 	}
-    	
+    
+   
+    
     private class DiscoverThread extends Thread{
     	private HashSet<BluetoothDevice> addresses = new HashSet<BluetoothDevice>();
+    	private LeScanCallback callback = new BluetoothAdapter.LeScanCallback() {
+			
+			@Override
+			public void onLeScan(BluetoothDevice arg0, int arg1, byte[] arg2) {
+				Log.d(TAG,"Lescan "+arg0.getName());
+				if(arg0.getName().contains("rasp") || arg0.getName().contains("andrea")){
+					synchronized (devices) {
+						devices.add(arg0);
+					}
+		    	}
+				
+			}
+		};
+    	
     	public DiscoverThread() {
-    		BluetoothAdapter.getDefaultAdapter().startDiscovery();
+    		//
+    		//luetoothAdapter.getDefaultAdapter().startDiscovery();
+    		BluetoothAdapter.getDefaultAdapter().startLeScan(callback);
 		}
     	
     	
     	public void run(){
     		while(true){
-    			try {
+    			/*try {
     				startDiscovery();
 					sleep(8000);
 				} catch (InterruptedException e2) {
 					// TODO Auto-generated catch block
 					e2.printStackTrace();
-				}
+				}*/
 	    		synchronized (devices) {
 					addresses =(HashSet<BluetoothDevice>) devices.clone(); //copy list of current dicovered devices
 				}
@@ -180,7 +195,7 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
 	    public void run() {
 	    	Log.d(TAG, "in run of connectThread");
 	        // Cancel discovery because it will slow down the connection
-	        stopDiscovery();;
+	        //stopDiscovery();;
 	 
 	        try {
 	            // Connect the device through the socket. This will block
@@ -312,7 +327,7 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
     	mConnectedThread=null;
     	mConnectThread=null;
     }
-
+/*
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		Log.d(TAG,"-------received bluetooth devices--------");
@@ -332,11 +347,12 @@ public class BluetoothHelper extends BroadcastReceiver	implements Serializable{
        }
 		
 	}
+	
 
 	public void stopDiscovery() {
         if (mBluetoothAdapter.isDiscovering()) {
         	Log.d(TAG, "cancel discovering");
         	mBluetoothAdapter.cancelDiscovery();
         }
-	}
+	}*/
 }

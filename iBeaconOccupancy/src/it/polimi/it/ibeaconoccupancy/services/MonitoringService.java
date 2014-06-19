@@ -3,7 +3,6 @@ package it.polimi.it.ibeaconoccupancy.services;
 import it.polimi.it.ibeaconoccupancy.compare.BeaconHandler;
 import it.polimi.it.ibeaconoccupancy.compare.FullBeaconHandlerImpl;
 import it.polimi.it.ibeaconoccupancy.compare.MinimalBeaconHandlerImpl;
-import it.polimi.it.ibeaconoccupancy.helper.BluetoothHelper;
 import it.polimi.it.ibeaconoccupancy.helper.SaveBattery;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
