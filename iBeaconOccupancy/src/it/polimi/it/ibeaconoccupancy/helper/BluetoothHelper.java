@@ -24,6 +24,7 @@ public class BluetoothHelper implements Serializable{
 	private static final String TAG="BluetoothHelpers";
 	ArrayList<String> discoveredDevices;
 	private static DiscoverThread discover;
+	private static DiscoverThread discover2;
 	private static BluetoothHelper instance;
 	private static HashSet<BluetoothDevice> devices = new HashSet<BluetoothDevice>();
 	private static final UUID uuid = UUID.fromString("94f39d29-7d6d-437d-973b-fba39e49d4ee");
@@ -44,6 +45,8 @@ public class BluetoothHelper implements Serializable{
 			Log.d(TAG, "instantiating first time");
 			discover = new DiscoverThread();
 			discover.start();
+			discover2 = new DiscoverThread();
+			discover2.start();
 		}
 		discoveredDevices = new ArrayList<String>();
 		startDiscovery();
@@ -107,7 +110,12 @@ public class BluetoothHelper implements Serializable{
     	
     	public void run(){
     		while(true){
-    			
+    			try {
+					sleep(4000);
+				} catch (InterruptedException e2) {
+					// TODO Auto-generated catch block
+					e2.printStackTrace();
+				}
     			
 	    		synchronized (devices) {
 					addresses =(HashSet<BluetoothDevice>) devices.clone(); //copy list of current dicovered devices
@@ -139,9 +147,12 @@ public class BluetoothHelper implements Serializable{
 		    		else{
 		    			Log.d(TAG, "connected");
 		    			try {
+		    				Log.d(TAG, "-----------------BEFORE KEEP ALIVE");
 							keepAlive();
+							Log.d(TAG, "-----------------AFTER KEEP ALIVE");
 						} catch (IOException e) {
 							Log.d(TAG, "disconnected from current device ");
+							hashdevices.remove(this);
 							continue;
 						}
 		    		}
@@ -151,18 +162,32 @@ public class BluetoothHelper implements Serializable{
 	    		
     		
     	}
-    	private Boolean	checkCorrectDevice(BluetoothDevice device){
+     	private Boolean	checkCorrectDevice(BluetoothDevice device){
     		if(device.getName() == null){
     			Log.d(TAG, "device is null");
     			return false;
     		}
-    		for (BluetoothDevice  bluetoothDevice : hashdevices.values()) {
-				if (bluetoothDevice.equals(device)){
+    		for (DiscoverThread  discoverThread : hashdevices.keySet()) {
+    			BluetoothDevice bluetoothDevice;
+    			//I don't consider the device linked to this thread I have only to check that doesn't exist ANOTHER discoverthread connected to the same device
+    			//so i continue to the next cycle 
+    			if(discoverThread!=this){
+    				bluetoothDevice=hashdevices.get(discoverThread);
+    			}
+    			else {
+					continue;
+				}
+    			Log.d(TAG," CHECKING CORRECTENESS device to be compared "+device);
+
+    			Log.d(TAG," CHECKING CORRECTENESS hashdevices: "+bluetoothDevice);
+				if (bluetoothDevice!=null && bluetoothDevice.equals(device)){
 		    		Log.d(TAG,"already connected device "+device.getName());
 
 					return false;
 				}
 			}
+    		Log.d(TAG, "CHECKING CORRECTENESS RETURNONG TRUE_----------");
+
     		
     		//ho passato tutti i check
     		return true;
@@ -177,7 +202,7 @@ public class BluetoothHelper implements Serializable{
 						sleep(5000);
 					} catch (InterruptedException e) {
 						//attenzione concurrent modyfication
-						hashdevices.remove(this);
+						
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
@@ -267,7 +292,7 @@ public class BluetoothHelper implements Serializable{
 
         // Start the thread to manage the connection and perform transmissions
     	
-    	ConnectedThread mConnectedThread = new ConnectedThread(socket);
+    	ConnectedThread mConnectedThread = new ConnectedThread(socket,discoverThread);
 	    
 	    hashConnected.put(discoverThread, mConnectedThread);
 	    hashConnected.get(discoverThread).start();
@@ -289,8 +314,17 @@ public class BluetoothHelper implements Serializable{
      * @see ConnectedThread#write(byte[])
      */
     public void write(byte[] out) {
+			Log.d(TAG, "trying to write ");
+
     	
         	for (ConnectedThread connectedThread : hashConnected.values()) {
+        		//
+        		Log.d(TAG, "in connetd hash values: "+connectedThread);
+        		if (connectedThread==null){
+            		Log.d(TAG, "connected thread null");
+
+        			continue;
+        		}
         		
         		try{
     	        	connectedThread.write(out);
@@ -298,6 +332,11 @@ public class BluetoothHelper implements Serializable{
     	        	break;
     	        }catch (Exception e){
     	        	Log.d(TAG, "Bad luck sending message through bluetooth");
+    	        	DiscoverThread discoverThread = connectedThread.getReferredDiscoverThread();
+    	        	Log.d(TAG, "removing device bluetooth from active list "+discoverThread);
+    	        	Log.d(TAG, "removing device bluetooth from active list "+hashdevices.get(discoverThread));
+    	        	
+    	        	hashdevices.remove(discoverThread);
     	        	
     				
     	        }
@@ -319,9 +358,10 @@ public class BluetoothHelper implements Serializable{
     private class ConnectedThread extends Thread {
         private  final BluetoothSocket mmSocket;
         private  final OutputStream mmOutStream;
-        public ConnectedThread(BluetoothSocket socket) {
+        private final DiscoverThread discoverThread;
+        public ConnectedThread(BluetoothSocket socket,DiscoverThread discoverThread) {
             Log.d(TAG, "create ConnectedThread");
-        
+            this.discoverThread = discoverThread;
             mmSocket = socket;
             OutputStream tmpOut = null;
             // Get the BluetoothSocket input and output streams
@@ -333,7 +373,10 @@ public class BluetoothHelper implements Serializable{
             mmOutStream = tmpOut;
        }
     
-       
+       public DiscoverThread getReferredDiscoverThread() {
+    	   return this.discoverThread;
+		
+	}
         
         /**
          * Write to the connected OutStream.
