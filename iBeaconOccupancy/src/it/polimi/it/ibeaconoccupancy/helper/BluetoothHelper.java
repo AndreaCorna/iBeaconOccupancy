@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.UUID;
 
@@ -22,23 +23,31 @@ public class BluetoothHelper implements Serializable{
 	BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 	private static final String TAG="BluetoothHelpers";
 	ArrayList<String> discoveredDevices;
-	private ConnectThread mConnectThread;
-	private ConnectedThread mConnectedThread;
 	private static DiscoverThread discover;
 	private static BluetoothHelper instance;
 	private static HashSet<BluetoothDevice> devices = new HashSet<BluetoothDevice>();
 	private static final UUID uuid = UUID.fromString("94f39d29-7d6d-437d-973b-fba39e49d4ee");
-	private Boolean lock;
-	private  BluetoothDevice current;
+	
+	private HashMap<DiscoverThread, ConnectedThread> hashConnected;
+	private HashMap<DiscoverThread, ConnectThread> hashConnect;
+	private HashMap<DiscoverThread, Boolean> hashlock;
+	private HashMap<DiscoverThread, BluetoothDevice> hashdevices;
+
 	
 	private BluetoothHelper() {
+		hashConnect = new HashMap<DiscoverThread, ConnectThread>();
+		hashConnected = new HashMap<DiscoverThread, ConnectedThread>();
+		hashlock = new HashMap<DiscoverThread, Boolean>();
+		hashdevices = new HashMap<DiscoverThread, BluetoothDevice>();
+		
 		if (discover==null){
 			Log.d(TAG, "instantiating first time");
 			discover = new DiscoverThread();
 			discover.start();
 		}
 		discoveredDevices = new ArrayList<String>();
-		lock = Boolean.valueOf(true);
+		startDiscovery();
+		
 	}
 	
 	public static BluetoothHelper getInstance(){
@@ -51,66 +60,55 @@ public class BluetoothHelper implements Serializable{
 	
 	public void startDiscovery() {  // If we're already discovering, stop it
 		
-        if (mBluetoothAdapter.isDiscovering()) {
-        	mBluetoothAdapter.cancelDiscovery();
-        }
-		if (mBluetoothAdapter.startDiscovery()){
-			Log.d(TAG, "discovering bluetooth");
-			devices = new HashSet<BluetoothDevice>();
-		}
-		else {
-			Log.d(TAG, "problem in discovering bluetooth");
-		}
-		
+		mBluetoothAdapter.startLeScan(callback);
 	}
+	
+	private LeScanCallback callback = new BluetoothAdapter.LeScanCallback() {
+		
+		@Override
+		public void onLeScan(BluetoothDevice arg0, int arg1, byte[] arg2) {
+			Log.d(TAG,"Lescan "+arg0.getName());
+			if(arg0.getName().contains("rasp") || arg0.getName().contains("andrea")){
+				synchronized (devices) {
+					devices.add(arg0);
+				}
+	    	}
+			
+		}
+	};
+	
+	
 	
 	  /**
      * Start the ConnectThread to initiate a connection to a remote device.
      * @param device  The BluetoothDevice to connect
      */
-    public synchronized void connect(BluetoothDevice device) {
-    	if (mConnectThread != null) {mConnectThread.cancel(); mConnectThread = null;}
+    public synchronized void connect(BluetoothDevice device,DiscoverThread discoverThread) {
+    	if (hashConnect.get(discoverThread) != null) {hashConnect.get(discoverThread).cancel(); hashConnect.put(discoverThread,null);}
     	// Cancel any thread currently running a connection
-	    if (mConnectedThread != null) {mConnectedThread.cancel(); mConnectedThread = null;}
-	    // Start the thread to connect with the given device
-	    mConnectThread = new ConnectThread(device);
-	    mConnectThread.start();
+    	if (hashConnected.get(discoverThread) != null) {hashConnected.get(discoverThread).cancel(); hashConnected.put(discoverThread,null);}	    // Start the thread to connect with the given device
+	    ConnectThread mConnectThread = new ConnectThread(device,discoverThread);
+	    
+	    hashConnect.put(discoverThread, mConnectThread);
+	    hashConnect.get(discoverThread).start();
 	}
     
    
     
     private class DiscoverThread extends Thread{
     	private HashSet<BluetoothDevice> addresses = new HashSet<BluetoothDevice>();
-    	private LeScanCallback callback = new BluetoothAdapter.LeScanCallback() {
-			
-			@Override
-			public void onLeScan(BluetoothDevice arg0, int arg1, byte[] arg2) {
-				Log.d(TAG,"Lescan "+arg0.getName());
-				if(arg0.getName().contains("rasp") || arg0.getName().contains("andrea")){
-					synchronized (devices) {
-						devices.add(arg0);
-					}
-		    	}
-				
-			}
-		};
     	
-    	public DiscoverThread() {
-    		//
-    		//luetoothAdapter.getDefaultAdapter().startDiscovery();
-    		BluetoothAdapter.getDefaultAdapter().startLeScan(callback);
-		}
+    	public DiscoverThread(){
+    		hashlock.put(this, true);
+    	}
+    
+    	
     	
     	
     	public void run(){
     		while(true){
-    			/*try {
-    				startDiscovery();
-					sleep(8000);
-				} catch (InterruptedException e2) {
-					// TODO Auto-generated catch block
-					e2.printStackTrace();
-				}*/
+    			
+    			
 	    		synchronized (devices) {
 					addresses =(HashSet<BluetoothDevice>) devices.clone(); //copy list of current dicovered devices
 				}
@@ -118,23 +116,23 @@ public class BluetoothHelper implements Serializable{
 	    		
 	    		for (BluetoothDevice device : addresses) {
 		    		Log.d(TAG,"inside loop");
-		    		if(device.getName() == null){
-		    			Log.d(TAG, "device is null");
+		    		if (!checkCorrectDevice(device)){
 		    			continue;
 		    		}
-		    		Log.d(TAG,"discover thread"+device.getName());
+		    		Log.d(TAG,"discover thread "+device.getName());
 		    		
-		    		connect(device);
-		    		synchronized(lock) {
+		    		connect(device,this);
+		    		synchronized(hashlock.get(this)) {
 						try {
-							lock.wait();
+							hashlock.get(this).wait();
 						} catch (InterruptedException e1) {
 							// TODO Auto-generated catch block
 							e1.printStackTrace();
 						}
 		    		}
 		    		Log.d(TAG, "over ");	
-		    		if (current==null){
+		    		//check if connection was successful
+		    		if (hashdevices.get(this)==null){
 		    			Log.d(TAG, "address not reachable");
 		    			continue;
 		    		}
@@ -153,14 +151,33 @@ public class BluetoothHelper implements Serializable{
 	    		
     		
     	}
+    	private Boolean	checkCorrectDevice(BluetoothDevice device){
+    		if(device.getName() == null){
+    			Log.d(TAG, "device is null");
+    			return false;
+    		}
+    		for (BluetoothDevice  bluetoothDevice : hashdevices.values()) {
+				if (bluetoothDevice.equals(device)){
+		    		Log.d(TAG,"already connected device "+device.getName());
+
+					return false;
+				}
+			}
+    		
+    		//ho passato tutti i check
+    		return true;
+    	}
+    	
     	
     	private void keepAlive() throws IOException{
     		while(true){
     				Log.d(TAG,"keeping alive");
-					mConnectedThread.write("Hello".getBytes());
+					hashConnected.get(this).write("Hello".getBytes());
 					try {
 						sleep(5000);
 					} catch (InterruptedException e) {
+						//attenzione concurrent modyfication
+						hashdevices.remove(this);
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
@@ -174,10 +191,12 @@ public class BluetoothHelper implements Serializable{
 	private class ConnectThread extends Thread {
 	    private final BluetoothSocket mmSocket;
 	    private final BluetoothDevice mmDevice;
+	    private final DiscoverThread discoverThread;
 	 
-	    public ConnectThread(BluetoothDevice device) {
+	    public ConnectThread(BluetoothDevice device,DiscoverThread discoverThread) {
 	        // Use a temporary object that is later assigned to mmSocket,
 	        // because mmSocket is final
+	    	this.discoverThread = discoverThread;
 	        BluetoothSocket tmp = null;
 	        mmDevice = device;
 	 
@@ -204,7 +223,7 @@ public class BluetoothHelper implements Serializable{
 	        } catch (IOException connectException) {
 	            // Unable to connect; close the socket and get out
 	        	Log.d(TAG,"cannot open connection");
-	        	current = null;
+	        	hashdevices.put(discoverThread, null);
 	        	connectException.printStackTrace();
 	            try {
 	                mmSocket.close();
@@ -213,15 +232,17 @@ public class BluetoothHelper implements Serializable{
 		        	closeException.printStackTrace();
 
 	            }
-	            synchronized(lock) {
-	            	lock.notifyAll();
+	            
+	            //notifying discover thread which is waiting on hashlock 
+	            synchronized(hashlock.get(discoverThread)) {
+	            	hashlock.get(discoverThread).notifyAll();
 	            }
 	            return;
 	        }
 	 
 	        // Do work to manage the connection (in a separate thread)
 	     // Start the connected thread
-            connected(mmSocket, mmDevice);
+            connected(mmSocket, mmDevice,discoverThread);
 	    }
 	 
 	    /** Will cancel an in-progress connection, and close the socket */
@@ -236,25 +257,28 @@ public class BluetoothHelper implements Serializable{
      * @param socket  The BluetoothSocket on which the connection was made
      * @param device  The BluetoothDevice that has been connected
      */
-    public synchronized void connected(BluetoothSocket socket, BluetoothDevice device) {
+    public synchronized void connected(BluetoothSocket socket, BluetoothDevice device,DiscoverThread discoverThread) {
         Log.d(TAG, "connected");
         // Cancel the thread that completed the connection
       
         // Cancel any thread currently running a connection
-        if (mConnectedThread != null) {mConnectedThread.cancel(); mConnectedThread = null;}
+    	if (hashConnected.get(discoverThread) != null) {hashConnected.get(discoverThread).cancel(); hashConnected.put(discoverThread,null);}	    // Start the thread to connect with the given device
      // if (mConnectThread != null) {mConnectThread.cancel(); mConnectThread = null;}
 
-        
         // Start the thread to manage the connection and perform transmissions
-        mConnectedThread = new ConnectedThread(socket);
-        mConnectedThread.start();
+    	
+    	ConnectedThread mConnectedThread = new ConnectedThread(socket);
+	    
+	    hashConnected.put(discoverThread, mConnectedThread);
+	    hashConnected.get(discoverThread).start();
+       
         
        
         // Send the name of the connected device back to the UI Activity
-        current = device;
+        hashdevices.put(discoverThread,device);
         
-        synchronized(lock) {
-        	lock.notifyAll();
+        synchronized(hashlock.get(discoverThread)) {
+        	hashlock.get(discoverThread).notifyAll();
         }
         
     }
@@ -266,15 +290,22 @@ public class BluetoothHelper implements Serializable{
      */
     public void write(byte[] out) {
     	
-        
-	        try{
-	        	mConnectedThread.write(out);
-	        	Log.d(TAG, "successfully sent message bluetooth");
-	        }catch (Exception e){
-	        	Log.d(TAG, "Bad luck sending message through bluetooth");
+        	for (ConnectedThread connectedThread : hashConnected.values()) {
+        		
+        		try{
+    	        	connectedThread.write(out);
+    	        	Log.d(TAG, "successfully sent message bluetooth");
+    	        	break;
+    	        }catch (Exception e){
+    	        	Log.d(TAG, "Bad luck sending message through bluetooth");
+    	        	
+    				
+    	        }
+    	      
 				
-	        }
-	      
+			}	        
+        	
+        
 	        
        
     }
@@ -322,11 +353,7 @@ public class BluetoothHelper implements Serializable{
         }
     }
     
-    public void cancel(){
-    	mConnectedThread.cancel();
-    	mConnectedThread=null;
-    	mConnectThread=null;
-    }
+   
 /*
 	@Override
 	public void onReceive(Context context, Intent intent) {
