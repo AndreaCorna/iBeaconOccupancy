@@ -33,6 +33,7 @@ public class BluetoothHelper implements Serializable{
 	private HashMap<DiscoverThread, ConnectThread> hashConnect;
 	private HashMap<DiscoverThread, Boolean> hashlock;
 	private HashMap<DiscoverThread, BluetoothDevice> hashdevices;
+	private HashMap<DiscoverThread, Boolean> hashKeep;
 
 	
 	private BluetoothHelper() {
@@ -40,6 +41,8 @@ public class BluetoothHelper implements Serializable{
 		hashConnected = new HashMap<DiscoverThread, ConnectedThread>();
 		hashlock = new HashMap<DiscoverThread, Boolean>();
 		hashdevices = new HashMap<DiscoverThread, BluetoothDevice>();
+		hashKeep = new HashMap<DiscoverThread, Boolean>();
+
 		
 		if (discover==null){
 			Log.d(TAG, "instantiating first time");
@@ -70,7 +73,7 @@ public class BluetoothHelper implements Serializable{
 		
 		@Override
 		public void onLeScan(BluetoothDevice arg0, int arg1, byte[] arg2) {
-			Log.d(TAG,"Lescan "+arg0.getName());
+			Log.d(TAG,"Lescan "+arg0.getName()+" "+arg0.getAddress());
 			if(arg0.getName().contains("rasp") || arg0.getName().contains("andrea")){
 				synchronized (devices) {
 					devices.add(arg0);
@@ -96,6 +99,16 @@ public class BluetoothHelper implements Serializable{
 	    hashConnect.get(discoverThread).start();
 	}
     
+    public void restartKeepAlive(){
+    	synchronized(hashKeep.get(discover)){
+    		hashKeep.get(discover).notifyAll();
+    	}
+    	
+    	synchronized(hashKeep.get(discover2)){
+    		hashKeep.get(discover2).notifyAll();
+    	}
+    }
+    
    
     
     private class DiscoverThread extends Thread{
@@ -103,15 +116,17 @@ public class BluetoothHelper implements Serializable{
     	
     	public DiscoverThread(){
     		hashlock.put(this, true);
+    		hashKeep.put(this, true);
     	}
     
     	
     	
     	
-    	public void run(){
+    	@SuppressWarnings("unchecked")
+		public void run(){
     		while(true){
     			try {
-					sleep(4000);
+					sleep(3000);
 				} catch (InterruptedException e2) {
 					// TODO Auto-generated catch block
 					e2.printStackTrace();
@@ -196,17 +211,25 @@ public class BluetoothHelper implements Serializable{
     	
     	private void keepAlive() throws IOException{
     		while(true){
-    				Log.d(TAG,"keeping alive");
-					hashConnected.get(this).write("Hello".getBytes());
-					try {
-						sleep(5000);
+    			synchronized(hashKeep.get(this)){
+    				try {
+    					hashKeep.get(this).wait();
 					} catch (InterruptedException e) {
-						//attenzione concurrent modyfication
-						
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-				
+    			}
+				Log.d(TAG,"keeping alive");
+				hashConnected.get(this).write("Hello".getBytes());
+				try {
+					sleep(500);
+				} catch (InterruptedException e) {
+					//attenzione concurrent modyfication
+					
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			
     		}
     	}
     }   
