@@ -163,7 +163,7 @@ public class MainActivity extends Activity {
 	        	finish();
 	          
 			}
-	        SystemClock.sleep(3000);
+	        SystemClock.sleep(10000);
 	   
 	}//onActivityResult
 	
