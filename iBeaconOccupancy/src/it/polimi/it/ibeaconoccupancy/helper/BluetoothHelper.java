@@ -34,6 +34,36 @@ public class BluetoothHelper implements Serializable{
 	private HashMap<DiscoverThread, Boolean> hashlock;
 	private HashMap<DiscoverThread, BluetoothDevice> hashdevices;
 
+	private synchronized void showDevices(){
+		Log.d(TAG,"################  DEVICES   ###################");
+		for (BluetoothDevice bluetoothDevice : devices) {
+			Log.d(TAG,"| BluetoothDevice list name"+bluetoothDevice.getName()+" mac "+ bluetoothDevice.getAddress()+" |");		
+		}
+		Log.d(TAG,"#########################################");
+	}
+	
+	private synchronized void showHashConnected(){
+		Log.d(TAG,"\\\\\\\\\\\\  HASH CONNECTED   \\\\\\\\\\\\\\");
+		for (DiscoverThread discoverThread : hashConnected.keySet()) {
+			Log.d(TAG,"| DiscoverThread "+discoverThread+" ConnectedThread "+hashConnected.get(discoverThread)+"  |");		
+		}
+		Log.d(TAG,"\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\");
+	}
+	private synchronized void showHashConnect(){
+		Log.d(TAG,"-----------------  HASH CONNECT   ----------------");
+		for (DiscoverThread discoverThread : hashConnect.keySet()) {
+			Log.d(TAG,"| DiscoverThread "+discoverThread+" ConnectThread "+hashConnect.get(discoverThread)+"  |");		
+		}
+		Log.d(TAG,"----------------- ----------- ----------------");
+	}
+	
+	private synchronized void showHashDevices(){
+		Log.d(TAG,"|||||||||||||||| HASH DEVICES   |||||||||||||");
+		for (DiscoverThread discoverThread : hashdevices.keySet()) {
+			Log.d(TAG,"| DiscoverThread "+discoverThread+" ConnectThread "+hashdevices.get(discoverThread)+"  |");		
+		}
+		Log.d(TAG,"|||||||||||||||||||||||||||||||||||||||||");
+	}
 	
 	private BluetoothHelper() {
 		hashConnect = new HashMap<DiscoverThread, ConnectThread>();
@@ -70,6 +100,7 @@ public class BluetoothHelper implements Serializable{
 		
 		@Override
 		public void onLeScan(BluetoothDevice arg0, int arg1, byte[] arg2) {
+			Log.d(TAG,"Lescan "+arg0.getAddress());
 			Log.d(TAG,"Lescan "+arg0.getName());
 			if(arg0.getName().contains("rasp") || arg0.getName().contains("andrea")){
 				synchronized (devices) {
@@ -110,6 +141,8 @@ public class BluetoothHelper implements Serializable{
     	
     	public void run(){
     		while(true){
+    			Log.d(TAG,"inside loop");
+    			showDevices();
     			try {
 					sleep(4000);
 				} catch (InterruptedException e2) {
@@ -123,11 +156,13 @@ public class BluetoothHelper implements Serializable{
 	    		
 	    		
 	    		for (BluetoothDevice device : addresses) {
-		    		Log.d(TAG,"inside loop");
+	    			Log.d(TAG,"discover thread "+device.getName());
+	    			showDevices();
+		    		showHashDevices();
 		    		if (!checkCorrectDevice(device)){
 		    			continue;
 		    		}
-		    		Log.d(TAG,"discover thread "+device.getName());
+		    		
 		    		
 		    		connect(device,this);
 		    		synchronized(hashlock.get(this)) {
@@ -138,7 +173,7 @@ public class BluetoothHelper implements Serializable{
 							e1.printStackTrace();
 						}
 		    		}
-		    		Log.d(TAG, "over ");	
+
 		    		//check if connection was successful
 		    		if (hashdevices.get(this)==null){
 		    			Log.d(TAG, "address not reachable");
@@ -147,9 +182,8 @@ public class BluetoothHelper implements Serializable{
 		    		else{
 		    			Log.d(TAG, "connected");
 		    			try {
-		    				Log.d(TAG, "-----------------BEFORE KEEP ALIVE");
 							keepAlive();
-							Log.d(TAG, "-----------------AFTER KEEP ALIVE");
+
 						} catch (IOException e) {
 							Log.d(TAG, "disconnected from current device ");
 							hashdevices.remove(this);
@@ -196,11 +230,17 @@ public class BluetoothHelper implements Serializable{
     	
     	private void keepAlive() throws IOException{
     		while(true){
+    				showHashConnected();
+    				showDevices();
+    				showHashConnect();
+    				showHashDevices();
     				Log.d(TAG,"keeping alive");
 					hashConnected.get(this).write("Hello".getBytes());
 					try {
 						sleep(5000);
 					} catch (InterruptedException e) {
+						//removing this thread from connected devices
+						hashdevices.remove(this);
 						//attenzione concurrent modyfication
 						
 						// TODO Auto-generated catch block
@@ -210,6 +250,8 @@ public class BluetoothHelper implements Serializable{
     		}
     	}
     }   
+    
+   
     
 	
 	
