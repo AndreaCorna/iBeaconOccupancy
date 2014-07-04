@@ -1,6 +1,7 @@
 package it.polimi.it.ibeaconoccupancy.services;
 
 import it.polimi.it.ibeaconoccupancy.compare.BeaconHandler;
+import it.polimi.it.ibeaconoccupancy.compare.Logic;
 import it.polimi.it.ibeaconoccupancy.helper.LogFileHelper;
 
 import java.text.SimpleDateFormat;
@@ -96,11 +97,12 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
     			
     			SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
     			String time = df.format(c.getTime());
-        		for (IBeacon beacon : iBeacons) {
+    			IBeacon best = Logic.getInstance().getBestLocation(iBeacons);
+        		//for (IBeacon beacon : iBeacons) {
         			long timestamp = System.currentTimeMillis();
-					message = timestamp+","+beacon.getProximityUuid()+beacon.getMajor()+beacon.getMinor()+","+beacon.getAccuracy()+"\n";
+					message = timestamp+","+best.getProximityUuid()+best.getMajor()+best.getMinor()+","+best.getAccuracy()+"\n";
 					LogFileHelper.writeLogEntry(message);
-				}
+				//}
         		
             		
             	
