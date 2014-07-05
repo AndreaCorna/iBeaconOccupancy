@@ -7,6 +7,7 @@ import it.polimi.it.ibeaconoccupancy.helper.LogFileHelper;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.HashMap;
 
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
@@ -97,10 +98,12 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
     			
     			SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
     			String time = df.format(c.getTime());
-    			IBeacon best = Logic.getInstance().getBestLocation(iBeacons);
+    			
+    			HashMap<IBeacon, Double> proximity = Logic.getInstance().getHashMap(iBeacons);
+    			IBeacon best = proximity.keySet().iterator().next();
         		//for (IBeacon beacon : iBeacons) {
         			long timestamp = System.currentTimeMillis();
-					message = timestamp+","+best.getProximityUuid()+best.getMajor()+best.getMinor()+","+best.getAccuracy()+"\n";
+					message = timestamp+","+best.getProximityUuid()+best.getMajor()+best.getMinor()+","+proximity.get(best)+"\n";
 					LogFileHelper.writeLogEntry(message);
 				//}
         		

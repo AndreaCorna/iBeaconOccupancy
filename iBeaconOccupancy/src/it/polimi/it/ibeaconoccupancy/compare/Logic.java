@@ -54,18 +54,21 @@ public class Logic implements Serializable{
 			if (current_value ==null){
 				current_value = iBeacon.getAccuracy();
 			}
+			
 			//Log.d(TAG, getUUIDMaiorMinor(iBeacon)+" current value"+current_value+" accuracy:"+iBeacon.getAccuracy());
-			Double new_value = current_value*coefficent+(1-coefficent)*iBeacon.getAccuracy();
-			if(new_value <= Constants.UPPER_DISTANCE){
-				Log.d(TAG,"in limit "+new_value+ " ibeacon "+iBeacon.getMinor());
-				beaconProximity.put(iBeacon, new_value);
-			}else{
-				Log.d(TAG,"over limit "+new_value+ " ibeacon "+iBeacon.getMinor());
-				beaconProximity.remove(iBeacon);
-				beaconStatus.remove(iBeacon);
-			}
+			//if(current_value > Constants.UPPER_DISTANCE){	
+				Double new_value = current_value*coefficent+(1-coefficent)*iBeacon.getAccuracy();
+				if(new_value <= Constants.UPPER_DISTANCE){
+					Log.d(TAG,"in limit "+new_value+ " ibeacon "+iBeacon.getMinor());
+					beaconProximity.put(iBeacon, new_value);
+				}else{
+					Log.d(TAG,"over limit "+new_value+ " ibeacon "+iBeacon.getMinor());
+					beaconProximity.remove(iBeacon);
+					beaconStatus.remove(iBeacon);
+				}
 			//Log.d(TAG, "updated hashmap "+getUUIDMaiorMinor(iBeacon)+" "+new_value);
-		}
+			}
+		//}
 		Log.d(TAG,"---------------------------------------------");
 		for (IBeacon iBeacon : beaconProximity.keySet()) {
 			
