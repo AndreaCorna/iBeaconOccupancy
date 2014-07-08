@@ -105,11 +105,11 @@ public class BluetoothHelper implements Serializable{
 		public void onLeScan(BluetoothDevice arg0, int arg1, byte[] arg2) {
 			Log.d(TAG,"Lescan "+arg0.getAddress());
 			Log.d(TAG,"Lescan "+arg0.getName());
-			if(arg0.getName().contains("rasp") || arg0.getName().contains("andrea")){
+			//if(arg0.getName().contains("rasp") || arg0.getName().contains("andrea")){
 				synchronized (devices) {
 					devices.add(arg0);
 				}
-	    	}
+	    	//}
 			
 		}
 	};
@@ -212,6 +212,7 @@ public class BluetoothHelper implements Serializable{
     		
     	}
      	private Boolean	checkCorrectDevice(BluetoothDevice device){
+     		device.fetchUuidsWithSdp();
     		if(device.getName() == null){
     			Log.d(TAG, "device is null");
     			return false;
