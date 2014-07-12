@@ -11,10 +11,15 @@ import java.util.UUID;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothAdapter.LeScanCallback;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGatt;
+import android.bluetooth.BluetoothGattServer;
 import android.bluetooth.BluetoothSocket;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 
-public class BluetoothHelper implements Serializable{
+public class BluetoothHelper extends BroadcastReceiver implements Serializable{
 	
 	/**
 	 * 
@@ -66,7 +71,7 @@ public class BluetoothHelper implements Serializable{
 		Log.d(TAG,"|||||||||||||||||||||||||||||||||||||||||");
 	}
 	
-	private BluetoothHelper() {
+	public BluetoothHelper() {
 		hashConnect = new HashMap<DiscoverThread, ConnectThread>();
 		hashConnected = new HashMap<DiscoverThread, ConnectedThread>();
 		hashlock = new HashMap<DiscoverThread, Boolean>();
@@ -96,7 +101,8 @@ public class BluetoothHelper implements Serializable{
 	
 	public void startDiscovery() {  // If we're already discovering, stop it
 		
-		mBluetoothAdapter.startLeScan(callback);
+		//mBluetoothAdapter.startLeScan(callback);
+		mBluetoothAdapter.startDiscovery();
 	}
 	
 	private LeScanCallback callback = new BluetoothAdapter.LeScanCallback() {
@@ -212,7 +218,6 @@ public class BluetoothHelper implements Serializable{
     		
     	}
      	private Boolean	checkCorrectDevice(BluetoothDevice device){
-     		device.fetchUuidsWithSdp();
     		if(device.getName() == null){
     			Log.d(TAG, "device is null");
     			return false;
@@ -461,26 +466,31 @@ public class BluetoothHelper implements Serializable{
             }
         }
     }
+
     
    
-/*
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		Log.d(TAG,"-------received bluetooth devices--------");
         String action = intent.getAction();
         // When discovery finds a device
         if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+        	stopDiscovery();
         	// Get the BluetoothDevice object from the Intent
             BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-    		if(device.getName().contains("rasp") || device.getName().contains("andrea")){
-			synchronized (devices) {
-				devices.add(device);
-			}
+            //device.fetchUuidsWithSdp();
+
+    		if(device.getName() != null && (device.getName().contains("rasp") || device.getName().contains("andrea"))){
+				synchronized (devices) {
+					devices.add(device);
+				}
     		}
             for (BluetoothDevice dev : devices) {
             	Log.d(TAG,"found devices"+dev.getAddress());
             }
+            
        }
+       startDiscovery();
 		
 	}
 	
@@ -490,5 +500,5 @@ public class BluetoothHelper implements Serializable{
         	Log.d(TAG, "cancel discovering");
         	mBluetoothAdapter.cancelDiscovery();
         }
-	}*/
+	}
 }

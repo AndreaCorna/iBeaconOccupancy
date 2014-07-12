@@ -40,6 +40,7 @@ public class MainActivity extends Activity {
 	protected static final String TAG = "MainActivity";
 	private SharedPreferences prefs;
 	OnSharedPreferenceChangeListener listener;
+	private boolean waiting = false;
 
 	/**
 	 * Method called on creation of the activity. In this we set up all preferences and settings.
@@ -53,16 +54,17 @@ public class MainActivity extends Activity {
 					.add(R.id.container, new PlaceholderFragment()).commit();
 		}
 		verifyBluetooth();
-		prefs = PreferenceManager.getDefaultSharedPreferences(this);
-		registerPreferenceListener();
-		
-		if(isBackGroundRunning()){
-			BackgroundService.getInstance().stopSelf();
+		if(!waiting){
+			prefs = PreferenceManager.getDefaultSharedPreferences(this);
+			registerPreferenceListener();
+			
+			if(isBackGroundRunning()){
+				BackgroundService.getInstance().stopSelf();
+			}
+			boolean logicOnClient = prefs.getBoolean("pref_logic", true);
+			boolean sendWithBluetooth = prefs.getBoolean("pref_bluetooth", true);
+			launchMonitoring(logicOnClient, sendWithBluetooth);
 		}
-		boolean logicOnClient = prefs.getBoolean("pref_logic", true);
-		boolean sendWithBluetooth = prefs.getBoolean("pref_bluetooth", true);
-		launchMonitoring(logicOnClient, sendWithBluetooth);
-		
 	
 	}
 
@@ -130,6 +132,7 @@ public class MainActivity extends Activity {
 				Intent enableBtIntent = new Intent(
 	             BluetoothAdapter.ACTION_REQUEST_ENABLE);
 	            startActivityForResult(enableBtIntent, 12);
+	            waiting = true;
 	
 			}			
 		}
@@ -163,7 +166,17 @@ public class MainActivity extends Activity {
 	        	finish();
 	          
 			}
-	        SystemClock.sleep(10000);
+	        prefs = PreferenceManager.getDefaultSharedPreferences(this);
+			registerPreferenceListener();
+			
+			if(isBackGroundRunning()){
+				BackgroundService.getInstance().stopSelf();
+			}
+	        SystemClock.sleep(6000);
+
+			boolean logicOnClient = prefs.getBoolean("pref_logic", true);
+			boolean sendWithBluetooth = prefs.getBoolean("pref_bluetooth", true);
+			launchMonitoring(logicOnClient, sendWithBluetooth);
 	   
 	}//onActivityResult
 	
