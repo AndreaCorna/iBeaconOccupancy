@@ -92,7 +92,6 @@ public class MonitoringService extends Service implements IBeaconConsumer {
 				Log.d(TAG, "Exit a region");
 				sendManager.exitingRegion(mBluetoothAdapter.getAddress());
 				stopRanging();
-
 				
 				
 			}

@@ -105,22 +105,6 @@ public class BluetoothHelper extends BroadcastReceiver implements Serializable{
 		mBluetoothAdapter.startDiscovery();
 	}
 	
-	private LeScanCallback callback = new BluetoothAdapter.LeScanCallback() {
-		
-		@Override
-		public void onLeScan(BluetoothDevice arg0, int arg1, byte[] arg2) {
-			Log.d(TAG,"Lescan "+arg0.getAddress());
-			Log.d(TAG,"Lescan "+arg0.getName());
-			//if(arg0.getName().contains("rasp") || arg0.getName().contains("andrea")){
-				synchronized (devices) {
-					devices.add(arg0);
-				}
-	    	//}
-			
-		}
-	};
-	
-	
 	
 	  /**
      * Start the ConnectThread to initiate a connection to a remote device.
@@ -209,6 +193,10 @@ public class BluetoothHelper extends BroadcastReceiver implements Serializable{
 							Log.d(TAG, "disconnected from current device ");
 							hashdevices.remove(this);
 							continue;
+						}catch (NullPointerException e) {
+							Log.d(TAG, "disconnected from current device ");
+							hashdevices.remove(this);
+							continue;
 						}
 		    		}
 	    		
@@ -222,25 +210,27 @@ public class BluetoothHelper extends BroadcastReceiver implements Serializable{
     			Log.d(TAG, "device is null");
     			return false;
     		}
-    		for (DiscoverThread  discoverThread : hashdevices.keySet()) {
-    			BluetoothDevice bluetoothDevice;
-    			//I don't consider the device linked to this thread I have only to check that doesn't exist ANOTHER discoverthread connected to the same device
-    			//so i continue to the next cycle 
-    			if(discoverThread!=this){
-    				bluetoothDevice=hashdevices.get(discoverThread);
-    			}
-    			else {
-					continue;
+    		synchronized(hashdevices){
+	    		for (DiscoverThread  discoverThread : hashdevices.keySet()) {
+	    			BluetoothDevice bluetoothDevice;
+	    			//I don't consider the device linked to this thread I have only to check that doesn't exist ANOTHER discoverthread connected to the same device
+	    			//so i continue to the next cycle 
+	    			if(discoverThread!=this){
+	    				bluetoothDevice=hashdevices.get(discoverThread);
+	    			}
+	    			else {
+						continue;
+					}
+	    			Log.d(TAG," CHECKING CORRECTENESS device to be compared "+device);
+	
+	    			Log.d(TAG," CHECKING CORRECTENESS hashdevices: "+bluetoothDevice);
+					if (bluetoothDevice!=null && bluetoothDevice.equals(device)){
+			    		Log.d(TAG,"already connected device "+device.getName());
+	
+						return false;
+					}
 				}
-    			Log.d(TAG," CHECKING CORRECTENESS device to be compared "+device);
-
-    			Log.d(TAG," CHECKING CORRECTENESS hashdevices: "+bluetoothDevice);
-				if (bluetoothDevice!=null && bluetoothDevice.equals(device)){
-		    		Log.d(TAG,"already connected device "+device.getName());
-
-					return false;
-				}
-			}
+    		}
     		Log.d(TAG, "CHECKING CORRECTENESS RETURNONG TRUE_----------");
 
     		
@@ -249,7 +239,7 @@ public class BluetoothHelper extends BroadcastReceiver implements Serializable{
     	}
     	
     	
-    	private void keepAlive() throws IOException{
+    	private void keepAlive() throws IOException,NullPointerException{
     		while(true){
     				showHashConnected();
     				showDevices();

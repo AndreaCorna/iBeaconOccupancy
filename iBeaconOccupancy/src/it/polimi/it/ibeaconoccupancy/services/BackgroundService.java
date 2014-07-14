@@ -38,7 +38,7 @@ public class BackgroundService extends Service implements BootstrapNotifier{
         adapter = BluetoothAdapter.getDefaultAdapter();
         if(!adapter.isEnabled()){
         	adapter.enable();
-        	SystemClock.sleep(6000);
+        	SystemClock.sleep(4000);
         }
         Region region = new Region("ciao",null, null, null);
         regionBootstrap = new RegionBootstrap(this, region);
