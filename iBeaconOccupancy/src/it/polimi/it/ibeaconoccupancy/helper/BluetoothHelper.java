@@ -9,10 +9,7 @@ import java.util.HashSet;
 import java.util.UUID;
 
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothAdapter.LeScanCallback;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothGatt;
-import android.bluetooth.BluetoothGattServer;
 import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -38,7 +35,6 @@ public class BluetoothHelper extends BroadcastReceiver implements Serializable{
 	private HashMap<DiscoverThread, ConnectThread> hashConnect;
 	private HashMap<DiscoverThread, Boolean> hashlock;
 	private HashMap<DiscoverThread, BluetoothDevice> hashdevices;
-	private HashMap<DiscoverThread, Boolean> hashKeep;
 
 	private synchronized void showDevices(){
 		Log.d(TAG,"################  DEVICES   ###################");
@@ -76,7 +72,6 @@ public class BluetoothHelper extends BroadcastReceiver implements Serializable{
 		hashConnected = new HashMap<DiscoverThread, ConnectedThread>();
 		hashlock = new HashMap<DiscoverThread, Boolean>();
 		hashdevices = new HashMap<DiscoverThread, BluetoothDevice>();
-		hashKeep = new HashMap<DiscoverThread, Boolean>();
 
 		
 		if (discover==null){
@@ -120,24 +115,12 @@ public class BluetoothHelper extends BroadcastReceiver implements Serializable{
 	    hashConnect.get(discoverThread).start();
 	}
     
-    public void restartKeepAlive(){
-    	synchronized(hashKeep.get(discover)){
-    		hashKeep.get(discover).notifyAll();
-    	}
-    	
-    	synchronized(hashKeep.get(discover2)){
-    		hashKeep.get(discover2).notifyAll();
-    	}
-    }
-    
-   
-    
+        
     private class DiscoverThread extends Thread{
     	private HashSet<BluetoothDevice> addresses = new HashSet<BluetoothDevice>();
     	
     	public DiscoverThread(){
     		hashlock.put(this, true);
-    		hashKeep.put(this, true);
     	}
     
     	
@@ -245,15 +228,7 @@ public class BluetoothHelper extends BroadcastReceiver implements Serializable{
     				showDevices();
     				showHashConnect();
     				showHashDevices();
-    			synchronized(hashKeep.get(this)){
-    				try {
-    					hashKeep.get(this).wait();
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-    			}
-				Log.d(TAG,"keeping alive");
+    			Log.d(TAG,"keeping alive");
 				hashConnected.get(this).write("Hello".getBytes());
 				try {
 					sleep(500);

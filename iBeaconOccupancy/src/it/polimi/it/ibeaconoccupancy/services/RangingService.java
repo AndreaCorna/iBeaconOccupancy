@@ -1,7 +1,6 @@
 package it.polimi.it.ibeaconoccupancy.services;
 
 import it.polimi.it.ibeaconoccupancy.compare.BeaconHandler;
-import it.polimi.it.ibeaconoccupancy.helper.BluetoothHelper;
 
 import java.util.Collection;
 
@@ -111,7 +110,6 @@ public class RangingService extends Service implements IBeaconConsumer,SensorEve
         public void didRangeBeaconsInRegion(Collection<IBeacon> iBeacons, Region region) {
             if (iBeacons.size() > 0) {
             	if(isMoving){
-            		BluetoothHelper.getInstance().restartKeepAlive();
             		sendManager.beaconToSend(iBeacons,mBluetoothAdapter.getAddress());
             		Log.d(TAG,"Ranging");
             		

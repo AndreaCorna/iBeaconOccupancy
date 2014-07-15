@@ -2,9 +2,7 @@ package it.polimi.it.ibeaconoccupancy.services;
 
 import it.polimi.it.ibeaconoccupancy.compare.BeaconHandler;
 import it.polimi.it.ibeaconoccupancy.compare.FullBeaconHandlerImpl;
-import it.polimi.it.ibeaconoccupancy.compare.Logic;
 import it.polimi.it.ibeaconoccupancy.compare.MinimalBeaconHandlerImpl;
-import it.polimi.it.ibeaconoccupancy.helper.BluetoothHelper;
 import it.polimi.it.ibeaconoccupancy.helper.SaveBattery;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
@@ -48,18 +46,6 @@ public class MonitoringService extends Service implements IBeaconConsumer {
 		boolean logicOnClient = prefs.getBoolean("pref_logic", true);
 		boolean sendWithBluetooth = prefs.getBoolean("pref_bluetooth", true);
         Log.d(TAG, "onStartCommand monitoring");
-       /* DA TOGLLIERE SNCHE IN MAIN
-        * if(intent != null){
-        if((BeaconHandler) intent.getSerializableExtra("BeaconHandler") != null)
-        	sendManager = (BeaconHandler) intent.getSerializableExtra("BeaconHandler");		
-		if (intent.getSerializableExtra("BeaconHandler")==null) {
-			Log.d(TAG,"fewjgirtngirt");
-			sendManager = new FullBeaconHandlerImpl(true);
-		}}else{
-			sendManager = new FullBeaconHandlerImpl(true);
-
-		}
-		 Log.d(TAG, "sendManager monitoring");*/
         if(logicOnClient){
         	sendManager = new FullBeaconHandlerImpl(sendWithBluetooth);
         }else{
@@ -98,10 +84,9 @@ public class MonitoringService extends Service implements IBeaconConsumer {
 			
 			@Override
 			public void didEnterRegion(Region arg0) {
-
+				mBluetoothAdapter.startDiscovery();
 				Log.d(TAG, "Enter a region");
 				startRanging();
-				
 			}
 			
 			@Override

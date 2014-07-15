@@ -5,8 +5,6 @@ package it.polimi.it.ibeaconoccupancy;
 
 import com.radiusnetworks.ibeacon.IBeaconManager;
 
-import it.polimi.it.ibeaconoccupancy.compare.FullBeaconHandlerImpl;
-import it.polimi.it.ibeaconoccupancy.compare.MinimalBeaconHandlerImpl;
 import it.polimi.it.ibeaconoccupancy.services.BackgroundService;
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -214,13 +212,13 @@ public class MainActivity extends Activity {
 		
 		monitoringIntent = new Intent(this, it.polimi.it.ibeaconoccupancy.services.MonitoringService.class);
 
-		if (logicOnClient){
+		/*if (logicOnClient){
 			monitoringIntent.putExtra("BeaconHandler", new FullBeaconHandlerImpl(sendWithBluetooth));
 			
 		}
 		else{
 			monitoringIntent.putExtra("BeaconHandler", new MinimalBeaconHandlerImpl(sendWithBluetooth));
-		}
+		}*/
 
 		startService(monitoringIntent);
 		Log.d(TAG, "start monitoring from launch");

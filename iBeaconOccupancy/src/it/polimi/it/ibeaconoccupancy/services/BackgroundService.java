@@ -20,7 +20,6 @@ import com.radiusnetworks.proximity.ibeacon.startup.RegionBootstrap;
  */
 public class BackgroundService extends Service implements BootstrapNotifier{
 
-	@SuppressWarnings("unused")
 	private static final String TAG = "Background Service";
     @SuppressWarnings("unused")
 	private RegionBootstrap regionBootstrap;
@@ -38,7 +37,7 @@ public class BackgroundService extends Service implements BootstrapNotifier{
         adapter = BluetoothAdapter.getDefaultAdapter();
         if(!adapter.isEnabled()){
         	adapter.enable();
-        	SystemClock.sleep(4000);
+        	SystemClock.sleep(6000);
         }
         Region region = new Region("ciao",null, null, null);
         regionBootstrap = new RegionBootstrap(this, region);
