@@ -46,7 +46,7 @@ public class Logic implements Serializable{
 	 * @return best beacon considering the past
 	 */
 	private void updateInformation(Collection<IBeacon> newInformation){
-		Double coefficent = 0.65;
+		Double coefficent = Constants.COEFFICIENT;
 		updateStatusBeacon(newInformation);
 		for (IBeacon iBeacon : newInformation) {
 		

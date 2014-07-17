@@ -306,7 +306,7 @@ public class MainActivity extends Activity {
 					textView.setText(room);	
 				}
 				else {
-					textView.setText("Nessuna");	
+					textView.setText("None");	
 
 				}
 				

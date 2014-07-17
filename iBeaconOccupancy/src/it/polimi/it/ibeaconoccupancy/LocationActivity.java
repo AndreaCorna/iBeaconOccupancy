@@ -112,7 +112,7 @@ public class LocationActivity extends Activity {
 		setButtonText(asw5,3,rooms);
 		setButtonText(asw6,4,rooms);
 		setButtonText(asw4,5,rooms);
-		asw7.setText("Nessuna");
+		asw7.setText("None");
 
 		
 	}
@@ -179,12 +179,12 @@ public class LocationActivity extends Activity {
 			//check if in the other answers there is the correct one
 			if (correctRoom==null /*|| answers.indexOfValue(correctRoom)<0*/) {
 				
-				sendAnswer( "Nessuna", "Nessuna", 1);
+				sendAnswer( "None", "None", 1);
 				Log.d(TAG, "correct generic answer  "+correctRoom);
 				
 			}
 			else {
-				sendAnswer( "Nessuna",correctRoom, 0);
+				sendAnswer( "NOne",correctRoom, 0);
 				Log.d(TAG, "wrong generic answer "+" correct"+correctRoom);
 			}
 		}
@@ -211,9 +211,9 @@ public class LocationActivity extends Activity {
     		Log.d(TAG,"on client"+onClient);
     		HttpHandler http;
     		if(onClient)
-    			http =new HttpHandler(Constants.ADDRESS_TEST_SERVER_CLIENT);
+    			http =new HttpHandler(Constants.ADDRESS_TEST_PROXIMITY);
     		else
-    			http =new HttpHandler(Constants.ADDRESS_TEST_SERVER_LEARNING);
+    			http =new HttpHandler(Constants.ADDRESS_TEST_MACHINE_LEARNING);
 
 			taskPost = new PostTestOnServerTask(http, answerRoom, correctRoom, correct, onClient);
 			taskPost.execute(null,null,null);
@@ -248,9 +248,9 @@ public class LocationActivity extends Activity {
     		boolean onClient = prefs.getBoolean("pref_logic", true);
 			HttpHandler http;
     		if(onClient)
-    			http =new HttpHandler(Constants.ADDRESS_TEST_SERVER_CLIENT);
+    			http =new HttpHandler(Constants.ADDRESS_TEST_PROXIMITY);
     		else
-    			http =new HttpHandler(Constants.ADDRESS_TEST_SERVER_LEARNING);
+    			http =new HttpHandler(Constants.ADDRESS_TEST_MACHINE_LEARNING);
 
 			taskPost = new PostTestOnServerTask(http, answer, correct_answer, correct, onClient);
 			taskPost.execute(null,null,null);
