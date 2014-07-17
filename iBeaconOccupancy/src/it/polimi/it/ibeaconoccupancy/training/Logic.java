@@ -47,7 +47,7 @@ public class Logic {
 	 * @return best beacon considering the past
 	 */
 	public void updateInformation(Collection<IBeacon> newInformation){
-		Double coefficent = 0.65;
+		Double coefficent = Constants.COEFFICIENT;
 		updateStatusBeacon(newInformation);
 		for (IBeacon iBeacon : newInformation) {
 		
