@@ -82,9 +82,13 @@ public class Logic {
 		    	minEntry = entry;
 		    }
 		}
-		
-		Log.d(TAG,"Best Beacon"+minEntry.getKey().getMinor());
-		bestBeacon = minEntry.getKey();		
+		if(minEntry != null){
+			Log.d(TAG,"Best Beacon"+minEntry.getKey().getMinor());
+			bestBeacon = minEntry.getKey();		
+
+		}else {
+			bestBeacon = null;
+		}
 		
 	}
 	
