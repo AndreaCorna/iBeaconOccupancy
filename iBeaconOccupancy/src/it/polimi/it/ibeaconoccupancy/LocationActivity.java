@@ -75,7 +75,7 @@ public class LocationActivity extends Activity {
 		setButtonText(asw5,3,rooms);
 		setButtonText(asw6,4,rooms);
 		setButtonText(asw4,5,rooms);
-		asw7.setText("Nessuna");
+		asw7.setText("None");
 
 		
 	}

@@ -3,11 +3,7 @@
         android:title="@string/pref_sync"
         android:summary="@string/pref_sync_summ"
         android:defaultValue="true"
-    <CheckBoxPreference android:key="pref_logic"
-        android:title="@string/pref_client_logic"
-        android:defaultValue="true"
-        android:summary="@string/pref_client_logic_summary"
-        />
+    
     
 
 </PreferenceScreen>
