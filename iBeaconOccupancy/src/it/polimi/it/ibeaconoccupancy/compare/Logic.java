@@ -46,7 +46,7 @@ public class Logic implements Serializable{
 	 * @return best beacon considering the past
 	 */
 	private void updateInformation(Collection<IBeacon> newInformation){
-		Double coefficent = 0.65;
+		Double coefficent = Constants.COEFFICIENT;
 		updateStatusBeacon(newInformation);
 		for (IBeacon iBeacon : newInformation) {
 		
@@ -54,7 +54,6 @@ public class Logic implements Serializable{
 			if (current_value ==null){
 				current_value = iBeacon.getAccuracy();
 			}
-			//Log.d(TAG, getUUIDMaiorMinor(iBeacon)+" current value"+current_value+" accuracy:"+iBeacon.getAccuracy());
 			Double new_value = current_value*coefficent+(1-coefficent)*iBeacon.getAccuracy();
 			if(new_value <= Constants.UPPER_DISTANCE){
 				Log.d(TAG,"in limit "+new_value+ " ibeacon "+iBeacon.getMinor());

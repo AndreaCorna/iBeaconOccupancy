@@ -5,10 +5,10 @@
     <string name="title_activity_main">iBeacon Occupancy</string>
     <string name="hello_world">IBeaconOccupancy Detection</string>
     <string name="action_settings">Settings</string>
-    <string name="pref_client_logic">Logic on client</string>
-    <string name="pref_client_logic_summary">Enable the application logic </string>
+    <string name="pref_client_logic">Use proximity approach</string>
+    <string name="pref_client_logic_summary">If not selected, use machine learning</string>
     <string name="pref_bluetooth_choose">Send with bluetooth</string>
-    <string name="pref_bluetooth_choose_summary">Send information with bluetooth</string>
+    <string name="pref_bluetooth_choose_summary">If not selected, send info using wifi</string>
     
 
 </resources>
